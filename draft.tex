@@ -398,7 +398,6 @@ In practice, Writers are solely responsible for announcing their Log’s address
 
 \begin{example}
 \begin{lstlisting}
-// KeyBook stores log keys
 type KeyBook interface {
    PubKey(thread.ID, peer.ID) ic.PubKey
    AddPubKey(thread.ID, peer.ID, ic.PubKey) error
