@@ -286,6 +286,7 @@ Together with a cryptographic signature, an Event is written to a log with an ad
 
 At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification [ref].
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 // Node is the most basic component of a log.
 // Note: In practice, this is encrypted with the Follow key.
@@ -302,9 +303,7 @@ type Node interface {
     // created with the Log's private key.
     Sig() []byte
 }
-\end{lstlisting}
 
-\begin{lstlisting}
 // Event represents the content of an update.
 // Note: In practice, this is encrypted with the Read key.
 type Event interface {
@@ -323,8 +322,7 @@ type Event interface {
     // with a key in Header.
     Decrypt() (ipld.Node, error)
 }
-\end{lstlisting}
-\begin{lstlisting}
+
 // EventHeader contains Event metadata.
 type EventHeader interface {
     ipld.Node
@@ -338,6 +336,7 @@ type EventHeader interface {
     Key() []byte
 }
 \end{lstlisting}
+\end{minipage}
 
 As seen above, an Event’s actual content, or body, is contained in a separate node. This allows Events to carry any arbitrary node structure, from complex directories to raw bytes.
 
@@ -357,6 +356,7 @@ In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulate
 
 Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 // AddrBook stores log addresses
 type AddrBook interface {
@@ -369,6 +369,7 @@ type AddrBook interface {
    ClearAddrs(thread.ID, peer.ID)
 }
 \end{lstlisting}
+\end{minipage}
 
 Addresses can expire by specifying a time-to-live (TTL) value when adding or updating them in the address book, which allows for unresponsive addresses to eventually be removed.
 
@@ -378,12 +379,14 @@ Modern, real-world networks consist of many mobile or otherwise sparsely connect
 
 Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log:
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 [
   "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",
   "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower
 ]
 \end{lstlisting}
+\end{minipage}
 
 In practice, Writers are solely responsible for announcing their Log’s addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower’s Log address when the Writer is offline or unreachable.
 
@@ -425,6 +428,7 @@ Finally, the encrypted Event Block, its signature, and the IPLD linkage(s) from 
 
 Much like the Log address book, Log keys are stored in a key book:
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 // KeyBook stores log keys
 type KeyBook interface {
@@ -438,6 +442,7 @@ type KeyBook interface {
    AddFollowKey(thread.ID, peer.ID, []byte) error
 }
 \end{lstlisting}
+\end{minipage}
 
 \subsection{Threads}
 
@@ -572,6 +577,7 @@ The core Textile Threads interfaces are also exposed via interfaces compatible w
 
 A key/value store built on top of Threads can map database `Put` operations into internal `KeyValueUpdated` events. These Events would then operate on a map-like view model, via an internal “projection“ (reducer function). The key/value view could be persisted or kept in-memory, and would be directly queried via a corresponding `Get` operation. Because Textile uses ES patterns, a `Del` operation would simply lead to an internal `KeyValueDeleted` event, marking the key/value pair for removal from the key/value materialized view.
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 type TextileKVStore interface {
   Put(key string, value interface{}) error
@@ -579,9 +585,11 @@ type TextileKVStore interface {
   Del(key string) error
 }
 \end{lstlisting}
+\end{minipage}
 
 Similar abstractions could (and will) be used to implement additional database types and functions. The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, but exposes the underlying event sourced data for customizing as needed. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile’s Threads capabilities. Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents:
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 type TextileDocumentStore interface {
   Put(doc Inedexable) error
@@ -590,6 +598,7 @@ type TextileDocumentStore interface {
   Query(query Query) ([]Indexable, error)
 }
 \end{lstlisting}
+\end{minipage}
 
 Where `Indexable` can be satisfied by any structure with a  `key` field and and `Query` is taken from the `go-datastore` interface library [ref] or similar. Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores. Each database style will be implemented as a standalone software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these “example“ libraries.\\
 
@@ -652,6 +661,7 @@ todo: fixidexampleabove
 
 todo: change code type below
 
+\begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 {
   "_id": "bafykrq5i25vd64ghamtgus6lue74k", // TID
@@ -663,6 +673,7 @@ todo: change code type below
   }
 }
 \end{lstlisting}
+\end{minipage}
 
 The `default` key states the default role for all network peers. The `peers` map is where roles are delegated to specific peers. Here, `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated follower, and `12D..P2c6ifo` has been given read access.
 
@@ -773,7 +784,7 @@ Networks) project and is jointly funded by a BAE Systems and EPSRC
 
 \bibliographystyle{compj}
 % \bibliography{ModellingBidders}
-\input{draft.bbl}
+\input{whitepaper.bbl}
 
 
 \end{document}
