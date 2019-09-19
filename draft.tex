@@ -343,7 +343,17 @@ As seen above, an Event’s actual content, or body, is contained in a separate 
 
 \subsubsection{Multi-addressed Event Logs}
 
-Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses (see inset). In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see inset).
+Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses:\\
+
+\tiny
+\textbf\textit /ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab\\
+\normalsize
+
+In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress:\\
+
+\tiny
+\textbf\textit /ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab\\
+\normalsize
 
 Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
 
@@ -366,30 +376,16 @@ Modern, real-world networks consist of many mobile or otherwise sparsely connect
 
 \begin{definition}Follower). Log Writers can designate other IPFS Peers to “follow” a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log’s contents. Followers should be server-based, i.e., always online and behind a public IP address.\end{definition}
 
-Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log (see inset).
+Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log:
+
+\begin{lstlisting}
+[
+  "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",
+  "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower
+]
+\end{lstlisting}
 
 In practice, Writers are solely responsible for announcing their Log’s addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower’s Log address when the Writer is offline or unreachable.
-
-\begin{strip}
-\begin{tcolorbox}[title=Log Multiaddress]
-"/ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab"
-\end{tcolorbox}
-\end{strip}
-
-\begin{strip}
-\begin{tcolorbox}[title=Log IPEL Multiaddress]
-"/ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab"
-\end{tcolorbox}
-\end{strip}
-
-\begin{strip}
-\begin{tcolorbox}[title=Log Multiple Multiaddress]
-[\\
-  "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",\\
-  "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower\\
-]
-\end{tcolorbox}
-\end{strip}
 
 \subsubsection{Keys \& Encryption} \label{sec:KeysEncryption}
 
