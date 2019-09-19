@@ -92,7 +92,7 @@ We now describe some of the technologies and concepts motivating the design of o
 
 When developing large-scale software systems, it is common to store data in a relational database management system (RDBMS). To model realistic systems, this type of framework often requires complex techniques for mapping data between domain models and database tables, where the same data model is used to both query and update a database. An powerful alternative is to use a set of append only logs to model the state of an object simply by applying its change sequence in the correct order. This concept can be expressed succinctly by the state machine approach [ref]: if two identical, deterministic processes begin in the same state and get the same inputs in the same order, they will produce the same output and end in the same state. This is a powerful concept baked into a simple structure, and is at the heart of many distributed database systems [ref].
 
-\begin{definition} (Logs or Append-only log). A log is a registry of database transactions that is read sequentially (normally ordered by time) from beginning to end. In distributed systems, logs are often treated as append-only, where changes or updates can only be added to the set and never removed.  \end{definition}
+\begin{definition} (Logs or Append-only log). A log is a registry of database transactions that is read sequentially (normally ordered by time) from beginning to end. In distributed systems, logs are often treated as append-only, where changes or updates can only be added to the set and never removed.  \end{definition} \label{def:Logs}
 
 In modern applications it is critical to have reliable mechanisms for publishing updates and events (i.e., to support event-driven architectures), scalability (optimized write and read operations), forward-compatible application updates (e.g., code changes, retroactive events, and others), auditing systems, etc. To support such requirements, developers have begun to utilize event sourcing and command query responsibility segregation (CQRS) patterns [ref], relying on append only logs to support immutable state histories. Indeed, a number of commercial and open source software projects have emerged in recent years that facilitate event sourcing and CQRS-based applications, including Event Store [ref], Apache Kafaka [ref] and Samza [ref], among others [see ref]. 
 
@@ -102,9 +102,9 @@ In modern applications it is critical to have reliable mechanisms for publishing
 
 ES is particularly useful in contexts where system components are distributed or decentralized, such as in decentralized applications (DApps). This is because the design of systems that use event sourcing often necessitate infrastructure for brokering messages between loosely coupled software components and services. This feature will become increasingly important as we outline background concepts related to data synchronization in the following sections. 
 
-A key principal of ES and append only logs is that all changes to application state are stored as a sequence of events. Because any given state is simply the result of a series of atomic updates, the log can be used to reconstruct past states or process retroactive updates [ref]. The same principal means a log can be viewed as a mechanism to support an infinite number of valid state interpretations (see section  \ref{sec:viewsprojections}). In other words, with minimal conformity, a single log can model multiple application states [ref].
+A key principal of ES and append only logs is that all changes to application state are stored as a sequence of events. Because any given state is simply the result of a series of atomic updates, the log can be used to reconstruct past states or process retroactive updates [ref]. The same principal means a log can be viewed as a mechanism to support an infinite number of valid state interpretations (see section  \ref{sec:ViewsProjections}). In other words, with minimal conformity, a single log can model multiple application states [ref].
 
-\subsubsection{Views \& Projections} \label{sec:viewsprojections}
+\subsubsection{Views \& Projections} \label{sec:ViewsProjections}
 
 \begin{definition}  (View). A (typically highly de-normalized) read-only model of the data. Views are tailored to the interfaces and display requirements of the application, which helps to maximize both display and query performance. Views that are backed by a database or filesystem-optimized access are referred to as materialized views. \end{definition}
 
@@ -114,14 +114,14 @@ In CQRS and ES, the separation of write operations from read operations is a pow
 
 Views themselves are enabled by projections. Projections can be thought of as transformations or reducers that are applied to each event in a stream of events. They update the data backing the views, be this in memory, or persisted to a database. In a distributed setting, it may be necessary for projections to define and operate as eventually consistent data structures, to ensure all peers operating on the same stream of events have a consistent representation of the data.
 
-\subsubsection{Eventual Consistency}
+\subsubsection{Eventual Consistency} \label{sec:EventualConsistency}
 
 The CAP theorem [ref, ref] states that a distributed database can guarantee only two of the following three promises at the same time: consistency (i.e., that every read receives the most recent write or an error), availability (i.e., that every request receives a (possibly out-of-date) non-error response, and partition tolerance (i.e., that the system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network). As such, many distributed systems are now designed to provide availability and partition tolerance by trading consistency for eventual consistency. Eventual consistency allows state replicas to diverge temporarily, but eventually arrive back to the same state again. While an active area of research, designing systems with provable eventual consistency guarantees remains challenging [ref needed].
 
 
-\begin{definition} (CRDT). A conflict-free replicated data type (CRDT) assures eventual consistency through optimistic replication (i.e. all new updates are allowed) and eventual merging. CRDTs rely on data structures that are mathematically guaranteed to resolve concurrent updates the same way regardless of the order those events were received. \end{definition} \label{def:crdt}
+\begin{definition} (CRDT). A conflict-free replicated data type (CRDT) assures eventual consistency through optimistic replication (i.e. all new updates are allowed) and eventual merging. CRDTs rely on data structures that are mathematically guaranteed to resolve concurrent updates the same way regardless of the order those events were received. \end{definition} \label{def:CRDT}
 
-How a system provides eventual consistency is often decided based on the intended use of the system. Two well-documented categories of solutions include logs (see Definition X.x.x), sequences of deterministic changes, and CRDTs (see Definition XXX). Logs work best when there is only a single-writer or complete event causality is known. In many distributed systems with multiple log writers, a minimum requirement for synchronization through logs is that the essential order of events is respected and can be determined [3, 8]. For these cases, logical clocks are a useful tool for eventual consistency and total ordering [ref]. However, some scenarios (e.g., temporarily missing events, or ambiguous order) can force a replica into a state that cannot be later resolved without costly recalculation. In specific cases, CRDTs can provide an alternative to log-based consensus (see below). 
+How a system provides eventual consistency is often decided based on the intended use of the system. Two well-documented categories of solutions include logs (see Definition  \ref{def:Logs}), sequences of deterministic changes, and CRDTs (see Definition section  \ref{def:CRDT}). Logs work best when there is only a single-writer or complete event causality is known. In many distributed systems with multiple log writers, a minimum requirement for synchronization through logs is that the essential order of events is respected and can be determined [3, 8]. For these cases, logical clocks are a useful tool for eventual consistency and total ordering [ref]. However, some scenarios (e.g., temporarily missing events, or ambiguous order) can force a replica into a state that cannot be later resolved without costly recalculation. In specific cases, CRDTs can provide an alternative to log-based consensus (see below). 
 
 \subsubsection{Logical Clocks}
 
@@ -139,7 +139,7 @@ See Section \ref{sec:merkleclocks}.
 
 In distributed models that use clock-based ordering as described above, a replica can arrive in a state that will require conflict resolution through consensus or rollback. Those operations can be expensive, having adverse effects on the scalability of distributed systems, especially ones attempting to synchronize an application state. 
 
-CRDTs (see \ref{def:crdt}) are one way to achieve strong eventual consistency, where once all replicas have received the same events, they will arrive at the same final state, regardless of ordering. A review of the types of possible CRDTs is beyond the scope of this paper, however, it is important to note their role in eventually consistent systems and how they relate to clock-based event ordering. See for example [Merkle Clock ref] and [ref] for informative reviews of these types of data structures.
+CRDTs (see Definition \ref{def:CRDT}) are one way to achieve strong eventual consistency, where once all replicas have received the same events, they will arrive at the same final state, regardless of ordering. A review of the types of possible CRDTs is beyond the scope of this paper, however, it is important to note their role in eventually consistent systems and how they relate to clock-based event ordering. See for example [Merkle Clock ref] and [ref] for informative reviews of these types of data structures.
 
 Whether a system (e.g., an app) uses a CRDT or a clock-based sequence of events is entirely dependent on the use-case and final data model. While CRDTs may seem superior (and are currently a popular choice among decentralized systems), it is not possible to model every system as a CRDT. Additionally, the simplicity of clock-based sequencing often makes it easier to leverage in distributed systems where data conflicts will only rarely arise. Lastly, logs and CRDTs are not mutually exclusive and can be used together or as different stages of a larger system.
 
@@ -185,7 +185,7 @@ On the downside, and as seen above (section 2.2.4.), a Merkle-Clock cannot order
   \label{fig:merkledag}
 \end{figure}
 
-In the figure above, two replicas (top row, bottom row) are attempting to write (left to right) events to the same Merkle-Clock. After the first replica writes event A, the second writes event A’ and properly links to A. At that point, the two replicas stop receiving events from one another. To a third replica that does continue to receive events, there would now be two independent heads, 1 and 1’. For the third replica, resolving these two logs of events may be costly (many updates happened since the last common node) or impossible (parts of the chain may not be available on the network). See section 2.2.3. Eventual Consistency.
+In the figure above, two replicas (top row, bottom row) are attempting to write (left to right) events to the same Merkle-Clock. After the first replica writes event A, the second writes event A’ and properly links to A. At that point, the two replicas stop receiving events from one another. To a third replica that does continue to receive events, there would now be two independent heads, 1 and 1’. For the third replica, resolving these two logs of events may be costly (many updates happened since the last common node) or impossible (parts of the chain may not be available on the network). See Section  \ref{sec:EventualConsistency}.
 
 In order to reduce the likelihood of divergent heads, all replicas should be perfectly connected and be able to fetch all events and linkages in the Merkle-Clock. On real networks with many often offline replicas (mobile and IoT devices, laptops, etc.), these conditions are rarely met.
 
@@ -233,7 +233,7 @@ All filesystems and databases have some notion of "access control." Many make us
 
 Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time [1, 2]. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
 
-Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, "grant Bob write access" and "revoke read access from Alice" would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Views \& Projections in Data Synchronization).
+Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, "grant Bob write access" and "revoke read access from Alice" would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
 
 
 \section{The Threads protocol}
@@ -266,7 +266,7 @@ Practically speaking, for any given Log, Events are authored by a single IPFS Pe
 This single-writer setup is a core feature of Logs, and provides properties unique to the Threads protocol. For clarity, we can similarly define a Reader as any other Peer capable of reading a Log.
 
 \begin{definition}
-(Reader). Any Peer capable of reading a Log. Practically speaking, this means any Peer with the Log’s Read key (see section 3.1.3 Keys \& Encryption).
+(Reader). Any Peer capable of reading a Log. Practically speaking, this means any Peer with the Log’s Read key (see Section  \ref{sec:KeysEncryption}).
 \end{definition}
 
 
@@ -282,7 +282,7 @@ As seen above in section 2.3.4., a Merkle-Clock is simply a Merkle-DAG of Events
   \label{fig:boat1}
 \end{figure}
 
-Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure X.X.) enabling log verification by readers (see section 3.1.3. Keys \& Encryption).
+Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure X.X.) enabling log verification by readers (see Section  \ref{sec:KeysEncryption}).
 
 At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification [ref].
 
@@ -348,7 +348,7 @@ As seen above, an Event’s actual content, or body, is contained in a separate 
 
 Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses (see inset). In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see inset).
 
-Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see section 3.3 Use Cases). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
+Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
 
 \begin{lstlisting}
 // AddrBook stores log addresses
@@ -367,11 +367,11 @@ Addresses can expire by specifying a time-to-live (TTL) value when adding or upd
 
 Modern, real-world networks consist of many mobile or otherwise sparsely connected computers (Peers). Therefore, datasets distributed across such networks can be thought of as highly partitioned. To ensure updates are available between mostly offline or otherwise disconnected Peers (like mobile devices), Textile Logs are designed with a built-in replication or follower mechanism.
 
-\begin{definition}Follower). Log Writers can designate other IPFS Peers to “follow” a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see section 3.1.3 Keys \& Encryption), but is not able to read the Log’s contents. Followers should be server-based, i.e., always online and behind a public IP address.\end{definition}
+\begin{definition}Follower). Log Writers can designate other IPFS Peers to “follow” a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log’s contents. Followers should be server-based, i.e., always online and behind a public IP address.\end{definition}
 
 Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log (see inset).
 
-In practice, Writers are solely responsible for announcing their Log’s addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section 5.1. Textile: The Thread \& Bot Network), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower’s Log address when the Writer is offline or unreachable.
+In practice, Writers are solely responsible for announcing their Log’s addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower’s Log address when the Writer is offline or unreachable.
 
 \begin{strip}
 \begin{tcolorbox}[title=Log Multiaddress]
@@ -394,9 +394,9 @@ In practice, Writers are solely responsible for announcing their Log’s address
 \end{tcolorbox}
 \end{strip}
 
-\subsubsection{Keys \& Encryption}
+\subsubsection{Keys \& Encryption} \label{sec:KeysEncryption}
 
-Textile Logs are designed to be shared, composed, and layered into datasets. Therefore, Logs are encrypted by default in a manner that enables access control (see section 3.4. Access Control) and the Follower mechanism discussed in the previous section.
+Textile Logs are designed to be shared, composed, and layered into datasets. Therefore, Logs are encrypted by default in a manner that enables access control (see Section  \ref{sec:AccessControl}) and the Follower mechanism discussed in the previous section.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{boat.jpg}
@@ -493,12 +493,12 @@ Example (V1, 128 bit): `bafkxd5bjgi6k4zivuoyxo4ua4mzyy`
 
 
 \begin{definition}
-(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (see section 3.4.2. Access Control).
+(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (see Section  \ref{sec:AccessControl}).
 \end{definition}
 
 Example (V1, 256 bit): `bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya`
 
-\subsubsection{Log Synchronization}
+\subsubsection{Log Synchronization} \label{sec:LogSync}
 
 Log Writers, Readers, and Followers synchronize the state of their Logs by sending and receiving Events. Inspired by Git [ref], a reference to the latest Event in a Log is referred to as the Head (or sometimes the root). When a new Event is received, Readers and Followers simply advance their Head reference.
 
@@ -511,7 +511,7 @@ Regardless of the network protocol, Events are transported between Peers in a st
 A new Thread is created by generating a TID and Log. The Log’s creator is the Writer, meaning it has possession of the Log’s Identity, Read, and Follow keys. All of these keys are needed to compose Events. At this point, the Thread only exists on the Writer’s machine. Whether for collaboration, reading, or following, the process of sharing a Thread with other Peers starts by authoring a special Event called an Invite, which contains a set of keys from all of the Thread’s Logs, called a Key Set.
 
 \begin{definition}
-(Invite). An Event containing a mapping of Log IDs to Key Sets, which can be used to join a Thread. Threads backed by an access control list (see section 3.4.2. Access Control) will also include the current ACL for the Thread in an Invite. This enables Peers to invite others to only read or follow a Thread, instead of becoming a full-on collaborator, i.e., a new Log Writer.
+(Invite). An Event containing a mapping of Log IDs to Key Sets, which can be used to join a Thread. Threads backed by an access control list (see Section  \ref{sec:AccessControl}) will also include the current ACL for the Thread in an Invite. This enables Peers to invite others to only read or follow a Thread, instead of becoming a full-on collaborator, i.e., a new Log Writer.
 \end{definition}
 
 \begin{definition}
@@ -526,9 +526,9 @@ The Invite is authored in the sender’s Log. Because the recipient does not yet
 
 For a Join to be successful, all Log Writers must receive a copy of the new Key Set so they can properly handle future Events in the new Log. Instead of encrypting a Join with the public key of each existing Writer, we can encrypt a single Join with the Key Set of the inviting Peer’s Log, which the other Writers also have.
 
-Once a Peer has accepted an Invite, it will receive new Events from Log Writers. In cases where the invitee becomes a collaborator, i.e., a Writer, it is also responsible for sending its own Events out to the network.
+Once a Peer has accepted an Invite, it will receive new Events from Log Writers. In cases where the invitee becomes a collaborator, i.e., a Writer, it is also responsible for sending its own Events out to the network.\\
 
-Sending
+\textbf{Sending} \\
 
 Sending is performed in multiple phases because, invariably, some Thread participants will be offline or unresponsive. 
 
@@ -543,10 +543,10 @@ Step 2 above allows for additional push mechanisms, as followers with public IP 
 \begin{enumerate}
 \item \label{Perf1}New Events may be pushed to web-based participants over a WebSocket.
 \item \label{Perf2}New Events may be pushed to the Thread’s other Log Writers via federated notification services like Apple Push Notification Service (APNS) [ref], Google Cloud Messaging (GCM) [ref], Firebase Cloud Messaging (FCM) [ref], and/or Windows Notification Service (WNS) [ref].
-\item \label{Perf3} New Events may trigger web-hooks [ref] enabling complex workflows (see Section X below).
+\item \label{Perf3} New Events may trigger web-hooks [ref] enabling complex workflows (see Section X below).\\
 \end{enumerate}
 
-Receiving
+\textbf{Receiving} \\
 
 Similar to sending, there are multiple paths to receiving new Events that together maximize connectivity between Peers who are often offline or unreachable.
 
@@ -563,7 +563,7 @@ Similar to sending, there are multiple paths to receiving new Events that togeth
 
 Replication of Thread data can happen by duplicating/syncing Log data to other Peers.
 
-The notion of the Follow key (see section 3.1.3 Keys \& Encryption) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (see section 3.2.3 Log Synchronization).
+The notion of the Follow key (see Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (see section  \ref{sec:LogSync}).
 
 \subsection{Thread Views} \label{sec:threadviews}
 
@@ -621,7 +621,7 @@ In practice, Snapshots are written to their own Event log and stored locally. Th
 
 Compaction can similarly speed up re-hydration of state, and is useful when only the latest Event per Event type is required. In addition to being used as a starting point for initialization and recovery, compacted logs can be used to replace the Log from which they were created in order to free up local disk space. In Textile, compaction becomes much easier because a log only has one writer and conflicts are not possible. In practice, Log compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
 
-\subsubsection{Access Control}
+\subsubsection{Access Control} \label{sec:AccessControl}
 
 One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can follow, read, write, and delete Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition XXX) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (see section 3.3.2 for details). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
 
@@ -780,7 +780,7 @@ Networks) project and is jointly funded by a BAE Systems and EPSRC
 
 \bibliographystyle{compj}
 % \bibliography{ModellingBidders}
-\input{sample.bbl}
+\input{draft.bbl}
 
 
 \end{document}

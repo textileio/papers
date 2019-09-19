@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  18 SEP 2019 21:30
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  18 SEP 2019 21:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -955,10 +955,10 @@ Underfull \hbox (badness 5954) in paragraph at lines 115--116
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 6380) has occurred while \output is active []
 
  [3]
-<boat.jpg, id=103, 1284.8pt x 963.6pt>
+<boat.jpg, id=105, 1284.8pt x 963.6pt>
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 155.
@@ -982,7 +982,10 @@ File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 229.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-[6]
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [6]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 280.
@@ -993,33 +996,50 @@ Package pdftex.def Info: boat.jpg  used on input line 290.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 LaTeX Font Info:    Try loading font information for T1+cmtt on input line 295.
 
- (/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
+
+(/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 ) [7]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8]
+
+
+LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 351.
+
+[8]
+
+LaTeX Warning: Reference `sec:Bots' on page 9 undefined on input line 374.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+Extra height:10.0pt when 111.0pt
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-Extra height:10.0pt when 117.0pt
+Extra height:10.0pt when 112.0pt
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-Extra height:0.0pt when 118.0pt
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-(2)Left:118.0pt Right:118.0pt Output:118.0pt
+Extra height:10.0pt when 113.0pt
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+Extra height:0.0pt when 114.0pt
+(2)Left:114.0pt Right:106.0pt Output:114.0pt
 - LAST -
-Left:118.0pt
-Right:118.0pt
-Output:118.0pt
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
+Left:114.0pt
+Right:106.0pt
+Output:114.0pt
 Extra height:0.0pt when 0.0pt
 (2)Left:0.0pt Right:0.0pt Output:0.0pt
 - LAST -
@@ -1036,6 +1056,9 @@ File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 402.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [9]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
@@ -1052,8 +1075,28 @@ Underfull \hbox (badness 5607) in paragraph at lines 499--500
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 529--530
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 531--532
+
+ []
+
+
 Underfull \hbox (badness 5756) in paragraph at lines 544--545
 []\T1/cmr/m/n/10 New Events may be pushed to web-based
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 546--547
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 549--550
+
  []
 
 
@@ -1110,12 +1153,14 @@ LaTeX Warning: Reference `KeepUp' on page 15 undefined on input line 731.
 LaTeX Warning: Reference `Price-Dependent' on page 15 undefined on input line 7
 32.
 
-(./sample.bbl [15]
+(./draft.bbl [15]
 Underfull \hbox (badness 5345) in paragraph at lines 114--119
 []\T1/cmr/m/n/9 Di Ferdinando, A., Rosi, A., Zambonelli, F.,
  []
 
-) [16]
+[16]) [17
+
+]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 786.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 786.
  (./draft.aux)
@@ -1132,10 +1177,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 28304 strings out of 492609
- 531270 string characters out of 6129048
- 897229 words of memory out of 5000000
- 31631 multiletter control sequences out of 15000+600000
+ 28311 strings out of 492609
+ 531380 string characters out of 6129048
+ 895229 words of memory out of 5000000
+ 31638 multiletter control sequences out of 15000+600000
  540441 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  54i,9n,73p,1166b,1914s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1150,10 +1195,10 @@ texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb></usr/local/te
 xlive/2019/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texl
 ive/2019/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texliv
 e/2019/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on draft.pdf (16 pages, 807860 bytes).
+Output written on draft.pdf (17 pages, 808536 bytes).
 PDF statistics:
- 470 PDF objects out of 1000 (max. 8388607)
- 436 compressed objects within 5 object streams
- 258 named destinations out of 1000 (max. 500000)
+ 487 PDF objects out of 1000 (max. 8388607)
+ 452 compressed objects within 5 object streams
+ 259 named destinations out of 1000 (max. 500000)
  138 words of extra memory for PDF output out of 10000 (max. 10000000)
 
