@@ -308,7 +308,9 @@ type Node interface {
     // created with the Log's private key.
     Sig() []byte
 }
+\end{lstlisting}
 
+\begin{lstlisting}
 // Event represents the content of an update.
 // Note: In practice, this is encrypted with the Read key.
 type Event interface {
@@ -327,7 +329,8 @@ type Event interface {
     // with a key in Header.
     Decrypt() (ipld.Node, error)
 }
-
+\end{lstlisting}
+\begin{lstlisting}
 // EventHeader contains Event metadata.
 type EventHeader interface {
     ipld.Node
