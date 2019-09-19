@@ -332,17 +332,17 @@ As seen above, an Event’s actual content, or body, is contained in a separate 
 \begin{example*}
 \centering
 \begin{minipage}{0.7\textwidth}
-\begin{lstlisting}
-// Log multiaddress
- "/ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab"
+\begin{lstlisting}[language=json,firstnumber=1]
+# Log multiaddress
+ /ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab
 
-// Encapsulated multiaddress
- "/ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab"
+# Encapsulated multiaddress
+ /ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab
 
-// Address book
+# Address book
 [
-  "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",
-  "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower
+  /p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab,
+  /p2p/12D..dJT6nXY/ipel/12D..bCcW8ab # Follower
 ]
 \end{lstlisting}
 \end{minipage}

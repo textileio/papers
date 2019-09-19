@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 10:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 10:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -832,7 +832,56 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 )
 \c@tfl@float@cnt=\count305
 LaTeX Info: Redefining \tfl@uppercase on input line 223.
-) (./draft.aux)
+) (./draft.aux
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `ex:AddrBook' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+)
 \openout1 = `draft.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 82.
@@ -849,8 +898,7 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 82.
 LaTeX Font Info:    ... okay on input line 82.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 82.
 LaTeX Font Info:    ... okay on input line 82.
-
-(/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count306
 \scratchdimen=\dimen196
@@ -915,35 +963,16 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [1{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
-]
-
-LaTeX Warning: Reference `sec:ViewsProjections' on page 2 undefined on input li
-ne 144.
-
-[2]
+] [2]
 Underfull \hbox (badness 5954) in paragraph at lines 154--155
 []\T1/cmr/m/n/10 Views themselves are enabled by projections.
  []
 
 
-LaTeX Warning: Reference `def:Logs' on page 3 undefined on input line 163.
+Underfull \vbox (badness 6380) has occurred while \output is active []
 
-
-LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 163.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-LaTeX Warning: Reference `sec:merkleclocks' on page 3 undefined on input line 1
-75.
-
-
-LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 181.
-
-[3]
-<figures/Hash_Request.png, id=99, 137.0721pt x 192.4791pt>
+ [3]
+<figures/Hash_Request.png, id=105, 137.0721pt x 192.4791pt>
 File: figures/Hash_Request.png Graphic file (type png)
 <use figures/Hash_Request.png>
 Package pdftex.def Info: figures/Hash_Request.png  used on input line 194.
@@ -963,18 +992,13 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
                                                   \fi \fi 
 l.207 
        <./figures/Hash_Request.png>]
-<boat.jpg, id=110, 1284.8pt x 963.6pt>
+<boat.jpg, id=116, 1284.8pt x 963.6pt>
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 222.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-
-
-LaTeX Warning: Reference `sec:EventualConsistency' on page 5 undefined on input
- line 227.
-
-[5pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
-has been already used, duplicate ignored
+ [5pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
+ has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
@@ -998,45 +1022,20 @@ has been already used, duplicate ignored
                                                   \fi \fi 
 l.274 
       ]
-
-LaTeX Warning: Reference `sec:ViewsProjections' on page 7 undefined on input li
-ne 275.
-
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
- 308.
-
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 319.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
- 324.
-
 LaTeX Font Info:    Try loading font information for T1+cmtt on input line 335.
 
-(/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
+ (/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 Package hyperref Info: bookmark level for unknown example defaults to 0 on inpu
 t line 349.
-
-
-LaTeX Warning: Reference `ex:Multiaddress' on page 7 undefined on input line 35
-5.
-
-[7]
-
-LaTeX Warning: Reference `ex:Multiaddress' on page 8 undefined on input line 35
-7.
-
+ [7]
 
 LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 374.
-
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 8 undefined on input line
- 380.
 
 
 LaTeX Warning: Reference `sec:Bots' on page 8 undefined on input line 386.
@@ -1048,41 +1047,25 @@ has been already used, duplicate ignored
                                                   \fi \fi 
 l.387 
       ]
-<figures/Event_Log_With_Encryption.png, id=174, 382.3083pt x 271.4943pt>
+<figures/Event_Log_With_Encryption.png, id=187, 382.3083pt x 271.4943pt>
 File: figures/Event_Log_With_Encryption.png Graphic file (type png)
 <use figures/Event_Log_With_Encryption.png>
 Package pdftex.def Info: figures/Event_Log_With_Encryption.png  used on input l
 ine 393.
 (pdftex.def)             Requested size: 302.40308pt x 214.76396pt.
-
-
-LaTeX Warning: Reference `sec:AccessControl' on page 9 undefined on input line 
-416.
-
-
-LaTeX Warning: Reference `ex:KeyBook' on page 9 undefined on input line 444.
-
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
 Package pdftex.def Info: boat.jpg  used on input line 455.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-[9]
+ [9]
 Underfull \hbox (badness 10000) in paragraph at lines 489--490
 []\T1/cmr/m/n/10 Example (V1, 128 bit):
  []
 
 
-LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
- 493.
-
-
 Overfull \hbox (33.9831pt too wide) in paragraph at lines 498--499
 [][][][][][][][][][][][]  
  []
-
-
-LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
- 516.
 
 [10pdfTeX warning (ext4): destination with the same identifier (name{figure.5})
  has been already used, duplicate ignored
@@ -1125,13 +1108,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 551--552
 Underfull \hbox (badness 5245) in paragraph at lines 553--554
 []\T1/cmr/m/n/10 Similar to sending, there are multiple paths
  []
-
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 11 undefined on input lin
-e 568.
-
-
-LaTeX Warning: Reference `sec:LogSync' on page 11 undefined on input line 568.
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 578--579
@@ -1180,9 +1156,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 743--744
  []
 
 
-LaTeX Warning: Citation `gelenbe06' on page 14 undefined on input line 749.
-
-
 LaTeX Warning: Reference `Performance' on page 14 undefined on input line 752.
 
 
@@ -1191,9 +1164,6 @@ LaTeX Warning: Reference `KeepUp' on page 14 undefined on input line 757.
 
 LaTeX Warning: Reference `Price-Dependent' on page 14 undefined on input line 7
 58.
-
-
-LaTeX Warning: Reference `Conclusions' on page 14 undefined on input line 760.
 
 [14]
 Underfull \vbox (badness 6608) has occurred while \output is active []
@@ -1232,17 +1202,17 @@ Package rerunfilecheck Info: File `draft.out' has not changed.
 LaTeX Warning: There were undefined references.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 28465 strings out of 492609
- 533069 string characters out of 6129048
- 920073 words of memory out of 5000000
- 31759 multiletter control sequences out of 15000+600000
+ 28485 strings out of 492609
+ 533267 string characters out of 6129048
+ 919073 words of memory out of 5000000
+ 31779 multiletter control sequences out of 15000+600000
  540441 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 54i,9n,73p,1166b,1355s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 54i,9n,73p,1166b,1322s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx0900.pfb></
 usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></us
@@ -1254,10 +1224,10 @@ texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb></usr/local/te
 xlive/2019/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texl
 ive/2019/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texliv
 e/2019/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on draft.pdf (17 pages, 951929 bytes).
+Output written on draft.pdf (17 pages, 952936 bytes).
 PDF statistics:
- 499 PDF objects out of 1000 (max. 8388607)
- 460 compressed objects within 5 object streams
+ 519 PDF objects out of 1000 (max. 8388607)
+ 480 compressed objects within 5 object streams
  280 named destinations out of 1000 (max. 500000)
  148 words of extra memory for PDF output out of 10000 (max. 10000000)
 
