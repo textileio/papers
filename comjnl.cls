@@ -333,7 +333,6 @@
 \theoremstyle{remark}
 
 \newtheorem{remark}{Remark}
-\newtheorem{example}{Example}
 \newtheorem{algorithm}{Algorithm}
 
 {\theoremstyle{theor}

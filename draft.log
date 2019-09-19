@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 09:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 10:11
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -141,18 +141,17 @@ Package: amsthm 2017/10/31 v2.20.4
 \c@corollary=\count95
 \c@axiom=\count96
 \c@remark=\count97
-\c@example=\count98
-\c@algorithm=\count99
-\c@theorem=\count100
-LaTeX Info: Redefining \rm on input line 458.
-LaTeX Info: Redefining \sf on input line 459.
-LaTeX Info: Redefining \tt on input line 460.
-LaTeX Info: Redefining \bf on input line 461.
-LaTeX Info: Redefining \it on input line 462.
-LaTeX Info: Redefining \sl on input line 463.
-LaTeX Info: Redefining \sc on input line 464.
-LaTeX Info: Redefining \cal on input line 465.
-LaTeX Info: Redefining \mit on input line 466.
+\c@algorithm=\count98
+\c@theorem=\count99
+LaTeX Info: Redefining \rm on input line 457.
+LaTeX Info: Redefining \sf on input line 458.
+LaTeX Info: Redefining \tt on input line 459.
+LaTeX Info: Redefining \bf on input line 460.
+LaTeX Info: Redefining \it on input line 461.
+LaTeX Info: Redefining \sl on input line 462.
+LaTeX Info: Redefining \sc on input line 463.
+LaTeX Info: Redefining \cal on input line 464.
+LaTeX Info: Redefining \mit on input line 465.
 )
 (/usr/local/texlive/2019/texmf-dist/tex/latex/graphics/epsfig.sty
 Package: epsfig 2017/06/25 v1.7b (e)psfig emulation (SPQR)
@@ -179,13 +178,13 @@ Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count101
+\inf@bad=\count100
 LaTeX Info: Redefining \frac on input line 223.
-\uproot@=\count102
-\leftroot@=\count103
+\uproot@=\count101
+\leftroot@=\count102
 LaTeX Info: Redefining \overline on input line 385.
-\classnum@=\count104
-\DOTSCASE@=\count105
+\classnum@=\count103
+\DOTSCASE@=\count104
 LaTeX Info: Redefining \ldots on input line 482.
 LaTeX Info: Redefining \dots on input line 485.
 LaTeX Info: Redefining \cdots on input line 606.
@@ -194,15 +193,15 @@ LaTeX Info: Redefining \cdots on input line 606.
 \big@size=\dimen109
 LaTeX Font Info:    Redeclaring font encoding OML on input line 729.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 730.
-\macc@depth=\count106
-\c@MaxMatrixCols=\count107
+\macc@depth=\count105
+\c@MaxMatrixCols=\count106
 \dotsspace@=\muskip10
-\c@parentequation=\count108
-\dspbrk@lvl=\count109
+\c@parentequation=\count107
+\dspbrk@lvl=\count108
 \tag@help=\toks23
-\row@=\count110
-\column@=\count111
-\maxfields@=\count112
+\row@=\count109
+\column@=\count110
+\maxfields@=\count111
 \andhelp@=\toks24
 \eqnshift@=\dimen110
 \alignsep@=\dimen111
@@ -223,18 +222,18 @@ Package: expl3 2019-09-08 L3 programming layer (loader)
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/l3kernel/expl3-code.tex
 Package: expl3 2019-09-08 L3 programming layer (code)
-\c_max_int=\count113
-\l_tmpa_int=\count114
-\l_tmpb_int=\count115
-\g_tmpa_int=\count116
-\g_tmpb_int=\count117
-\g__kernel_prg_map_int=\count118
-\c__ior_term_noprompt_ior=\count119
-\c_log_iow=\count120
-\l_iow_line_count_int=\count121
-\l__iow_line_target_int=\count122
-\l__iow_one_indent_int=\count123
-\l__iow_indent_int=\count124
+\c_max_int=\count112
+\l_tmpa_int=\count113
+\l_tmpb_int=\count114
+\g_tmpa_int=\count115
+\g_tmpb_int=\count116
+\g__kernel_prg_map_int=\count117
+\c__ior_term_noprompt_ior=\count118
+\c_log_iow=\count119
+\l_iow_line_count_int=\count120
+\l__iow_line_target_int=\count121
+\l__iow_one_indent_int=\count122
+\l__iow_indent_int=\count123
 \c_zero_dim=\dimen116
 \c_max_dim=\dimen117
 \l_tmpa_dim=\dimen118
@@ -253,80 +252,80 @@ Package: expl3 2019-09-08 L3 programming layer (code)
 \l_tmpb_muskip=\muskip14
 \g_tmpa_muskip=\muskip15
 \g_tmpb_muskip=\muskip16
-\l_keys_choice_int=\count125
-\l__intarray_loop_int=\count126
+\l_keys_choice_int=\count124
+\l__intarray_loop_int=\count125
 \c__intarray_sp_dim=\dimen122
-\g__intarray_font_int=\count127
-\c__fp_leading_shift_int=\count128
-\c__fp_middle_shift_int=\count129
-\c__fp_trailing_shift_int=\count130
-\c__fp_big_leading_shift_int=\count131
-\c__fp_big_middle_shift_int=\count132
-\c__fp_big_trailing_shift_int=\count133
-\c__fp_Bigg_leading_shift_int=\count134
-\c__fp_Bigg_middle_shift_int=\count135
-\c__fp_Bigg_trailing_shift_int=\count136
-\c__kernel_randint_max_int=\count137
-\g__fp_array_int=\count138
-\l__fp_array_loop_int=\count139
-\l__sort_length_int=\count140
-\l__sort_min_int=\count141
-\l__sort_top_int=\count142
-\l__sort_max_int=\count143
-\l__sort_true_max_int=\count144
-\l__sort_block_int=\count145
-\l__sort_begin_int=\count146
-\l__sort_end_int=\count147
-\l__sort_A_int=\count148
-\l__sort_B_int=\count149
-\l__sort_C_int=\count150
-\l__str_internal_int=\count151
-\c__str_replacement_char_int=\count152
-\l__tl_analysis_normal_int=\count153
-\l__tl_analysis_index_int=\count154
-\l__tl_analysis_nesting_int=\count155
-\l__tl_analysis_type_int=\count156
-\l__regex_internal_a_int=\count157
-\l__regex_internal_b_int=\count158
-\l__regex_internal_c_int=\count159
-\l__regex_balance_int=\count160
-\l__regex_group_level_int=\count161
-\l__regex_mode_int=\count162
-\c__regex_cs_in_class_mode_int=\count163
-\c__regex_cs_mode_int=\count164
-\l__regex_catcodes_int=\count165
-\l__regex_default_catcodes_int=\count166
-\c__regex_catcode_D_int=\count167
-\c__regex_catcode_S_int=\count168
-\c__regex_catcode_L_int=\count169
-\c__regex_catcode_O_int=\count170
-\c__regex_catcode_A_int=\count171
-\c__regex_all_catcodes_int=\count172
-\l__regex_show_lines_int=\count173
-\l__regex_min_state_int=\count174
-\l__regex_max_state_int=\count175
-\l__regex_left_state_int=\count176
-\l__regex_right_state_int=\count177
-\l__regex_capturing_group_int=\count178
-\l__regex_min_pos_int=\count179
-\l__regex_max_pos_int=\count180
-\l__regex_curr_pos_int=\count181
-\l__regex_start_pos_int=\count182
-\l__regex_success_pos_int=\count183
-\l__regex_curr_char_int=\count184
-\l__regex_curr_catcode_int=\count185
-\l__regex_last_char_int=\count186
-\l__regex_case_changed_char_int=\count187
-\l__regex_curr_state_int=\count188
-\l__regex_step_int=\count189
-\l__regex_min_active_int=\count190
-\l__regex_max_active_int=\count191
-\l__regex_replacement_csnames_int=\count192
-\l__regex_match_count_int=\count193
-\l__regex_min_submatch_int=\count194
-\l__regex_submatch_int=\count195
-\l__regex_zeroth_submatch_int=\count196
-\g__regex_trace_regex_int=\count197
+\g__intarray_font_int=\count126
+\c__fp_leading_shift_int=\count127
+\c__fp_middle_shift_int=\count128
+\c__fp_trailing_shift_int=\count129
+\c__fp_big_leading_shift_int=\count130
+\c__fp_big_middle_shift_int=\count131
+\c__fp_big_trailing_shift_int=\count132
+\c__fp_Bigg_leading_shift_int=\count133
+\c__fp_Bigg_middle_shift_int=\count134
+\c__fp_Bigg_trailing_shift_int=\count135
+\c__kernel_randint_max_int=\count136
+\g__fp_array_int=\count137
+\l__fp_array_loop_int=\count138
+\l__sort_length_int=\count139
+\l__sort_min_int=\count140
+\l__sort_top_int=\count141
+\l__sort_max_int=\count142
+\l__sort_true_max_int=\count143
+\l__sort_block_int=\count144
+\l__sort_begin_int=\count145
+\l__sort_end_int=\count146
+\l__sort_A_int=\count147
+\l__sort_B_int=\count148
+\l__sort_C_int=\count149
+\l__str_internal_int=\count150
+\c__str_replacement_char_int=\count151
+\l__tl_analysis_normal_int=\count152
+\l__tl_analysis_index_int=\count153
+\l__tl_analysis_nesting_int=\count154
+\l__tl_analysis_type_int=\count155
+\l__regex_internal_a_int=\count156
+\l__regex_internal_b_int=\count157
+\l__regex_internal_c_int=\count158
+\l__regex_balance_int=\count159
+\l__regex_group_level_int=\count160
+\l__regex_mode_int=\count161
+\c__regex_cs_in_class_mode_int=\count162
+\c__regex_cs_mode_int=\count163
+\l__regex_catcodes_int=\count164
+\l__regex_default_catcodes_int=\count165
+\c__regex_catcode_D_int=\count166
+\c__regex_catcode_S_int=\count167
+\c__regex_catcode_L_int=\count168
+\c__regex_catcode_O_int=\count169
+\c__regex_catcode_A_int=\count170
+\c__regex_all_catcodes_int=\count171
+\l__regex_show_lines_int=\count172
+\l__regex_min_state_int=\count173
+\l__regex_max_state_int=\count174
+\l__regex_left_state_int=\count175
+\l__regex_right_state_int=\count176
+\l__regex_capturing_group_int=\count177
+\l__regex_min_pos_int=\count178
+\l__regex_max_pos_int=\count179
+\l__regex_curr_pos_int=\count180
+\l__regex_start_pos_int=\count181
+\l__regex_success_pos_int=\count182
+\l__regex_curr_char_int=\count183
+\l__regex_curr_catcode_int=\count184
+\l__regex_last_char_int=\count185
+\l__regex_case_changed_char_int=\count186
+\l__regex_curr_state_int=\count187
+\l__regex_step_int=\count188
+\l__regex_min_active_int=\count189
+\l__regex_max_active_int=\count190
+\l__regex_replacement_csnames_int=\count191
+\l__regex_match_count_int=\count192
+\l__regex_min_submatch_int=\count193
+\l__regex_submatch_int=\count194
+\l__regex_zeroth_submatch_int=\count195
+\g__regex_trace_regex_int=\count196
 \c_empty_box=\box31
 \l_tmpa_box=\box32
 \l_tmpb_box=\box33
@@ -371,19 +370,19 @@ Package: expl3 2019-09-08 L3 programming layer (code)
 \l__coffin_display_x_dim=\dimen146
 \l__coffin_display_y_dim=\dimen147
 \g__char_data_ior=\read1
-\l__seq_internal_a_int=\count198
-\l__seq_internal_b_int=\count199
+\l__seq_internal_a_int=\count197
+\l__seq_internal_b_int=\count198
 )
 (/usr/local/texlive/2019/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2019-04-06 v L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count266
+\l__kernel_color_stack_int=\count199
 \l__pdf_internal_box=\box49
 )) (/usr/local/texlive/2019/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
 Package: xparse 2019-05-28 L3 Experimental document command parser
-\l__xparse_current_arg_int=\count267
-\g__xparse_grabber_int=\count268
-\l__xparse_m_args_int=\count269
-\l__xparse_v_nesting_int=\count270
+\l__xparse_current_arg_int=\count266
+\g__xparse_grabber_int=\count267
+\l__xparse_m_args_int=\count268
+\l__xparse_v_nesting_int=\count269
 )
 Package: lipsum 2019/01/02 v2.2 150 paragraphs of Lorem Ipsum dummy text
 
@@ -450,15 +449,15 @@ Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
 )
 \@linkdim=\dimen148
-\Hy@linkcounter=\count271
-\Hy@pagecounter=\count272
+\Hy@linkcounter=\count270
+\Hy@pagecounter=\count271
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2019/06/12 v6.88h Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 )
-\Hy@SavedSpaceFactor=\count273
+\Hy@SavedSpaceFactor=\count272
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/latexconfig/hyperref.cfg
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
@@ -470,7 +469,7 @@ Package hyperref Info: Plain pages OFF on input line 4565.
 Package hyperref Info: Backreferencing OFF on input line 4570.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4803.
-\c@Hy@tempcnt=\count274
+\c@Hy@tempcnt=\count273
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
@@ -478,7 +477,7 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5156.
 \XeTeXLinkMargin=\dimen149
-\Fld@menulength=\count275
+\Fld@menulength=\count274
 \Field@Width=\dimen150
 \Fld@charsize=\dimen151
 Package hyperref Info: Hyper figures OFF on input line 6411.
@@ -490,16 +489,16 @@ Package hyperref Info: Link coloring with OCG OFF on input line 6436.
 Package hyperref Info: PDF/A mode OFF on input line 6441.
 LaTeX Info: Redefining \ref on input line 6481.
 LaTeX Info: Redefining \pageref on input line 6485.
-\Hy@abspage=\count276
-\c@Item=\count277
-\c@Hfootnote=\count278
+\Hy@abspage=\count275
+\c@Item=\count276
+\c@Hfootnote=\count277
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2019/06/12 v6.88h Hyperref driver for pdfTeX
-\Fld@listcount=\count279
-\c@bookmark@seq@number=\count280
+\Fld@listcount=\count278
+\c@bookmark@seq@number=\count279
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
 Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
@@ -525,7 +524,7 @@ Package: cuted 2012/10/04 v1.5 Mixing onecolumn and twocolumn modes
 \lastbox@a=\box52
 \stripsep=\skip64
 \@viper=\box53
-\viper@penalty=\count281
+\viper@penalty=\count280
 \hold@viper=\box54
 \ht@viper=\dimen152
 )
@@ -577,14 +576,14 @@ ode.tex
 \pgf@yd=\dimen164
 \w@pgf@writea=\write3
 \r@pgf@reada=\read2
-\c@pgf@counta=\count282
-\c@pgf@countb=\count283
-\c@pgf@countc=\count284
-\c@pgf@countd=\count285
+\c@pgf@counta=\count281
+\c@pgf@countb=\count282
+\c@pgf@countc=\count283
+\c@pgf@countd=\count284
 \t@pgf@toka=\toks34
 \t@pgf@tokb=\toks35
 \t@pgf@tokc=\toks36
-\pgf@sys@id@count=\count286
+\pgf@sys@id@count=\count285
 
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2019/08/03 v3.1.4b (3.1.4b)
@@ -602,8 +601,8 @@ File: pgfsys-common-pdf.def 2019/08/03 v3.1.4b (3.1.4b)
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.
 code.tex
 File: pgfsyssoftpath.code.tex 2019/08/03 v3.1.4b (3.1.4b)
-\pgfsyssoftpath@smallbuffer@items=\count287
-\pgfsyssoftpath@bigbuffer@items=\count288
+\pgfsyssoftpath@smallbuffer@items=\count286
+\pgfsyssoftpath@bigbuffer@items=\count287
 )
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.
 code.tex
@@ -616,7 +615,7 @@ Package: pgfcore 2019/08/03 v3.1.4b (3.1.4b)
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen165
-\pgfmath@count=\count289
+\pgfmath@count=\count288
 \pgfmath@box=\box56
 \pgfmath@toks=\toks37
 \pgfmath@stack@operand=\toks38
@@ -641,7 +640,7 @@ code.tex)
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integ
 erarithmetics.code.tex)))
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
-\c@pgfmathroundto@lastzeros=\count290
+\c@pgfmathroundto@lastzeros=\count289
 )) (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.co
 de.tex
@@ -679,7 +678,7 @@ File: pgfcorescopes.code.tex 2019/08/03 v3.1.4b (3.1.4b)
 \pgfpic=\box57
 \pgf@hbox=\box58
 \pgf@layerbox@main=\box59
-\pgf@picture@serial@count=\count291
+\pgf@picture@serial@count=\count290
 )
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicst
 ate.code.tex
@@ -714,8 +713,8 @@ File: pgfcorearrows.code.tex 2019/08/03 v3.1.4b (3.1.4b)
 e.tex
 File: pgfcoreshade.code.tex 2019/08/03 v3.1.4b (3.1.4b)
 \pgf@max=\dimen189
-\pgf@sys@shading@range@num=\count292
-\pgf@shadingcount=\count293
+\pgf@sys@shading@range@num=\count291
+\pgf@shadingcount=\count292
 )
 (/usr/local/texlive/2019/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.cod
 e.tex
@@ -776,9 +775,9 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@upperbox=\box63
 \tcb@lowerbox=\box64
 \tcb@phantombox=\box65
-\c@tcbbreakpart=\count294
-\c@tcblayer=\count295
-\tcolorbox@number=\count296
+\c@tcbbreakpart=\count293
+\c@tcblayer=\count294
+\tcolorbox@number=\count295
 \tcb@temp=\box66
 \tcb@temp=\box67
 \tcb@temp=\box68
@@ -787,23 +786,23 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@record@out=\write5
 )
 (/usr/local/texlive/2019/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count297
+\lst@mode=\count296
 \lst@gtempboxa=\box70
 \lst@token=\toks42
-\lst@length=\count298
+\lst@length=\count297
 \lst@currlwidth=\dimen192
-\lst@column=\count299
-\lst@pos=\count300
+\lst@column=\count298
+\lst@pos=\count299
 \lst@lostspace=\dimen193
 \lst@width=\dimen194
-\lst@newlines=\count301
-\lst@lineno=\count302
+\lst@newlines=\count300
+\lst@lineno=\count301
 \lst@maxwidth=\dimen195
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2019/02/27 1.8b (Carsten Heinz)
-\c@lstnumber=\count303
-\lst@skipnumbers=\count304
+\c@lstnumber=\count302
+\lst@skipnumbers=\count303
 \lst@framebox=\box71
 )
 (/usr/local/texlive/2019/texmf-dist/tex/latex/listings/listings.cfg
@@ -820,36 +819,98 @@ File: lstlang2.sty 2019/02/27 1.8b listings language file
 (/usr/local/texlive/2019/texmf-dist/tex/latex/listings/lstlang3.sty
 File: lstlang3.sty 2019/02/27 1.8b listings language file
 )
-No file draft.aux.
+(/usr/local/texlive/2019/texmf-dist/tex/latex/trivfloat/trivfloat.sty
+Package: trivfloat 2009/04/23 v1.4 Quick floats in LaTeX
+
+(/usr/local/texlive/2019/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count304
+\float@exts=\toks43
+\float@box=\box72
+\@float@everytoks=\toks44
+\@floatcapt=\box73
+)
+\c@tfl@float@cnt=\count305
+LaTeX Info: Redefining \tfl@uppercase on input line 223.
+) (./draft.aux
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `Perf1' multiply defined.
+
+
+LaTeX Warning: Label `Perf2' multiply defined.
+
+
+LaTeX Warning: Label `Perf3' multiply defined.
+
+
+LaTeX Warning: Label `ex:AddrBook' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+
+LaTeX Warning: Label `fig:boat1' multiply defined.
+
+)
 \openout1 = `draft.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-(/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 82.
+LaTeX Font Info:    ... okay on input line 82.
+ (/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count305
+\scratchcounter=\count306
 \scratchdimen=\dimen196
-\scratchbox=\box72
-\nofMPsegments=\count306
-\nofMParguments=\count307
-\everyMPshowfont=\toks43
-\MPscratchCnt=\count308
+\scratchbox=\box74
+\nofMPsegments=\count307
+\nofMParguments=\count308
+\everyMPshowfont=\toks45
+\MPscratchCnt=\count309
 \MPscratchDim=\dimen197
-\MPnumerator=\count309
-\makeMPintoPDFobject=\count310
-\everyMPtoPDFconversion=\toks44
+\MPnumerator=\count310
+\makeMPintoPDFobject=\count311
+\everyMPtoPDFconversion=\toks46
 ) (/usr/local/texlive/2019/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -867,8 +928,8 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box73
-Package hyperref Info: Link coloring OFF on input line 77.
+\AtBeginShipoutBox=\box75
+Package hyperref Info: Link coloring OFF on input line 82.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -876,18 +937,21 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/local/texlive/2019/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count311
+\c@section@level=\count312
 )
-LaTeX Info: Redefining \ref on input line 77.
-LaTeX Info: Redefining \pageref on input line 77.
-LaTeX Info: Redefining \nameref on input line 77.
+LaTeX Info: Redefining \ref on input line 82.
+LaTeX Info: Redefining \pageref on input line 82.
+LaTeX Info: Redefining \nameref on input line 82.
+
+(./draft.out) (./draft.out)
 \@outlinefile=\write6
 \openout6 = `draft.out'.
 
-
-ABD: EveryShipout initializing macros
-\c@lstlisting=\count312
-\GPT@outputbox=\box74
+ ABD: EveryShipout initializing macros
+\c@lstlisting=\count313
+\@float@every@example=\toks47
+\c@example=\count314
+\GPT@outputbox=\box76
 
 caffil not> 1
 
@@ -899,194 +963,153 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [1{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
-]
-
-LaTeX Warning: Reference `sec:ViewsProjections' on page 2 undefined on input li
-ne 139.
-
-[2]
-Underfull \hbox (badness 5954) in paragraph at lines 149--150
+] [2]
+Underfull \hbox (badness 5954) in paragraph at lines 154--155
 []\T1/cmr/m/n/10 Views themselves are enabled by projections.
  []
 
 
-LaTeX Warning: Reference `def:Logs' on page 3 undefined on input line 158.
+Underfull \vbox (badness 6380) has occurred while \output is active []
 
+ [3]
+<figures/Hash_Request.png, id=105, 137.0721pt x 192.4791pt>
+File: figures/Hash_Request.png Graphic file (type png)
+<use figures/Hash_Request.png>
+Package pdftex.def Info: figures/Hash_Request.png  used on input line 194.
+(pdftex.def)             Requested size: 240.0pt x 337.03433pt.
 
-LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 158.
+Underfull \hbox (badness 5022) in paragraph at lines 206--207
+\T1/cmr/m/n/10 (entities, predicates, data sources) uses content
+ []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+ [4pdfTeX warning (ext4): destination with the same identifier (name{figure.1})
+ has been already used, duplicate ignored
 
-
-LaTeX Warning: Reference `sec:merkleclocks' on page 3 undefined on input line 1
-70.
-
-
-LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 176.
-
-[3]
-<boat.jpg, id=42, 1284.8pt x 963.6pt>
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.207 
+       <./figures/Hash_Request.png>]
+<boat.jpg, id=116, 1284.8pt x 963.6pt>
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 189.
+Package pdftex.def Info: boat.jpg  used on input line 222.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+ [5pdfTeX warning (ext4): destination with the same identifier (name{figure.2})
+ has been already used, duplicate ignored
 
-Underfull \hbox (badness 5022) in paragraph at lines 201--202
-\T1/cmr/m/n/10 (entities, predicates, data sources) uses content
- []
-
-[4 <./boat.jpg>]
-File: boat.jpg Graphic file (type jpg)
-<use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 217.
-(pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.244 
+       <./boat.jpg>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-LaTeX Warning: Reference `sec:EventualConsistency' on page 5 undefined on input
- line 222.
-
-[5]
-Underfull \hbox (badness 5667) in paragraph at lines 255--256
+Underfull \hbox (badness 5667) in paragraph at lines 260--261
 \T1/cmr/m/n/10 Agent-centric security refers to the practice of
  []
 
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 263.
+Package pdftex.def Info: boat.jpg  used on input line 268.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+[6pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
+has been already used, duplicate ignored
 
-LaTeX Warning: Reference `sec:ViewsProjections' on page 6 undefined on input li
-ne 270.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [6]
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
- 303.
-
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.274 
+      ]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 314.
+Package pdftex.def Info: boat.jpg  used on input line 319.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 335.
 
-LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
- 319.
-
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 332.
-
-(/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
+ (/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-Overfull \hbox (1.02771pt too wide) in paragraph at lines 334--336
-[][][][][][][][][][][][][][][][][][][]  
- []
+Package hyperref Info: bookmark level for unknown example defaults to 0 on inpu
+t line 349.
+ [7]
+
+LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 374.
 
 
-Overfull \hbox (1.02771pt too wide) in paragraph at lines 337--339
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
-][][][][][][][][][][][][][][][]  
- []
+LaTeX Warning: Reference `sec:Bots' on page 8 undefined on input line 386.
 
+[8pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
+has been already used, duplicate ignored
 
-Underfull \hbox (badness 10000) in paragraph at lines 350--351
-
- []
-
-[7]
-
-LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 358.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 8 undefined on input line
- 379.
-
-
-LaTeX Warning: Reference `sec:Bots' on page 8 undefined on input line 385.
-
-
-LaTeX Warning: Reference `sec:AccessControl' on page 8 undefined on input line 
-389.
-
-<figures/Event_Log_With_Encryption.png, id=88, 382.3083pt x 271.4943pt>
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.387 
+      ]
+<figures/Event_Log_With_Encryption.png, id=187, 382.3083pt x 271.4943pt>
 File: figures/Event_Log_With_Encryption.png Graphic file (type png)
 <use figures/Event_Log_With_Encryption.png>
 Package pdftex.def Info: figures/Event_Log_With_Encryption.png  used on input l
-ine 395.
+ine 393.
 (pdftex.def)             Requested size: 302.40308pt x 214.76396pt.
-[8]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [9 <./figures/Event_Log_With_Encryption.png>]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 454.
+Package pdftex.def Info: boat.jpg  used on input line 456.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 488--489
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9]
+Underfull \hbox (badness 10000) in paragraph at lines 490--491
 []\T1/cmr/m/n/10 Example (V1, 128 bit):
  []
 
 
-LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
- 492.
-
-
-Underfull \hbox (badness 5607) in paragraph at lines 495--496
+Underfull \hbox (badness 5607) in paragraph at lines 497--498
 []\T1/cmr/m/n/10 Example (V1, 256 bit): `bafy-oiobghze-fwlid-fr-
  []
 
+[10pdfTeX warning (ext4): destination with the same identifier (name{figure.5})
+ has been already used, duplicate ignored
 
-LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
- 510.
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.513 \end{definition}
+                      pdfTeX warning (ext4): destination with the same identifi
+er (name{figure.6}) has been already used, duplicate ignored
 
-[10]
-Underfull \hbox (badness 10000) in paragraph at lines 525--526
-
- []
-
-
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.513 \end{definition}
+                       <./figures/Event_Log_With_Encryption.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 527--528
 
  []
 
 
-Underfull \hbox (badness 5756) in paragraph at lines 540--541
+Underfull \hbox (badness 10000) in paragraph at lines 529--530
+
+ []
+
+
+Underfull \hbox (badness 5756) in paragraph at lines 542--543
 []\T1/cmr/m/n/10 New Events may be pushed to web-based
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 542--543
+Underfull \hbox (badness 10000) in paragraph at lines 544--545
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 545--546
+Underfull \hbox (badness 10000) in paragraph at lines 547--548
 
  []
 
 
-Underfull \hbox (badness 5245) in paragraph at lines 547--548
+Underfull \hbox (badness 5245) in paragraph at lines 549--550
 []\T1/cmr/m/n/10 Similar to sending, there are multiple paths
- []
-
-
-LaTeX Warning: Reference `sec:KeysEncryption' on page 11 undefined on input lin
-e 562.
-
-
-LaTeX Warning: Reference `sec:LogSync' on page 11 undefined on input line 562.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 572--573
-
  []
 
 
@@ -1095,92 +1118,104 @@ Underfull \hbox (badness 10000) in paragraph at lines 574--575
  []
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 601--602
+Underfull \hbox (badness 10000) in paragraph at lines 576--577
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 603--604
+Underfull \hbox (badness 10000) in paragraph at lines 609--610
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 605--606
+Underfull \hbox (badness 10000) in paragraph at lines 611--612
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 607--608
+Underfull \hbox (badness 10000) in paragraph at lines 613--614
 
  []
 
-[12]
+
+Underfull \hbox (badness 10000) in paragraph at lines 615--616
+
+ []
+
+[12] [13]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [13]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 716.
+Package pdftex.def Info: boat.jpg  used on input line 729.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 726.
+Package pdftex.def Info: boat.jpg  used on input line 739.
 (pdftex.def)             Requested size: 503.99106pt x 113.80379pt.
 
-
-LaTeX Warning: Citation `gelenbe06' on page 14 undefined on input line 732.
-
-
-LaTeX Warning: Reference `Performance' on page 14 undefined on input line 735.
+Underfull \hbox (badness 10000) in paragraph at lines 739--740
+[][]
+ []
 
 
-LaTeX Warning: Reference `KeepUp' on page 14 undefined on input line 740.
+LaTeX Warning: Reference `Performance' on page 14 undefined on input line 748.
+
+
+LaTeX Warning: Reference `KeepUp' on page 14 undefined on input line 753.
 
 
 LaTeX Warning: Reference `Price-Dependent' on page 14 undefined on input line 7
-41.
+54.
+
+[14]
+Underfull \vbox (badness 6608) has occurred while \output is active []
 
 
-LaTeX Warning: Reference `Conclusions' on page 14 undefined on input line 743.
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[14] (./whitepaper.bbl [15]
+ [15]
+(./whitepaper.bbl [16pdfTeX warning (ext4): destination with the same identifie
+r (name{figure.7}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.113 \bibitem{ferdinando_etal08}
+                                 ]
 Underfull \hbox (badness 5345) in paragraph at lines 114--119
 []\T1/cmr/m/n/9 Di Ferdinando, A., Rosi, A., Zambonelli, F.,
  []
 
-[16]) [17]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 850.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 850.
+) [17pdfTeX warning (ext4): destination with the same identifier (name{figure.8
+}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.863 \end{document}
+                    ]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 863.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 863.
  (./draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 850.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 850.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 863.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 863.
+Package rerunfilecheck Info: File `draft.out' has not changed.
+(rerunfilecheck)             Checksum: 107A05ACF510BDE423F773CBB7D8D143;870.
 
-
-Package rerunfilecheck Warning: File `draft.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `draft.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  107A05ACF510BDE423F773CBB7D8D143;870.
 
 LaTeX Warning: There were undefined references.
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 28308 strings out of 492609
- 530778 string characters out of 6129048
- 900114 words of memory out of 5000000
- 31623 multiletter control sequences out of 15000+600000
+ 28464 strings out of 492609
+ 533059 string characters out of 6129048
+ 920073 words of memory out of 5000000
+ 31760 multiletter control sequences out of 15000+600000
  540441 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 54i,9n,73p,1166b,1349s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 54i,9n,73p,1166b,1357s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx0900.pfb></
 usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></us
@@ -1192,10 +1227,10 @@ texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb></usr/local/te
 xlive/2019/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texl
 ive/2019/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texliv
 e/2019/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on draft.pdf (17 pages, 916063 bytes).
+Output written on draft.pdf (17 pages, 952525 bytes).
 PDF statistics:
- 443 PDF objects out of 1000 (max. 8388607)
- 406 compressed objects within 5 object streams
- 273 named destinations out of 1000 (max. 500000)
- 23 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 517 PDF objects out of 1000 (max. 8388607)
+ 478 compressed objects within 5 object streams
+ 278 named destinations out of 1000 (max. 500000)
+ 148 words of extra memory for PDF output out of 10000 (max. 10000000)
 
