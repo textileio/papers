@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 08:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.9.11)  19 SEP 2019 09:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -820,73 +820,24 @@ File: lstlang2.sty 2019/02/27 1.8b listings language file
 (/usr/local/texlive/2019/texmf-dist/tex/latex/listings/lstlang3.sty
 File: lstlang3.sty 2019/02/27 1.8b listings language file
 )
-(./draft.aux
-
-LaTeX Warning: Label `fig:boat1' multiply defined.
-
-
-LaTeX Warning: Label `fig:boat1' multiply defined.
-
-
-LaTeX Warning: Label `Perf1' multiply defined.
-
-
-LaTeX Warning: Label `Perf2' multiply defined.
-
-
-LaTeX Warning: Label `fig:boat1' multiply defined.
-
-
-LaTeX Warning: Label `Perf1' multiply defined.
-
-
-LaTeX Warning: Label `Perf2' multiply defined.
-
-
-LaTeX Warning: Label `Perf3' multiply defined.
-
-
-LaTeX Warning: Label `Perf1' multiply defined.
-
-
-LaTeX Warning: Label `Perf2' multiply defined.
-
-
-LaTeX Warning: Label `Perf3' multiply defined.
-
-
-LaTeX Warning: Label `Perf1' multiply defined.
-
-
-LaTeX Warning: Label `Perf2' multiply defined.
-
-
-LaTeX Warning: Label `Perf3' multiply defined.
-
-
-LaTeX Warning: Label `fig:boat1' multiply defined.
-
-
-LaTeX Warning: Label `fig:boat1' multiply defined.
-
-)
+No file draft.aux.
 \openout1 = `draft.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 47.
-LaTeX Font Info:    ... okay on input line 47.
- (/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+(/usr/local/texlive/2019/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count305
 \scratchdimen=\dimen196
@@ -917,7 +868,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box73
-Package hyperref Info: Link coloring OFF on input line 47.
+Package hyperref Info: Link coloring OFF on input line 77.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -927,15 +878,14 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count311
 )
-LaTeX Info: Redefining \ref on input line 47.
-LaTeX Info: Redefining \pageref on input line 47.
-LaTeX Info: Redefining \nameref on input line 47.
-
-(./draft.out) (./draft.out)
+LaTeX Info: Redefining \ref on input line 77.
+LaTeX Info: Redefining \pageref on input line 77.
+LaTeX Info: Redefining \nameref on input line 77.
 \@outlinefile=\write6
 \openout6 = `draft.out'.
 
- ABD: EveryShipout initializing macros
+
+ABD: EveryShipout initializing macros
 \c@lstlisting=\count312
 \GPT@outputbox=\box74
 
@@ -949,150 +899,213 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [1{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 
-] [2]
-Underfull \hbox (badness 5954) in paragraph at lines 119--120
+]
+
+LaTeX Warning: Reference `sec:ViewsProjections' on page 2 undefined on input li
+ne 139.
+
+[2]
+Underfull \hbox (badness 5954) in paragraph at lines 149--150
 []\T1/cmr/m/n/10 Views themselves are enabled by projections.
  []
 
 
-Underfull \vbox (badness 6380) has occurred while \output is active []
+LaTeX Warning: Reference `def:Logs' on page 3 undefined on input line 158.
 
- [3]
-<boat.jpg, id=105, 1284.8pt x 963.6pt>
+
+LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 158.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+LaTeX Warning: Reference `sec:merkleclocks' on page 3 undefined on input line 1
+70.
+
+
+LaTeX Warning: Reference `def:CRDT' on page 3 undefined on input line 176.
+
+[3]
+<boat.jpg, id=42, 1284.8pt x 963.6pt>
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 159.
+Package pdftex.def Info: boat.jpg  used on input line 189.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 
-Underfull \hbox (badness 5022) in paragraph at lines 171--172
+Underfull \hbox (badness 5022) in paragraph at lines 201--202
 \T1/cmr/m/n/10 (entities, predicates, data sources) uses content
  []
 
 [4 <./boat.jpg>]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 187.
+Package pdftex.def Info: boat.jpg  used on input line 217.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
- [5]
-Underfull \hbox (badness 5667) in paragraph at lines 225--226
+
+
+LaTeX Warning: Reference `sec:EventualConsistency' on page 5 undefined on input
+ line 222.
+
+[5]
+Underfull \hbox (badness 5667) in paragraph at lines 255--256
 \T1/cmr/m/n/10 Agent-centric security refers to the practice of
  []
 
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 233.
+Package pdftex.def Info: boat.jpg  used on input line 263.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
+
+LaTeX Warning: Reference `sec:ViewsProjections' on page 6 undefined on input li
+ne 270.
+
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [6]
+
+LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
+ 303.
+
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 284.
+Package pdftex.def Info: boat.jpg  used on input line 314.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 294.
 
+LaTeX Warning: Reference `sec:KeysEncryption' on page 7 undefined on input line
+ 319.
+
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 332.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [7]
-Underfull \hbox (badness 10000) in paragraph at lines 349--350
-
+Overfull \hbox (1.02771pt too wide) in paragraph at lines 334--336
+[][][][][][][][][][][][][][][][][][][]  
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 352--354
-
+Overfull \hbox (1.02771pt too wide) in paragraph at lines 337--339
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][][][][][][]  
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 355--356
+Underfull \hbox (badness 10000) in paragraph at lines 350--351
 
  []
 
+[7]
 
-Underfull \hbox (badness 10000) in paragraph at lines 358--360
-
- []
-
-
-LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 361.
+LaTeX Warning: Reference `sec:UseCases' on page 8 undefined on input line 358.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [8]
 
-LaTeX Warning: Reference `sec:Bots' on page 9 undefined on input line 395.
 
+LaTeX Warning: Reference `sec:KeysEncryption' on page 8 undefined on input line
+ 379.
+
+
+LaTeX Warning: Reference `sec:Bots' on page 8 undefined on input line 385.
+
+
+LaTeX Warning: Reference `sec:AccessControl' on page 8 undefined on input line 
+389.
+
+<figures/Event_Log_With_Encryption.png, id=88, 382.3083pt x 271.4943pt>
+File: figures/Event_Log_With_Encryption.png Graphic file (type png)
+<use figures/Event_Log_With_Encryption.png>
+Package pdftex.def Info: figures/Event_Log_With_Encryption.png  used on input l
+ine 395.
+(pdftex.def)             Requested size: 302.40308pt x 214.76396pt.
+[8]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9 <./figures/Event_Log_With_Encryption.png>]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 402.
+Package pdftex.def Info: boat.jpg  used on input line 454.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [9]
-File: boat.jpg Graphic file (type jpg)
-<use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 460.
-(pdftex.def)             Requested size: 240.0pt x 179.9982pt.
-
-Underfull \vbox (badness 6675) has occurred while \output is active []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 494--495
+Underfull \hbox (badness 10000) in paragraph at lines 488--489
 []\T1/cmr/m/n/10 Example (V1, 128 bit):
  []
 
 
-Underfull \hbox (badness 5607) in paragraph at lines 501--502
+LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
+ 492.
+
+
+Underfull \hbox (badness 5607) in paragraph at lines 495--496
 []\T1/cmr/m/n/10 Example (V1, 256 bit): `bafy-oiobghze-fwlid-fr-
  []
 
+
+LaTeX Warning: Reference `sec:AccessControl' on page 10 undefined on input line
+ 510.
+
 [10]
-Underfull \hbox (badness 10000) in paragraph at lines 531--532
+Underfull \hbox (badness 10000) in paragraph at lines 525--526
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 533--534
+Underfull \hbox (badness 10000) in paragraph at lines 527--528
 
  []
 
 
-Underfull \hbox (badness 5756) in paragraph at lines 546--547
+Underfull \hbox (badness 5756) in paragraph at lines 540--541
 []\T1/cmr/m/n/10 New Events may be pushed to web-based
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 548--549
+Underfull \hbox (badness 10000) in paragraph at lines 542--543
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 551--552
+Underfull \hbox (badness 10000) in paragraph at lines 545--546
 
  []
 
 
-Underfull \hbox (badness 5245) in paragraph at lines 553--554
+Underfull \hbox (badness 5245) in paragraph at lines 547--548
 []\T1/cmr/m/n/10 Similar to sending, there are multiple paths
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 578--579
+LaTeX Warning: Reference `sec:KeysEncryption' on page 11 undefined on input lin
+e 562.
+
+
+LaTeX Warning: Reference `sec:LogSync' on page 11 undefined on input line 562.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 572--573
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 574--575
 
  []
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 580--581
+Underfull \hbox (badness 10000) in paragraph at lines 601--602
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 603--604
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 605--606
 
  []
 
@@ -1101,86 +1114,88 @@ Underfull \hbox (badness 10000) in paragraph at lines 607--608
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 609--610
-
- []
+[12]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 611--612
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 613--614
-
- []
-
-[12] [13]
+ [13]
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 722.
+Package pdftex.def Info: boat.jpg  used on input line 716.
 (pdftex.def)             Requested size: 240.0pt x 179.9982pt.
 File: boat.jpg Graphic file (type jpg)
 <use boat.jpg>
-Package pdftex.def Info: boat.jpg  used on input line 732.
+Package pdftex.def Info: boat.jpg  used on input line 726.
 (pdftex.def)             Requested size: 503.99106pt x 113.80379pt.
 
 
-LaTeX Warning: Reference `Performance' on page 14 undefined on input line 741.
+LaTeX Warning: Citation `gelenbe06' on page 14 undefined on input line 732.
 
 
-LaTeX Warning: Reference `KeepUp' on page 14 undefined on input line 746.
+LaTeX Warning: Reference `Performance' on page 14 undefined on input line 735.
+
+
+LaTeX Warning: Reference `KeepUp' on page 14 undefined on input line 740.
 
 
 LaTeX Warning: Reference `Price-Dependent' on page 14 undefined on input line 7
-47.
+41.
 
-[14] (./whitepaper.bbl [15] [16]
+
+LaTeX Warning: Reference `Conclusions' on page 14 undefined on input line 743.
+
+[14] (./whitepaper.bbl [15]
 Underfull \hbox (badness 5345) in paragraph at lines 114--119
 []\T1/cmr/m/n/9 Di Ferdinando, A., Rosi, A., Zambonelli, F.,
  []
 
-) [17]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 856.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 856.
+[16]) [17]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 850.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 850.
  (./draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 856.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 856.
-Package rerunfilecheck Info: File `draft.out' has not changed.
-(rerunfilecheck)             Checksum: 107A05ACF510BDE423F773CBB7D8D143;870.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 850.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 850.
 
+
+Package rerunfilecheck Warning: File `draft.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `draft.out':
+(rerunfilecheck)             Before: <no file>
+(rerunfilecheck)             After:  107A05ACF510BDE423F773CBB7D8D143;870.
 
 LaTeX Warning: There were undefined references.
 
 
-LaTeX Warning: There were multiply-defined labels.
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
  ) 
 Here is how much of TeX's memory you used:
- 28327 strings out of 492609
- 531167 string characters out of 6129048
- 907113 words of memory out of 5000000
- 31596 multiletter control sequences out of 15000+600000
- 542688 words of font info for 40 fonts, out of 8000000 for 9000
+ 28308 strings out of 492609
+ 530778 string characters out of 6129048
+ 900114 words of memory out of 5000000
+ 31623 multiletter control sequences out of 15000+600000
+ 540441 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 54i,9n,73p,1166b,1838s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 54i,9n,73p,1166b,1349s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2019/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx0900.pfb></
 usr/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></us
 r/local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfcc1000.pfb></usr/
 local/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfcc1200.pfb></usr/lo
-cal/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm0500.pfb></usr/loca
-l/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/local/
-texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/te
-xlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb></usr/local/texl
-ive/2019/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texliv
-e/2019/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/
-2019/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
-Output written on draft.pdf (17 pages, 845953 bytes).
+cal/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/loca
+l/texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/
+texlive/2019/texmf-dist/fonts/type1/public/cm-super/sfrm2488.pfb></usr/local/te
+xlive/2019/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texl
+ive/2019/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texliv
+e/2019/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb>
+Output written on draft.pdf (17 pages, 916063 bytes).
 PDF statistics:
- 556 PDF objects out of 1000 (max. 8388607)
- 519 compressed objects within 6 object streams
- 313 named destinations out of 1000 (max. 500000)
- 138 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 443 PDF objects out of 1000 (max. 8388607)
+ 406 compressed objects within 5 object streams
+ 273 named destinations out of 1000 (max. 500000)
+ 23 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -44,6 +44,37 @@
   tabsize=3
 }
 
+% color the json
+\lstdefinelanguage{json}{
+  basicstyle={\small\ttfamily},
+  numbers=none,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{white},
+    literate=
+     *{0}{{{\color{black}0}}}{1}
+      {1}{{{\color{black}1}}}{1}
+      {2}{{{\color{black}2}}}{1}
+      {3}{{{\color{black}3}}}{1}
+      {4}{{{\color{black}4}}}{1}
+      {5}{{{\color{black}5}}}{1}
+      {6}{{{\color{black}6}}}{1}
+      {7}{{{\color{black}7}}}{1}
+      {8}{{{\color{black}8}}}{1}
+      {9}{{{\color{black}9}}}{1}
+      {:}{{{\color{gray}{:}}}}{1}
+      {\{}{{{\color{gray}{\{}}}}{1}
+      {\}}{{{\color{gray}{\}}}}}{1}
+      {[}{{{\color{gray}{[}}}}{1}
+      {"}{{{\color{gray}{"}}}}{1}
+      {,}{{{\color{gray}{,}}}}{1}
+      {]}{{{\color{gray}{]}}}}{1},
+}
+
 \begin{document}
 \pagecolor{white}
 
@@ -290,73 +321,40 @@ Together with a cryptographic signature, an Event is written to a log with an ad
 
 At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification [ref].
 
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}
-// Node is the most basic component of a log.
-// Note: In practice, this is encrypted with the Follow key.
-type Node interface {
-    ipld.Node
-
-    // Event is the Log update.
-    Event() Event
-
-    // Refs are node linkages.
-    Refs() []cid.Cid
-
-    // Sig is a cryptographic signature of Event and Refs
-    // created with the Log's private key.
-    Sig() []byte
-}
-
-// Event represents the content of an update.
-// Note: In practice, this is encrypted with the Read key.
-type Event interface {
-    ipld.Node
-
-    // Header provides a means to store a timestamp
-    // and a key needed for decryption.
-    Header() EventHeader
-
-    // Body contains the content of an update.
-    // In practice, this is encrypted with the Header key
-    // or the recipient's public key.
-    Body() ipld.Node
-
-    // Decrypt is a helper function that decrypts Body
-    // with a key in Header.
-    Decrypt() (ipld.Node, error)
-}
-
-// EventHeader contains Event metadata.
-type EventHeader interface {
-    ipld.Node
-
-    // Time is the wall-clock time at which the Event
-    // was created.
-    Time() int
-
-    // Key is an optional single-use symmetric key
-    // used to encrypt Body.
-    Key() []byte
-}
-\end{lstlisting}
-\end{minipage}
+TODO: Ref to appendix
 
 As seen above, an Event’s actual content, or body, is contained in a separate node. This allows Events to carry any arbitrary node structure, from complex directories to raw bytes.
 
 \subsubsection{Multi-addressed Event Logs}
 
+\begin{figure*}
+\centering
+\begin{minipage}{0.6\textwidth}
+\begin{lstlisting}
+// Log multiaddress
+ipel := "/ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab"
+
+// Encapsulated multiaddress
+address := "/ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab"
+
+// Address book
+[
+  "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",
+  "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower
+]
+\end{lstlisting}
+\end{minipage}
+  \caption{The Log Multiaddress.}
+  \label{fig:boat1}
+\end{figure*}
+
 Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses:\\
 
-\tiny
-\textbf\textit /ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab\\
-\normalsize
+TODO: ref to embed
 
-In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress:\\
+In practice, to reach a Log via it’s IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress:
 
-\tiny
-\textbf\textit /ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab\\
-\normalsize
+TODO: ref to embed
 
 Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
 
@@ -381,16 +379,9 @@ Modern, real-world networks consist of many mobile or otherwise sparsely connect
 
 \begin{definition}Follower). Log Writers can designate other IPFS Peers to “follow” a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log’s contents. Followers should be server-based, i.e., always online and behind a public IP address.\end{definition}
 
-Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log:
+Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log 
 
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}
-[
-  "/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab",
-  "/p2p/12D..dJT6nXY/ipel/12D..bCcW8ab" // Follower
-]
-\end{lstlisting}
-\end{minipage}
+TODO: ref to embed
 
 In practice, Writers are solely responsible for announcing their Log’s addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower’s Log address when the Writer is offline or unreachable.
 
@@ -398,11 +389,15 @@ In practice, Writers are solely responsible for announcing their Log’s address
 
 Textile Logs are designed to be shared, composed, and layered into datasets. Therefore, Logs are encrypted by default in a manner that enables access control (see Section  \ref{sec:AccessControl}) and the Follower mechanism discussed in the previous section.
 
-\begin{figure}
-  \includegraphics[width=\linewidth]{boat.jpg}
+
+\begin{figure*}
+\centering
+\begin{minipage}{0.6\textwidth}
+  \includegraphics[width=\linewidth]{figures/Event_Log_With_Encryption.png}
   \caption{The three layers of Log Event encryption.}
-  \label{fig:boat1}
-\end{figure}
+  \label{fig:LogEncryption}
+  \end{minipage}
+\end{figure*}
 
 \begin{definition}
 (Identity Key). Every Log requires an asymmetric key-pair that determines ownership and identity. The private key is used to sign each Event added to the Log, so down-stream processes can verify the Log’s authenticity. Like IPFS peers, the public key of the Log is used as an identifier (Log ID).
@@ -666,7 +661,7 @@ todo: fixidexampleabove
 todo: change code type below
 
 \begin{minipage}{.45\textwidth}
-\begin{lstlisting}
+\begin{lstlisting}[language=json,firstnumber=1]
 {
   "_id": "bafykrq5i25vd64ghamtgus6lue74k", // TID
   "default": "no-access",
@@ -684,7 +679,7 @@ The `default` key states the default role for all network peers. The `peers` map
  A Thread-level ACL has it’s own document ACL, which also applies to all other document ACLs:
 
 
-\begin{lstlisting}
+\begin{lstlisting}[language=json,firstnumber=1]
 {
   "_id": "bafykrq5i25vd64ghamtgus6lue74k-acl", // TID-acl
   "default": "no-access",
