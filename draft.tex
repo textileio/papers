@@ -749,6 +749,61 @@ the bidding rates depend on the current price attained in the
 auction. Conclusions are drawn in Section \ref{Conclusions} where
 we also suggest further work.
 
+\begin{figure*}
+
+\begin{lstlisting}
+// Node is the most basic component of a log.
+// Note: In practice, this is encrypted with the Follow key.
+type Node interface {
+    ipld.Node
+
+    // Event is the Log update.
+    Event() Event
+
+    // Refs are node linkages.
+    Refs() []cid.Cid
+
+    // Sig is a cryptographic signature of Event and Refs
+    // created with the Log's private key.
+    Sig() []byte
+}
+
+// Event represents the content of an update.
+// Note: In practice, this is encrypted with the Read key.
+type Event interface {
+    ipld.Node
+
+    // Header provides a means to store a timestamp
+    // and a key needed for decryption.
+    Header() EventHeader
+
+    // Body contains the content of an update.
+    // In practice, this is encrypted with the Header key
+    // or the recipient's public key.
+    Body() ipld.Node
+
+    // Decrypt is a helper function that decrypts Body
+    // with a key in Header.
+    Decrypt() (ipld.Node, error)
+}
+
+// EventHeader contains Event metadata.
+type EventHeader interface {
+    ipld.Node
+
+    // Time is the wall-clock time at which the Event
+    // was created.
+    Time() int
+
+    // Key is an optional single-use symmetric key
+    // used to encrypt Body.
+    Key() []byte
+}
+\end{lstlisting}
+  \caption{This is a full width code block.}
+
+\end{figure*}
+
 
 \section{Conclusions} \label{Conclusions}
 In this paper we have considered auctions in which bidders make
