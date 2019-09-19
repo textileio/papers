@@ -5,6 +5,10 @@
 \usepackage{pagecolor}
 %\copyrightyear{2009} \vol{00} \issue{0} \DOI{000}
 
+% for full width figures\
+\usepackage{lipsum}% http://ctan.org/pkg/lipsum
+\usepackage{graphicx}% http://ctan.org/pkg/graphicx
+
 % random
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
@@ -723,6 +727,13 @@ The use of a single Read and Follow key for an entire Log means that, should eit
 \begin{quotation}
 A quote
 \end{quotation}
+
+\begin{figure*}
+  \includegraphics[width=\textwidth,height=4cm]{boat.jpg}
+  \caption{This is a full width boat.}
+  \label{fig:boat1}
+\end{figure*}
+
 
 Here is a citation models~\cite{gelenbe06}. The approach constructs
 
