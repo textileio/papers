@@ -26,7 +26,7 @@
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
             {-2.5ex\@plus -1ex \@minus -.25ex}%
             {1.25ex \@plus .25ex}%
-            {\normalfont\normalsize\bfseries}}
+            {\normalfont\normalsize\itshape}}
 \makeatother
 \setcounter{secnumdepth}{3} % how many sectioning levels to assign numbers to
 \setcounter{tocdepth}{3}    % how many sectioning levels to show in ToC
@@ -330,12 +330,12 @@ Each of these systems leverage cryptographic signatures to validate peer identit
 
 \subsubsection{Access control}
 
-All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure /ref{tbl:ACL}). 
+All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure \ref{tbl:ACL}). 
 
-\begin{table*}
+\begin{table}
 \caption{Example Access Control List.}
     \centering
-    \begin{tabular} [t]{l>{\centering}p{0.2\linewidth}>{\centering}p{0.2\linewidth}>{\centering}p{0.2\linewidth}>{\centering\arraybackslash}p{0.2\linewidth}}
+    \begin{tabular} [t]{l>{\centering}p{0.15\linewidth}>{\centering}p{0.15\linewidth}>{\centering}p{0.15\linewidth}>{\centering\arraybackslash}p{0.15\linewidth}}
 \toprule
 &Create&Delete&Edit&Read\\
 \midrule
@@ -345,12 +345,11 @@ Mary&-&-&\checkmark&\checkmark\\
 \bottomrule
     \end{tabular}
     \label{tbl:ACL}
-\end{table*}%
+\end{table}
 
 Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time \cite{herzbergAccessControlMeets2000}. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
 
 Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, ``grant Bob write access'' and ``revoke read access from Alice'' would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
-
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
 
