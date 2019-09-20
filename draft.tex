@@ -175,7 +175,7 @@ Merkle-Clocks represent a strict partial order of events. Not all events in the 
 
 See Section \ref{sec:merkleclocks}.
 
-\subsubsection{Conflict-Free Replicated Data Types}
+\subsubsection{Conflict-Free Replicated Data Types}\label{sec:CRDTs}
 
 In distributed models that use clock-based ordering as described above, a replica can arrive in a state that will require conflict resolution through consensus or rollback. Those operations can be expensive, having adverse effects on the scalability of distributed systems, especially ones attempting to synchronize an application state. 
 
@@ -234,17 +234,17 @@ So far we have primarily discussed the mechanics of creating or linking content 
 
 \subsubsection{Libp2p}
 
-The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects [MISSING] are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include NAT traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols [ref, ref]. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
+The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects (Polkadot, Ethereum 2.0, Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include network address translator \cite{srisureshIPNetworkAddress} (NAT) traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols \cite{Multiaddr}. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
 
 \subsubsection{Pubsub}
 
-One of the most commonly used p2p distribution layers built on libp2p, is its Pubsub (or publish-subscribe) system. Pubsub is a standard messaging pattern where the publishers don't know who, if anyone, will subscribe to a given topic. Publishers send messages on a given topic or category, and Subscribers receive only messages on a give topic they are subscribed to. Libp2p's pubsub module can be configured to utilize a floodsub protocol --- which floods the network with messages, and peers are required to ignore messages they are not interested in --- or gossipsub --- which is a proximity-aware epidemic pubsub, where peers communicate with proximal peers, and messages can be routed more efficiently. In those implementations, there is a benefit to using pubsub in that no direct connection between publishers and subscribers is required.
+One of the most commonly used p2p distribution layers built on libp2p, is its Pubsub (or publish-subscribe) system. Pubsub is a standard messaging pattern where the publishers don't know who, if anyone, will subscribe to a given topic. \emph{Publishers} send messages on a given topic or category, and \emph{Subscribers} receive only messages on a give topic to which they are subscribed. Libp2p's pubsub module can be configured to utilize a \emph{floodsub} protocol --- which floods the network with messages, and peers are required to ignore messages they are not interested in --- or \emph{gossipsub} --- which is a proximity-aware epidemic pubsub, where peers communicate with proximal peers, and messages can be routed more efficiently. In those implementations, there is a benefit to using pubsub in that no direct connection between publishers and subscribers is required.
 
-Another benefit to using pubsub is the ability to publish topical sequences of updates to multiple recipients. Like libp2p, encryption is a separate concern and often added in steps prior to data transmission. However, like libp2p, pubsub doesn't offer any simple solutions for transferring encryption keys (beyond public keys), synchronizing datasets across peers (i.e. they aren't databases), or enforcing any measures for access control (e.g. anyone subscribed to a topic can also author updates on that topic). To solve some of those challenges, some systems introduce message echoing and other partial solutions. However, it makes more sense to use pubsub and libp2p as building blocks in systems that can effectively solve these issues, by choosing multi-modal communication strategies or leveraging tools such as deferred routing (e.g. inboxing) for greater tolerance of missed messages.
+Another benefit to using pubsub is the ability to publish topical sequences of updates to multiple recipients. Like libp2p, encryption is a separate concern and often added in steps prior to data transmission. However, like libp2p, pubsub doesn't offer any simple solutions for transferring encryption keys (beyond public keys), synchronizing datasets across peers (i.e. they aren't databases), or enforcing any measures for access control (e.g. anyone subscribed to a topic can also author updates on that topic). To solve some of those challenges, some systems introduce message echoing and other partial solutions. However, it makes more sense to use pubsub and libp2p as \emph{building blocks} in systems that can effectively solve these issues, by choosing multi-modal communication strategies or leveraging tools such as deferred routing (e.g. inboxing) for greater tolerance of missed messages.
 
 \subsubsection{IPNS}
 
-Pubsub and libp2p have so far dealt with the push transfer of data, but IPFS also offers a useful technology for hosting pull/request based data endpoints called, IPNS. IPNS aims to address the challenge of mutable data within IPFS. IPNS relies on a global namespace (shared by participating IPFS peers) based on Public Key Infrastructure. By using IPNS, a content creator generates a new address in the global namespace and points that address to an endpoint (e.g. a CID). Using their private key, a content creator can update what static route the IPNS address refers to. IPNS isn't only useful for creating static addresses that can point to content addresses, IPNS is compatible with a naming system external from IPFS, such as DNS, onion, or bit addresses. However, many use-cases that require highly mutable data, require rapid availability of updates, or want flexible multi-party access control may not yet be suitable for IPNS. Taken together, libp2p, pubsub, IPNS, and IPFS more generally provide a useful toolkit for building robust abstractions to deliver fast, scalable, data synchronization in the decentralized network. 
+Pubsub and libp2p have so far only dealt with \emph{push-based} transfer of data, but IPFS also offers a useful technology for hosting \emph{pull/request} based data endpoints called, IPNS. IPNS aims to address the challenge of mutable data within IPFS. IPNS relies on a global namespace (shared by participating IPFS peers) based on Public Key Infrastructure. By using IPNS, a content creator generates a new address in the global namespace and points that address to an endpoint (e.g. a CID). Using their private key, a content creator can update what static route the IPNS address refers to. IPNS isn't only useful for creating static addresses that can point to content addresses, IPNS is compatible with a naming system external from IPFS, such as DNS, onion, or bit addresses. However, many use-cases that require highly mutable data, require rapid availability of updates, or want flexible multi-party access control may not yet be suitable for IPNS. Taken together, libp2p, pubsub, IPNS, and IPFS more generally provide a useful toolkit for building robust abstractions to deliver fast, scalable, data synchronization in the decentralized network. 
 
 
 \subsection{Data Access \& Control}
@@ -255,22 +255,21 @@ IPFS is an implementation of public key infrastructure, where every node on the 
 
 \subsubsection{Agent-centric security}
 
-Agent-centric security refers to the practice of maintaining data integrity without leveraging a central or blockchain-based consensus. The general approach is just to let the reader enforce permissions and perform validations, not the writer or some central authority. Agent-centric security is possible if the reader can reference local-only, tamper-free code or if the state can be used to determine whether a given operation (e.g. delete data) is permitted. Many decentralized networks like Secure Scuttlebutt [1] and Holochain [2] make use of agent-centric security. Each of these systems leverage cryptographic signatures to validate peer identities and messages.
-
+Agent-centric security refers to the practice of maintaining data integrity without leveraging a central or blockchain-based consensus. The general approach is just to let the reader enforce permissions and perform validations, not the writer or some central authority. Agent-centric security is possible if the reader can reference local-only, tamper-free code or if the state can be used to determine whether a given operation (e.g. delete data) is permitted. Many decentralized networks like Secure Scuttlebutt \cite{ScuttlebuttProtocolGuide} and Holochain \cite{ericharris-braunHolochainScalableAgentcentric2018} make use of agent-centric security. Each of these systems leverage cryptographic signatures to validate peer identities and messages.
 
 \subsubsection{Access control}
 
-All filesystems and databases have some notion of "access control." Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects [ref]. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object. 
+All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object. 
 
 \begin{figure}
   \includegraphics[width=\linewidth]{boat.jpg}
   \caption{Example Access Control List.}
-  \label{fig:boat1}
+  \label{fig:ACL}
 \end{figure}
 
-Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time [1, 2]. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
+Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time \cite{herzbergAccessControlMeets2000}. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
 
-Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, "grant Bob write access" and "revoke read access from Alice" would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
+Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, ``grant Bob write access'' and ``revoke read access from Alice'' would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
 
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
@@ -283,47 +282,45 @@ Threads are topic-based collections of single-writer logs. Taken together, these
 
 \subsubsection{Single-writer Event Logs}
 
-In multi-writer systems, determining causal order in all replicas is particularity challenging. As previously discussed (section 2.2.4), a solution based on a Merkle-Clock is only partially ordered. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy [ref]:
-
+In multi-writer systems, determining causal order in all replicas is particularity challenging. As previously discussed (section \ref{sec:merkleclocks}), a solution based on a Merkle-Clock is only partially ordered. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
 
 \begin{quote}
-	A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
+A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
 \end{quote}
 
 In many cases, the total order of an event sequence is meaningful, and this type of deterministic merge strategy in not sufficient. A git merge highlights one such case, in which additional information is sometimes needed in order to resolve a line conflict. Ledger based transactions present a similar challenge where the absolute order of transactions between multiple peers really does matter.
 
-Our solution to deal with divergent Merkle-Clocks is to institute a single-writer rule: A log can only be updated by a single replica or identity. An Event Log is a single-writer Merkle-Clock that can be totally ordered. Separate Event Logs can be composed into advanced structures, including CRDTs [Ref Enes].
+Our solution to deal with divergent Merkle-Clocks is to institute a \emph{single-writer rule}: A log can only be updated by a single replica or \emph{identity}. An Event Log is a \emph{single-writer Merkle-Clock} that can be totally ordered. \emph{Separate} Event Logs can be composed into advanced structures, including CRDTs \cite{enesSingleWriterPrincipleCRDT2017}.
 
-Practically speaking, for any given Log, Events are authored by a single IPFS Peer, or Writer.
+Practically speaking, for any given Log, Events are authored by a single IPFS Peer, or \emph{Writer}.
 
 \begin{definition}
 (Writer). The single IPFS Peer capable of writing to an Event Log.
 \end{definition}
 
-This single-writer setup is a core feature of Logs, and provides properties unique to the Threads protocol. For clarity, we can similarly define a Reader as any other Peer capable of reading a Log.
+This single-writer setup is a core feature of Logs, and provides properties unique to the Threads protocol. For clarity, we can similarly define a \emph{Reader} as any other Peer capable of reading a Log.
 
 \begin{definition}
 (Reader). Any Peer capable of reading a Log. Practically speaking, this means any Peer with the Log's Read key (see Section  \ref{sec:KeysEncryption}).
 \end{definition}
 
-
-As seen above in section 2.3.4., a Merkle-Clock is simply a Merkle-DAG of Events:
+As seen above in section \ref{sec:merkleclocks}, a Merkle-Clock is simply a Merkle-DAG of \emph{Events}:
 
 \begin{definition}
- (Event). An single node in a Merkle-Clock, stored on IPFS.
+ (Event). A single node in a Merkle-Clock, stored on IPFS.
 \end{definition}
 
 \begin{figure}
   \includegraphics[width=\linewidth]{boat.jpg}
   \caption{A single-writer Merkle-Clock (Event Log).}
-  \label{fig:boat1}
+  \label{fig:EventLog}
 \end{figure}
 
-Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure X.X.) enabling log verification by readers (see Section  \ref{sec:KeysEncryption}).
+Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure \ref{fig:EventLog}) enabling log verification by readers (see Section  \ref{sec:KeysEncryption}).
 
-At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification [ref].
+At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification \cite{meyerBamboo2019}.
 
-TODO: Ref to appendix
+MISSING: Ref to appendix
 
 As seen above, an Event's actual content, or body, is contained in a separate node. This allows Events to carry any arbitrary node structure, from complex directories to raw bytes.
 
@@ -350,7 +347,7 @@ As seen above, an Event's actual content, or body, is contained in a separate no
 
 \subsubsection{Multi-addressed Event Logs}
 
-Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses (see Example \ref{ex:Multiaddress}).
+Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses \cite{Multiaddr}. Here we introduce \emph{IPEL}, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses (see Example \ref{ex:Multiaddress}).
 
 In practice, to reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see Example \ref{ex:Multiaddress}).
 
@@ -369,19 +366,21 @@ type AddrBook interface {
 \caption{AddrBook storing log addresses.}
 \end{example} \label{ex:AddrBook}
 
-Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table [ref] (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
+Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table \cite{benetIPFSContentAddressed2014} (DHT). Instead, they are collected from Log Events (see Section  \ref{sec:UseCases}). This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed\footnote{This is similar to the append-only message feeds used in Secure Scuttlebutt’s global gossip network \cite{ScuttlebuttProtocolGuide}} like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
+
+MISSING PEER ADDRESS BOOK?
 
 Addresses can expire by specifying a time-to-live (TTL) value when adding or updating them in the address book, which allows for unresponsive addresses to eventually be removed.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely connected computers (Peers). Therefore, datasets distributed across such networks can be thought of as highly partitioned. To ensure updates are available between mostly offline or otherwise disconnected Peers (like mobile devices), Textile Logs are designed with a built-in replication or follower mechanism.
 
-\begin{definition}Follower). Log Writers can designate other IPFS Peers to ``follow'' a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log's contents. Followers should be server-based --- i.e., always online and behind a public IP address.\end{definition}
+\begin{definition} (Follower). Log Writers can designate other IPFS Peers to ``follow'' a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log's contents. Followers should be server-based --- i.e., always online and behind a public IP address.\end{definition}
 
-Followers are represented as additional addresses, meaning that a Log address book may contain multiple multiaddresses for a single Log 
+Followers are represented as additional addresses, meaning that a Log address book may contain \emph{multiple} multiaddresses for a single Log .
 
-TODO: ref to embed
+MISSING: ref to embed
 
-In practice, Writers are solely responsible for announcing their Log's addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to pull (or subscribe to push-based) Events from the Follower's Log address when the Writer is offline or unreachable.
+In practice, Writers are solely responsible for announcing their Log's addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to \emph{pull} (or subscribe to push-based) Events from the Follower's Log address when the Writer is offline or unreachable.
 
 \subsubsection{Keys \& Encryption} \label{sec:KeysEncryption}
 
@@ -417,23 +416,23 @@ Textile Logs are designed to be shared, composed, and layered into datasets. The
 (Identity Key). Every Log requires an asymmetric key-pair that determines ownership and identity. The private key is used to sign each Event added to the Log, so down-stream processes can verify the Log's authenticity. Like IPFS peers, the public key of the Log is used as an identifier (Log ID).
 \end{definition}
 
-The body, or content of an event, is encrypted by a Content Key. Content keys are generated per-content and never reused. The Content key is distributed directly in the header of the Event Block. We define the Content Key as follows,
+The body, or content of an event, is encrypted by a \emph{Content Key}. Content keys are generated per-content and never reused. The Content key is distributed directly in the header of the Event Block. We define the Content Key as follows,
 
 \begin{definition}
 (Content Key). The Content key is a variable-format key used to encrypt the body (content) of an event. This key can be symmetric, asymmetric, or possibly non-existent in cases where encryption is not needed. One of two common encryption choices will typically be used per event, 
 \begin{enumerate}
 \item \label{Perf1}When broadcasting events to many possible recipients, a single-use symmetric key is generated per unique content body.
-\item \label{Perf2}When sending events to specific recipients, the recipient's public key can be used to restrict access from all others.
+\item \label{Perf2}When sending events to specific recipients, the recipient's public key can be used to restrict access from all others\footnote{much like private messages in Secure Scuttlebutt (https://www.scuttlebutt.nz/concepts/private-message)}.
 \end{enumerate}
 \end{definition}
 
-If a single-use symmetric key is used for the Content key, it is necessary to distribute each new key to users by including it in the header of the Event Block. Therefore, the Event Block itself is further encrypted using a Read key. The Read key is not distributed within the Log itself but is distributed to any peers to grant them access to the content of the Log. 
+If a single-use symmetric key is used for the Content key, it is necessary to distribute each new key to users by including it in the header of the Event Block. Therefore, the Event Block itself is further encrypted using a \emph{Read} key. The Read key is not distributed within the Log itself but is distributed to any peers to grant them access to the content of the Log. 
 
 \begin{definition}
  (Read Key). The Read key is a symmetric key created by the Log owner and used to encrypt the Content Key in each event.
 \end{definition}
 
-Finally, the encrypted Event Block, its signature, and the IPLD linkage(s) from an Event to its antecedents are encrypted together using a Follow key. Follow keys allow Logs to be followed by peers on the network who do not have access to any content within the event, and can only see signatures and linkage(s) between Events.
+Finally, the encrypted Event Block, its signature, and the IPLD linkage(s) from an Event to its antecedents are encrypted together using a Follow key. Follow keys allow Logs to be \emph{followed} by peers on the network who do not have access to any content within the event, and can only see signatures and linkage(s) between Events.
 
 \begin{definition}
 (Follow Key). The Follow key is a symmetric key created by the Log owner and used to encrypt the entire event payload before adding the event to the Log.
@@ -443,7 +442,7 @@ Much like the Log address book, Log keys are stored in a key book (see Example \
 
 \subsection{Threads}
 
-In Textile, the interface to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock [ref]) or a CRDT.
+In Textile, the \emph{interface} to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock \cite{kulkarniLogicalPhysicalClocks2014}) or a CRDT (see Section \ref{sec:CRDTs}).
 
 \subsubsection{Identity}
 
@@ -452,10 +451,10 @@ A unique Thread IDentity (TID) is used to group together Logs which compose a si
 \begin{figure}
   \includegraphics[width=\linewidth]{boat.jpg}
   \caption{The thread id formula.}
-  \label{fig:boat1}
+  \label{fig:ThreadId}
 \end{figure}
 
-TIDs share some similarities with UUIDs [ref] (version and variant) and IPFS-based CIDs and are multibase encoded [ref] for maximum forward-compatibility.
+TIDs share some similarities with UUIDs \cite{leachUniversallyUniqueIDentifier2005} (version and variant) and IPFS-based CIDs and are multibase encoded\footnote{https://github.com/multiformats/multibase} for maximum forward-compatibility.
 
 \begin{definition}
 (Multibase Prefix). The encoding type used by the multibase encoder. 1 byte.
@@ -477,7 +476,7 @@ Base32 encoding is used by default. However, any multibase-supported string enco
 
 \subsubsection{Variants}
 
-Certain ID variants may be more appropriate than the others in specific use cases. For example, Textile provides an access-controlled Thread variant, which supports various collaborative structures --- e.g., social media feeds, shared documents, blogs, photo albums, etc.
+Certain ID \emph{variants} may be more appropriate than the others in specific use cases. For example, Textile provides an \emph{access-controlled} Thread variant, which supports various collaborative structures --- e.g., social media feeds, shared documents, blogs, photo albums, etc.
 
 \begin{definition}
 (Raw). This variant declares that consumers are not expected to make additional assumptions. This is the default variant.\\
@@ -508,15 +507,15 @@ bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 
 \subsubsection{Log Synchronization} \label{sec:LogSync}
 
-Log Writers, Readers, and Followers synchronize the state of their Logs by sending and receiving Events. Inspired by Git [ref], a reference to the latest Event in a Log is referred to as the Head (or sometimes the root). When a new Event is received, Readers and Followers simply advance their Head reference.
+Log Writers, Readers, and Followers synchronize the state of their Logs by sending and receiving Events. Inspired by Git\footnote{https://git-scm.com/}, a reference to the latest Event in a Log is referred to as the \emph{Head} (or sometimes the \emph{root}). When a new Event is received, Readers and Followers simply advance their Head reference.
 
-Regardless of the network protocol, Events are transported between Peers in a standardized Event Envelope:
+Regardless of the network protocol, Events are transported between Peers in a standardized \emph{Event Envelope}:
 
 \begin{definition}
 (Event Envelope). An over-the-wire message containing an Event and the sender's signature of the Event.
 \end{definition}
 
-A new Thread is created by generating a TID and Log. The Log's creator is the Writer, meaning it has possession of the Log's Identity, Read, and Follow keys. All of these keys are needed to compose Events. At this point, the Thread only exists on the Writer's machine. Whether for collaboration, reading, or following, the process of sharing a Thread with other Peers starts by authoring a special Event called an Invite, which contains a set of keys from all of the Thread's Logs, called a Key Set.
+A new Thread is created by generating a TID and Log. The Log's creator is the Writer, meaning it has possession of the Log's Identity, Read, and Follow keys. All of these keys are needed to compose Events. At this point, the Thread only exists on the Writer's machine. Whether for collaboration, reading, or following, the process of sharing a Thread with other Peers starts by authoring a special Event called an \emph{Invite}, which contains a set of keys from all of the Thread's Logs, called a \emph{Key Set}.
 
 \begin{definition}
 (Invite). An Event containing a mapping of Log IDs to Key Sets, which can be used to join a Thread. Threads backed by an access control list (see Section  \ref{sec:AccessControl}) will also include the current ACL for the Thread in an Invite. This enables Peers to invite others to only read or follow a Thread, instead of becoming a full-on collaborator, i.e., a new Log Writer.
@@ -526,10 +525,10 @@ A new Thread is created by generating a TID and Log. The Log's creator is the Wr
 (Key Set). A set of keys for a Log. Depending on the context, a Key Set may contain the Follow and Read key, or just the Follow key. Encrypted with the recipient's public key.
 \end{definition}
 
-The Invite is authored in the sender's Log. Because the recipient does not yet have this Log's Key Set, the Event is encrypted with the recipient's public key. If the recipient accepts the Invite, they will author another special Event called a Join in a new Log of their own.
+The Invite is authored in the sender's Log. Because the recipient does not yet have this Log's Key Set, the Event is encrypted with the recipient's public key. If the recipient accepts the Invite, they will author another special Event called a \emph{Join} in a new Log of their own.
 
 \begin{definition}
-(Join). An Event containing an invitee's new Log ID and Key Set, encrypted with the Key Set of the inviting Peer's Log.
+(Join). An Event containing an invitee's new Log ID and Key Set, encrypted with the Key Set of the \emph{inviting Peer's Log}.
 \end{definition}
 
 For a Join to be successful, all Log Writers must receive a copy of the new Key Set so they can properly handle future Events in the new Log. Instead of encrypting a Join with the public key of each existing Writer, we can encrypt a single Join with the Key Set of the inviting Peer's Log, which the other Writers also have.
@@ -541,17 +540,17 @@ Once a Peer has accepted an Invite, it will receive new Events from Log Writers.
 Sending is performed in multiple phases because, invariably, some Thread participants will be offline or unresponsive. 
 
 \begin{enumerate}
-\item \label{Perf1}New Events are pushed directly to the Thread's other Log Writers.
+\item \label{Perf1}New Events are pushed\footnote{Here push means ``send to multiaddress(es)'', which may designate different protocols, e.g., p2p, HTTP, Bluetooth, etc.} directly to the Thread's other Log Writers.
 \item \label{Perf2}New Events are pushed directly to the target Log's Follower(s), who may not maintain their own Log.
 \item \label{Perf3} New Events are published over Libp2p's gossip-based Pub/Sub infrastructure using TID as a topic, which provides potentially unknown Readers or Followers with an opportunity to consume Events in real-time.
 \end{enumerate}
 
-Step 2 above allows for additional push mechanisms, as followers with public IP addresses become relays:
+Step 2 above allows for \emph{additional} push mechanisms, as followers with public IP addresses become relays:
 
 \begin{enumerate}
 \item \label{Perf1}New Events may be pushed to web-based participants over a WebSocket.
-\item \label{Perf2}New Events may be pushed to the Thread's other Log Writers via federated notification services like Apple Push Notification Service (APNS) [ref], Google Cloud Messaging (GCM) [ref], Firebase Cloud Messaging (FCM) [ref], and/or Windows Notification Service (WNS) [ref].
-\item \label{Perf3} New Events may trigger web-hooks [ref] enabling complex workflows (see Section X below).\\
+\item \label{Perf2}New Events may be pushed to the Thread's other Log Writers via federated notification services like Apple Push Notification Service (APNS), Google Cloud Messaging (GCM), Firebase Cloud Messaging (FCM), and/or Windows Notification Service (WNS).
+\item \label{Perf3} New Events may trigger web-hooks\footnote{https://en.wikipedia.org/wiki/Webhook} enabling complex workflows (see Section X below).\\
 \end{enumerate}
 
 \textbf{Receiving} \\
@@ -577,15 +576,15 @@ The notion of the Follow key (see Section  \ref{sec:KeysEncryption}) makes dupli
 
 The use of well-established design patterns from the CQRS+ES (and related) literature means the Threads protocol can provide the foundation for many higher-level concepts and technologies. For instance, the public application programming interface (API) for a Thread provides several features that you would expect when operating on a dataset or table within a database. Indeed, each Thread is defined by a unique ID (its Identity), and provides facilities for access control and permissions, networking, sharing, invites, and more.
 
-Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be materialized to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
+Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store\footnote{Though see section \ref{sec:SnapshotsCompaction} for a discussion of Snapshots, which may be used to speed up Views.}. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
 
-\subsubsection{Default Views}
+\subsubsection{Default Views}\label{sec:DefaultViews}
 
-The core Textile Threads interfaces are also exposed via interfaces compatible with existing datastores and/or communications systems. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. In the remainder of this section, we highlight a number of planned database abstractions to provide further utility to developers interested in building on Textile's Threads protocol.\\
+The core Textile Threads interfaces are also exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. In the remainder of this section, we highlight a number of planned database abstractions to provide further utility to developers interested in building on Textile's Threads protocol.\\
 
 \textbf{Databases} \\
 
-A key/value store built on top of Threads can map database `Put` operations into internal `KeyValueUpdated` events. These Events would then operate on a map-like view model, via an internal ``projection'' (reducer function). The key/value view could be persisted or kept in-memory, and would be directly queried via a corresponding `Get` operation. Because Textile uses ES patterns, a `Del` operation would simply lead to an internal `KeyValueDeleted` event, marking the key/value pair for removal from the key/value materialized view.
+A key/value store built on top of Threads can map database \texttt{Put} operations into internal \texttt{KeyValueUpdated} events. These Events would then operate on a map-like view model, via an internal ``projection'' (reducer function). The key/value view could be persisted or kept in-memory, and would be directly queried via a corresponding \texttt{Get} operation. Because Textile uses ES patterns, a \texttt{Del} operation would simply lead to an internal \texttt{KeyValueDeleted} event, marking the key/value pair for removal from the key/value materialized view.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -616,32 +615,31 @@ type TextileDocumentStore interface {
 \caption{The Document store interface.}
 \end{example} \label{ex:AddrBook}
 
-Where `Indexable` can be satisfied by any structure with a  `key` field and and `Query` is taken from the `go-datastore` interface library [ref] or similar. Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores. Each database style will be implemented as a standalone software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.\\
+Where \texttt{Indexable} can be satisfied by any structure with a  \texttt{key} field and and \texttt{Query} is taken from the \texttt{go-datastore} interface library\footnote{https://github.com/ipfs/go-datastore} or similar. Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores\footnote{In-memory stores are almost always implementable using compositions of basic data structures.}. Each database style will be implemented as a standalone software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.\\
 
 \textbf{CRDTs} \\
 
-Eventually consistent, CRDT-based stores can also be implemented on top of Threads. CRDT-based stores are particularly useful for managing Views of a document in a multi-peer collaborative editing environment (like GoogleDocs [ref] or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype [ref] that applies updates on a JSON document View model. Libraries such as Automerge [ref] provide useful examples of reducer function that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available. A practical example of using a JSON CRDT in Textile is given in section 3.4, where it is used to represent updates to an ACL document for an access-controlled Thread implementation.\\
+Eventually consistent, CRDT-based stores can also be implemented on top of Threads. CRDT-based stores are particularly useful for managing Views of a document in a multi-peer collaborative editing environment (like Google Docs or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype \cite{kleppmannConflictFreeReplicatedJSON2017} that applies updates on a JSON document View model. Libraries such as Automerge\footnote{https://github.com/automerge/automerge} provide useful examples of reducer function that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available. A practical example of using a JSON CRDT in Textile is given in section \ref{sec:AccessControl}, where it is used to represent updates to an ACL document for an access-controlled Thread implementation.\\
 
 \textbf{Application State} \\
 
-For application developers familiar with common state management issues, tools such as Redux provide an opinionated framework for making state mutations predictable by imposing certain restrictions on how and when updates can happen. In fact, Redux builds on concepts from CRQS and ES itself [ref], and combines them with three core principals [ref]: 1) that the entire ``state' of an application should be stored in a single ``store'', 2) where the only way to change the state is to emit an ``action'' (or event), which 3) transforms the application state using a ``pure'' (i.e., zero side effects) reducer function (projection). In practice, Redux doesn't care how a developer persists the application state, which means a Thread's event store and read-only materialized views are excellent candidates. This focus on unidirectional data flow in perfectly in line with architecture proposed in this paper, and as such, a compatible Redux API will be built on top of Textile Threads.
-
+For application developers familiar with common state management issues, tools such as Redux provide an opinionated framework for making state mutations predictable by imposing certain restrictions on how and when updates can happen. In fact, Redux builds on concepts from CRQS and ES itself \cite{reduxMotivation}, and combines them with three core principals: 1) that the entire ``state' of an application should be stored in a single ``store'', 2) where the only way to change the state is to emit an ``action'' (or event), which 3) transforms the application state using a ``pure'' (i.e., zero side effects) reducer function (projection). In practice, Redux doesn't care how a developer persists the application state, which means a Thread's event store and read-only materialized views are excellent candidates. This focus on unidirectional data flow in perfectly in line with architecture proposed in this paper, and as such, a compatible Redux API will be built on top of Textile Threads.
 
 \subsection{Thread Extensions}
 
-At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, datastores that are fault tolerant, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS+ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility of Threads.
+At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, datastores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS+ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility of Threads.
 
-\subsubsection{Snapshots and Compaction}
+\subsubsection{Snapshots and Compaction}\label{sec:SnapshotsCompaction}
 
-Snapshots are simply the current state of a View at a given point in time. They can be used to rebuild the state of a view without having to query and re-play all previous events. When a Snapshot is available, a Thread Peer can rebuild the state of a given View by replaying any events generated since the latest Snapshot (with a corresponding reduction in the total number of events that need to be processed) using the View's Reducer function. Multiple peers processing the same Log could create a Snapshot every 1000 events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical. 
+Snapshots\footnote{The literature around snapshots and other CQRS and ES is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a View at a given point in time. They can be used to rebuild the state of a view without having to query and re-play all previous events. When a Snapshot is available, a Thread Peer can rebuild the state of a given View by replaying any events generated since the latest Snapshot (with a corresponding reduction in the total number of events that need to be processed) using the View's Reducer function. Multiple peers processing the same Log could create a Snapshot every 1000 events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
 
 In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (see Section \ref{sec:LogSync}) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing state during recovery.
 
-Compaction can similarly speed up re-hydration of state, and is useful when only the latest Event per Event type is required. In addition to being used as a starting point for initialization and recovery, compacted logs can be used to replace the Log from which they were created in order to free up local disk space. In Textile, compaction becomes much easier because a log only has one writer and conflicts are not possible. In practice, Log compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
+Compaction can similarly speed up re-hydration of state, and is useful when only the latest Event per Event type is required. In addition to being used as a starting point for initialization and recovery, compacted logs can be used to \emph{replace} the Log from which they were created in order to free up local disk space. In Textile, compaction becomes much easier because a log only has one writer and conflicts are not possible. In practice, Log compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
 
 \subsubsection{Access Control} \label{sec:AccessControl}
 
-One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can follow, read, write, and delete Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition XXX) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (see section 3.3.2 for details). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
+One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can \emph{follow, read, write, and delete} Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition \ref{ex:SequenceID}) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (see section \ref{sec:DefaultViews} for details). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
 
 \begin{definition}
 (Sequence). An Event Sequence is a series of ordered events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events. A Sequence might have a unique UUID (see Example \ref{ex:SequenceID}) as in the example below.
@@ -658,7 +656,7 @@ bafykrq5i25vd64ghamtgus6lue74k
   \label{ex:SequenceID}
 \end{example}
 
-Textile's Threads includes ACL management tooling based on a Role-based access control [ref] pattern, wherein individuals or groups are assigned roles which carry specific permissions. Roles can be added and removed as needed. Textile ACLs can make use of five distinct roles: No-access, Follow, Read, Write, and Delete.
+Textile's Threads includes ACL management tooling based on a \emph{Role-based access control} \cite{sandhuRolebasedAccessControl1996} pattern, wherein individuals or groups are assigned roles which carry specific permissions. Roles can be added and removed as needed. Textile ACLs can make use of five distinct roles\footnote{By default, Threads without access control operate similar to Secure Scuttlebutt (SSB; where every peer consumes what they want and writes what they want).}: \emph{No-access, Follow, Read, Write, and Delete}.
 
 \begin{definition}
 (No-access). No access is permitted. This is the default role.
@@ -680,7 +678,7 @@ Textile's Threads includes ACL management tooling based on a Role-based access c
 (Delete). Members of this role are able to delete Events, which implies access to Log Follow Keys. In practice, this means marking an older Event as ``deleted''.
 \end{definition}
 
-Below is a typical Thread-level ACL JSON document (where id is a unique id), which could be persisted to a local document store as part of a materialized view.
+Below is a typical Thread-level ACL JSON document (where \texttt{\_id} is a unique id), which could be persisted to a local document store as part of a materialized view.
 
 todo: fixidexampleabove 
 
@@ -703,7 +701,7 @@ todo: change code type below
 \end{minipage}
 \end{example}
 
-The `default` key states the default role for all network peers. The `peers` map is where roles are delegated to specific peers. Here, `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated follower, and `12D..P2c6ifo` has been given read access.
+The \texttt{default} key states the default role for all network peers. The \texttt{peers} map is where roles are delegated to specific peers. Here, \texttt{12D..dwaA6Qe} is likely the owner, \texttt{12D..dJT6nXY} is a designated follower, and \texttt{12D..P2c6ifo} has been given read access.
 
  A Thread-level ACL has it's own document ACL, which also applies to all other document ACLs:
 
@@ -720,11 +718,11 @@ The `default` key states the default role for all network peers. The `peers` map
 \caption{Blahblah}
 \end{example}
 
-This means that only `12D..dwaA6Qe` is able to alter the access-control list.
+This means that only \texttt{12D..dwaA6Qe} is able to alter the access-control list.
 
 \section{Conclusion}
 
-In this paper, we described the challenges and considerations when attempting to create a protocol suitable for large-scale data storage, synchronization, and use in a distributed system. We identified six requirements for enabling user-siloed data: flexible data formats, efficient synchronization, conflict resolution, access-control, scalable storage, and network communication. We presented a novel solution to satisfy each of these six requirements. We have introduced a solution that extends on IPFS and prior research done by Textile and others, which we term Threads. Threads are a novel data architecture that builds upon a collection of protocols to deliver a scalable and robust storage system for end-user data. 
+In this paper, we described the challenges and considerations when attempting to create a protocol suitable for large-scale data storage, synchronization, and use in a distributed system. We identified six requirements for enabling \emph{user-siloed} data: flexible data formats, efficient synchronization, conflict resolution, access-control, scalable storage, and network communication. We presented a novel solution to satisfy each of these six requirements. We have introduced a solution that extends on IPFS and prior research done by Textile and others, which we term Threads. Threads are a novel data architecture that builds upon a collection of protocols to deliver a scalable and robust storage system for end-user data. 
 
 We show that the flexible core structure of single-writer append-only logs can be used to compose higher-order structures such as Threads, Views, and/or CRDTs. In particular, we show that through the design of specific default Views, we can support important features such as access control lists. The Threads protocol described here is flexible enough to derive numerous specific database types (e.g. key/value stores, document stores, relational stores, etc) and model an unlimited number of applications states. The cryptography used throughout Threads will help shift the data ownership model from apps to users. 
 
@@ -736,11 +734,11 @@ The research and development of Textile Threads has highlighted several addition
 
 \subsubsection{Enhanced Log Security}
 
-Threads change the relationship between a user, their data, and the services they connect with that data. The nested, or multi-layered, encryption combined with powerful ACL capabilities create new opportunities to build distributed services, or Bots, on a network of Textile peers. Based on the Follow key now available in Threads, Bots would be able to relay, replicate, or store data that is synchronized via real-time updates in a trust-less way [ref]. Bots can additionally enhance the IPFS network by providing a framework to build and deploy many kinds of trust-less or trusted services. Examples include simple archival, caching and republishing Bots. Other examples include payment, re-encryption, or bridges to Web 2.0 services to offer decentralized access to Web 2.0.
+Threads change the relationship between a user, their data, and the services they connect with that data. The nested, or multi-layered, encryption combined with powerful ACL capabilities create new opportunities to build distributed services, or Bots, on a network of Textile peers. Based on the Follow key now available in Threads, Bots would be able to relay, replicate, or store data that is synchronized via real-time updates in a \emph{trust-less} way. Bots can additionally enhance the IPFS network by providing a framework to build and deploy many kinds of trust-less or trusted services. Examples include simple archival, caching and republishing Bots. Other examples include payment, re-encryption, or bridges to Web 2.0 services to offer decentralized access to Web 2.0.
 
 \subsubsection{Textile: The Thread \& Bot Network}
 
-The use of a single Read and Follow key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets [ref], and/or incorporating the Double Ratchet Algorithm [ref] for forward secrecy [ref].
+The use of a single Read and Follow key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets \cite{KeyRotation}, and/or incorporating the Double Ratchet Algorithm \cite{marlinspikeDoubleRatchetAlgorithm2016} for forward secrecy \cite{ungerSoKSecureMessaging2015}.
 
 \begin{example*}
 
@@ -797,46 +795,7 @@ type EventHeader interface {
 
 \end{example*}
 
-
-\section{Conclusions} \label{Conclusions}
-In this paper we have considered auctions in which bidders make
-offers that are sequentially increasing in value by a unit price
-in order to minimally surpass the previous highest bid, and
-modelled them as discrete state-space random processes in
-continuous time. Analytical solutions are obtained and measures
-that are of interest to the SB are derived.
-
-The measures that can be computed in this way include the SB's
-probability of winning the auction, its expected savings with
-respect to the maximum sum it is willing to pay, and the average
-time that the SB spends before it can make a purchase. An
-extension of the model that incorporates price-dependent
-behaviours of the agents has also been presented.
-
-The model allows us to quantitatively characterise intuitive and
-useful trade-offs between improving the SB's chances of buying a
-good quickly, and the price that it has to pay, in the presence of
-different levels of competition from the other bidders.
-
-
-There are interesting extensions and applications of these models
-that can be considered, such as the behaviour of bidders and
-sellers that may have time constraints for making a purchase, and
-the possibility of the SB's moving among different auctions so as
-to optimise measures which represent its self-interest. Another
-interesting area of study may be to examine bidders who are
-``rich'' and are willing to drive away rivals at any cost, and who
-may create different auction environments for bidders that have
-significantly different levels of wealth. Yet another area of
-interest concerns auctions where items are sold in batches of
-varying sizes, with prices which depend on the number of items
-that are being bought.
-
-\ack{This research was undertaken as part of the ALADDIN
-(Autonomous Learning Agents for Decentralised Data and Information
-Networks) project and is jointly funded by a BAE Systems and EPSRC
-(Engineering and Physical Research Council) strategic partnership
-(EP/C548051/1).}
+\ack{This was all Textile baby!}
 
 
 \nocite{*}
