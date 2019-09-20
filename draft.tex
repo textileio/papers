@@ -445,7 +445,7 @@ Much like the Log address book, Log keys are stored in a key book (see Example \
 
 \subsection{Threads}
 
-In Textile, the interface to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock [ref]) or a CRDT (see section xx).
+In Textile, the interface to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock [ref]) or a CRDT.
 
 \subsubsection{Identity}
 
@@ -474,31 +474,39 @@ Base32 encoding is used by default. However, any multibase-supported string enco
 \end{definition}
 
 \begin{definition}
-(Random Number). A random number of a user-specified length. 16 bytes or more.
+(Random Number). A random number of a user-specified length. 16 bytes or more  (see Example \ref{ex:Identity}).
 \end{definition}
 
 \subsubsection{Variants}
 
 Certain ID variants may be more appropriate than the others in specific use cases. For example, Textile provides an access-controlled Thread variant, which supports various collaborative structures — e.g., social media feeds, shared documents, blogs, photo albums, etc.
 
-
 \begin{definition}
-(Raw). This variant declares that consumers are not expected to make additional assumptions. This is the default variant. 
+(Raw). This variant declares that consumers are not expected to make additional assumptions. This is the default variant.\\
+
+See Example \ref{ex:Identity}).
 \end{definition}
 
-Example (V1, 128 bit): `bafkxd5bjgi6k4zivuoyxo4ua4mzyy`
-
-
 \begin{definition}
-(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (see Section  \ref{sec:AccessControl}).
+(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (see Section  \ref{sec:AccessControl}).\\
+
+See Example \ref{ex:Identity}).
 \end{definition}
 
-\begin{example}
-\begin{lstlisting}
-"bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya"
+\begin{example*}
+\centering
+\begin{minipage}{0.6\textwidth}
+\begin{lstlisting}[language=json,firstnumber=1]
+# Raw identity. V1, 128 bit
+bafkxd5bjgi6k4zivuoyxo4ua4mzyy
+
+# ACL enabled identity. V1, 256 bit.
+bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 \end{lstlisting}
-\caption{V1, 256 bit.}
-\end{example} \label{ex:v1256}
+\end{minipage}
+  \caption{Identity variants.}
+  \label{ex:Identity}
+\end{example*}
 
 \subsubsection{Log Synchronization} \label{sec:LogSync}
 
@@ -571,7 +579,7 @@ The notion of the Follow key (see Section  \ref{sec:KeysEncryption}) makes dupli
 
 The use of well-established design patterns from the CQRS+ES (and related) literature means the Threads protocol can provide the foundation for many higher-level concepts and technologies. For instance, the public application programming interface (API) for a Thread provides several features that you would expect when operating on a dataset or table within a database. Indeed, each Thread is defined by a unique ID (its Identity), and provides facilities for access control and permissions, networking, sharing, invites, and more.
 
-Like many CQRS-based systems, the “public” API for Threads revolves around the concept of Views (see background section xxx), which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be materialized to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
+Like many CQRS-based systems, the “public” API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be materialized to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
 
 \subsubsection{Default Views}
 
@@ -629,7 +637,7 @@ At an abstract level, the Textile protocol provides a highly distributed framewo
 
 Snapshots are simply the current state of a View at a given point in time. They can be used to rebuild the state of a view without having to query and re-play all previous events. When a Snapshot is available, a Thread Peer can rebuild the state of a given View by replaying any events generated since the latest Snapshot (with a corresponding reduction in the total number of events that need to be processed) using the View’s Reducer function. Multiple peers processing the same Log could create a Snapshot every 1000 events and be guaranteed to create the exact same Snapshot because each Peer’s Event counts are identical. 
 
-In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (see section 3.2.4) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing state during recovery.
+In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (see Section \ref{sec:LogSync}) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing state during recovery.
 
 Compaction can similarly speed up re-hydration of state, and is useful when only the latest Event per Event type is required. In addition to being used as a starting point for initialization and recovery, compacted logs can be used to replace the Log from which they were created in order to free up local disk space. In Textile, compaction becomes much easier because a log only has one writer and conflicts are not possible. In practice, Log compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
 
@@ -638,10 +646,19 @@ Compaction can similarly speed up re-hydration of state, and is useful when only
 One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can follow, read, write, and delete Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition XXX) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (see section 3.3.2 for details). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
 
 \begin{definition}
-(Sequence). An Event Sequence is a series of ordered events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events. A Sequence might have a unique UUID (.e.g, id =bafykrq5i25vd64ghamtgus6lue74k) as in the example below.
+(Sequence). An Event Sequence is a series of ordered events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events. A Sequence might have a unique UUID (see Example \ref{ex:SequenceID}) as in the example below.
 \end{definition}
 
-fixidexampleabove
+
+\begin{example}
+\centering
+\begin{lstlisting}[language=json,firstnumber=1]
+# UUID
+bafykrq5i25vd64ghamtgus6lue74k
+\end{lstlisting}
+  \caption{Sequence ID.}
+  \label{ex:SequenceID}
+\end{example}
 
 Textile’s Threads includes ACL management tooling based on a Role-based access control [ref] pattern, wherein individuals or groups are assigned roles which carry specific permissions. Roles can be added and removed as needed. Textile ACLs can make use of five distinct roles: No-access, Follow, Read, Write, and Delete.
 
