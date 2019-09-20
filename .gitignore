@@ -3,3 +3,5 @@
 *.aux
 *.gz
 *.blg
+*.fls
+*.fdb_*
