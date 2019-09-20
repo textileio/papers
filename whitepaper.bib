@@ -1,3 +1,4 @@
+% !TEX encoding = UTF-8 Unicode
 
 @book{sambraSolidPlatformDecentralized2016,
   title = {Solid: {{A Platform}} for {{Decentralized Social Applications Based}} on {{Linked Data}}},
@@ -23,7 +24,7 @@
   langid = {english},
   title = {Why {{Decentralization Matters}}},
   url = {https://medium.com/s/story/why-decentralization-matters-5e3f79f7638e},
-  abstract = {We?ve forgotten there?s a better way to build internet services},
+  abstract = {We’ve forgotten there’s a better way to build internet services},
   journaltitle = {Medium},
   urldate = {2019-09-19},
   date = {2018-10-26T00:16:33.548Z},
@@ -165,7 +166,7 @@
   shortjournal = {Journal of Parallel and Distributed Computing},
   date = {2018-01},
   pages = {162-173},
-  author = {Almeida, Paulo S�rgio and Shoker, Ali and Baquero, Carlos},
+  author = {Almeida, Paulo Sérgio and Shoker, Ali and Baquero, Carlos},
   file = {/Users/carsonfarmer/Zotero/storage/SPTIUTW7/Almeida et al. - 2018 - Delta state replicated data types.pdf}
 }
 
@@ -191,7 +192,7 @@
   type = {report},
   urldate = {2019-09-19},
   date = {2011-01-13},
-  author = {Shapiro, Marc and Pregui\{\textbackslash{}c\{c\}\}a, Nuno and Baquero, Carlos and Zawirski, Marek},
+  author = {Shapiro, Marc and Preguiça, Nuno and Baquero, Carlos and Zawirski, Marek},
   file = {/Users/carsonfarmer/Zotero/storage/Y2RVPCXE/Shapiro et al. - 2011 - A comprehensive study of Convergent and Commutativ.pdf;/Users/carsonfarmer/Zotero/storage/MCQLQFZB/inria-00555588.html}
 }
 
@@ -270,7 +271,7 @@
 @article{sanjuanMerkleCRDTs2019,
   langid = {english},
   title = {Merkle-{{CRDTs}}},
-  abstract = {Merkle-DAG-backed CRDTs have been used to build some distributed applications on top of the Interplanetary File System (IPFS). In this paper we study Merkle-DAGs as transport and persistence layer for CRDT data types, coining the term Merkle-CRDTs and providing an overview of the di?erent concepts, properties, advantages and limitations involved. We show how Merkle-CRDTs have the potential to greatly simplify the design and implementation of convergent data types in systems with weak messaging layer guarantees and a potentially large number of replicas.},
+  abstract = {Merkle-DAG-backed CRDTs have been used to build some distributed applications on top of the Interplanetary File System (IPFS). In this paper we study Merkle-DAGs as transport and persistence layer for CRDT data types, coining the term Merkle-CRDTs and providing an overview of the diﬀerent concepts, properties, advantages and limitations involved. We show how Merkle-CRDTs have the potential to greatly simplify the design and implementation of convergent data types in systems with weak messaging layer guarantees and a potentially large number of replicas.},
   date = {2019-05},
   pages = {26},
   author = {Sanjuan, Hector and Poyhtari, Samuli and Teixeira, Pedro},
@@ -285,12 +286,13 @@
   abstract = {DiVA portal is a finding tool for research publications and student theses written at the following 49 universities and research institutions.},
   urldate = {2019-09-19},
   date = {2012},
-  author = {M�rt, Robert},
-  file = {/Users/carsonfarmer/Zotero/storage/U588DNK4/M�rt - 2012 - Content Based Addressing  The case for multiple I.pdf;/Users/carsonfarmer/Zotero/storage/7TYXHMAT/record.html}
+  author = {Mört, Robert},
+  file = {/Users/carsonfarmer/Zotero/storage/U588DNK4/Mört - 2012 - Content Based Addressing  The case for multiple I.pdf;/Users/carsonfarmer/Zotero/storage/7TYXHMAT/record.html}
 }
 
-@article{benetIpfscontentAddressedVersioned2014,
-  title = {Ipfs-Content Addressed, Versioned, P2p File System},
+@article{benetIPFSContentAddressed2014,
+  title = {{{IPFS}}: {{Content}} Addressed, Versioned, P2p File System},
+  volume = {(Draft 3)},
   journaltitle = {arXiv preprint arXiv:1407.3561},
   date = {2014},
   author = {Benet, Juan},
@@ -307,7 +309,7 @@ with no central management or trusted parties. IPFS has proven the utility of co
 decentralizing the web itself, serving billions of files used across a global peer-to-peer network. It liberates data from silos, survives network partitions, works offline, routes around censorship, and gives
 permanence to digital information.
 Filecoin is a decentralized storage network that turns cloud storage into an algorithmic market. The
-market runs on a blockchain with a native protocol token (also called ?Filecoin?), which miners earn
+market runs on a blockchain with a native protocol token (also called “Filecoin”), which miners earn
 by providing storage to clients. Conversely, clients spend Filecoin hiring miners to store or distribute
 data. As with Bitcoin, Filecoin miners compete to mine blocks with sizable rewards, but Filecoin mining
 power is proportional to active storage, which directly provides a useful service to clients (unlike Bitcoin
@@ -315,7 +317,7 @@ mining, whose usefulness is limited to maintaining blockchain consensus). This c
 these amassed resources into a self-healing storage network that anybody in the world can rely on. The
 network achieves robustness by replicating and dispersing content, while automatically detecting and
 repairing replica failures. Clients can select replication parameters to protect against different threat
-models. The protocol?s cloud storage network also provides security, as content is encrypted end-to-end
+models. The protocol’s cloud storage network also provides security, as content is encrypted end-to-end
 at the client, while storage providers do not have access to decryption keys. Filecoin works as an incentive
 layer on top of IPFS [1], which can provide storage infrastructure for any data. It is especially useful
 for decentralizing data, building and running distributed applications, and implementing smart contracts},
@@ -364,10 +366,227 @@ for decentralizing data, building and running distributed applications, and impl
 
 @article{brendanobrienDeterministicQueryingDistributed2017,
   title = {Deterministic {{Querying}} for the {{Distributed Web}}},
-  abstract = {The current infrastructure that underlies the distribution and processing of data over the Internet has enabled dramatic advances in a wide variety of human activities. Recent trends promoting open data promise even greater benefits as the number and variety of networked datasets grow. However, while current technologies and architectures obviously do work, they also show signs of systemic inefficiencies that impede effective large-scale discovery, distribution, preservation and reuse of datasets. An important source of inefficiency is rooted in the database-centric architecture that underlies much of data processing on the Internet today. The transition to a content-addressed permanent web offers an opportunity to replace certain software architecture patterns with alternatives that are more efficient and scale more effectively. We introduce one such new pattern, deterministic querying, that combines formalized query definitions, formalized data descriptions, linked metadata, hashing, and a content-addressed file system. The result supports database-free reuse of data and data processing results?and can do so on the scale of the global Internet.},
+  abstract = {The current infrastructure that underlies the distribution and processing of data over the Internet has enabled dramatic advances in a wide variety of human activities. Recent trends promoting open data promise even greater benefits as the number and variety of networked datasets grow. However, while current technologies and architectures obviously do work, they also show signs of systemic inefficiencies that impede effective large-scale discovery, distribution, preservation and reuse of datasets. An important source of inefficiency is rooted in the database-centric architecture that underlies much of data processing on the Internet today. The transition to a content-addressed permanent web offers an opportunity to replace certain software architecture patterns with alternatives that are more efficient and scale more effectively. We introduce one such new pattern, deterministic querying, that combines formalized query definitions, formalized data descriptions, linked metadata, hashing, and a content-addressed file system. The result supports database-free reuse of data and data processing results—and can do so on the scale of the global Internet.},
   journaltitle = {QRI Whitepaper},
   date = {2017-11},
-  author = {{Brendan O?Brien} and {Michael Hucka}}
+  author = {{Brendan O’Brien} and {Michael Hucka}}
+}
+
+@online{srisureshIPNetworkAddress,
+  langid = {english},
+  title = {{{IP Network Address Translator}} ({{NAT}}) {{Terminology}} and {{Considerations}}},
+  url = {https://tools.ietf.org/html/rfc2663},
+  urldate = {2019-09-20},
+  author = {Srisuresh, Pyda and Holdrege, Matt},
+  file = {/Users/carsonfarmer/Zotero/storage/G9SV5TGA/rfc2663.html}
+}
+
+@online{Multiaddr,
+  langid = {english},
+  title = {Multiaddr},
+  url = {https://multiformats.io/},
+  abstract = {Self-describing values for Future-proofing},
+  journaltitle = {Multiformats},
+  urldate = {2019-09-20},
+  file = {/Users/carsonfarmer/Zotero/storage/6CAHEHYS/multiaddr.html}
+}
+
+@online{ScuttlebuttProtocolGuide,
+  title = {Scuttlebutt {{Protocol Guide}}},
+  url = {https://ssbc.github.io/scuttlebutt-protocol-guide/},
+  abstract = {Scuttlebutt is a protocol for building decentralized applications that work well offline and that no one person can control. Because there is no central server, Scuttlebutt clients connect to their peers to exchange information. This guide describes the protocols used to communicate within the Scuttlebutt network.},
+  urldate = {2019-09-11},
+  file = {/Users/carsonfarmer/Zotero/storage/EI95BF8C/scuttlebutt-protocol-guide.html}
+}
+
+@article{ericharris-braunHolochainScalableAgentcentric2018,
+  title = {Holochain: Scalable Agent-Centric Distributed Computing},
+  abstract = {We present a scalable, agent-centric distributed computing platform. We use a
+formalism to characterize distributed systems, show how it applies to some existing distributed
+systems, and demonstrate the benefits of shifting from a data-centric to an agent-centric model.
+We present a detailed formal specification of the Holochain system, along with an analysis of its
+systemic integrity, capacity for evolution, total system computational complexity, implications for
+use-cases, and current implementation status.},
+  journaltitle = {Whitepaper},
+  series = {Ceptr, {{LLC}}},
+  date = {2018-02-15},
+  pages = {14},
+  author = {{Eric Harris-Braun} and {Nicolas Luck} and {Arthur Brock}}
+}
+
+@online{shireyInternetSecurityGlossary2007,
+  langid = {english},
+  title = {Internet {{Security Glossary}}, {{Version}} 2},
+  url = {https://tools.ietf.org/html/rfc4949},
+  abstract = {This Glossary provides definitions, abbreviations, and explanations
+   of terminology for information system security. The 334 pages of
+   entries offer recommendations to improve the comprehensibility of
+   written material that is generated in the Internet Standards Process
+   (RFC 2026). The recommendations follow the principles that such
+   writing should (a) use the same term or definition whenever the same
+   concept is mentioned; (b) use terms in their plainest, dictionary
+   sense; (c) use terms that are already well-established in open
+   publications; and (d) avoid terms that either favor a particular
+   vendor or favor a particular technology or mechanism over other,
+   competing techniques that already exist or could be developed.},
+  journaltitle = {Network Working Group},
+  type = {RFC},
+  urldate = {2019-09-20},
+  date = {2007-08},
+  author = {Shirey, Robert W.},
+  file = {/Users/carsonfarmer/Zotero/storage/Y63ESPWV/rfc4949.html}
+}
+
+@inproceedings{herzbergAccessControlMeets2000,
+  title = {Access Control Meets Public Key Infrastructure, or: Assigning Roles to Strangers},
+  doi = {10.1109/SECPRI.2000.848442},
+  shorttitle = {Access Control Meets Public Key Infrastructure, Or},
+  abstract = {The Internet enables connectivity between many strangers: entities that don't know each other. We present the Trust Policy Language (TPL), used to define the mapping of strangers to predefined business roles, based on certificates issued by third parties. TPL is expressive enough to allow complex policies, e.g. non-monotone (negative) certificates, while being simple enough to allow automated policy checking and processing. Issuers of certificates are either known in advance, or provide sufficient certificates to be considered a trusted authority according to the policy. This allows bottom-up, "grass roots" buildup of trust, as in the real world. We extend, rather than replace, existing role based access control mechanisms. This provides a simple, modular architecture and easy migration from existing systems. Our system automatically collects missing certificates from peer servers. In particular this allows use of standard browsers, which pass only one certificate to the server. We describe our implementation, which can be used as an extension of a Web server or as a separate server with interface to applications.},
+  eventtitle = {Proceeding 2000 {{IEEE Symposium}} on {{Security}} and {{Privacy}}. {{S P}} 2000},
+  booktitle = {Proceeding 2000 {{IEEE Symposium}} on {{Security}} and {{Privacy}}. {{S P}} 2000},
+  date = {2000-05},
+  pages = {2-14},
+  keywords = {Access control,Authentication,authorisation,automated policy checking,Business,certificates,Certification,complex policies,Electronic commerce,file servers,Internet,Logic programming,message authentication,missing certificates,modular architecture,non-monotone certificates,peer servers,Permission,predefined business roles,Public key,public key cryptography,public key infrastructure,role assignment,role based access control mechanisms,standard browsers,stranger connectivity,third parties,TPL,Trust Policy Language,trusted authority,Web server},
+  author = {Herzberg, A. and Mass, Y. and Mihaeli, J. and Naor, D. and Ravid, Y.},
+  file = {/Users/carsonfarmer/Zotero/storage/CSRFUE4R/848442.html}
+}
+
+@inproceedings{enesSingleWriterPrincipleCRDT2017,
+  langid = {english},
+  location = {{Barcelona, Spain}},
+  title = {The {{Single}}-{{Writer Principle}} in {{CRDT Composition}}},
+  isbn = {978-1-4503-6356-3},
+  doi = {10.1145/3166089.3168733},
+  eventtitle = {The {{Programming Models}} and {{Languages}} for {{Distributed Computing}}},
+  booktitle = {Proceedings of the {{Programming Models}} and {{Languages}} for {{Distributed Computing}} on   - {{PMLDC}} '17},
+  publisher = {{ACM Press}},
+  date = {2017},
+  pages = {1-3},
+  author = {Enes, Vitor and Almeida, Paulo Sérgio and Baquero, Carlos},
+  file = {/Users/carsonfarmer/Zotero/storage/9DLV6DXT/Enes et al. - 2017 - The Single-Writer Principle in CRDT Composition.pdf}
+}
+
+@software{meyerBamboo2019,
+  title = {Bamboo},
+  url = {https://github.com/AljoschaMeyer/bamboo},
+  abstract = {A cryptographically secure, distributed, single-writer append-only log that supports transitive partial replication and local deletion of data.
+
+Powered by science, this log format can serve as a more efficient alternative to secure-scuttlebutt's linked lists or hypercore's merkle forests.
+
+Status: Well-defined and useful. Pending stabilization: If I don't see any need for further changes by 30/04/2020, this will be declared stable and any later breaking changes will result in new, non-bamboo specifications.},
+  urldate = {2019-09-20},
+  date = {2019-09-16T23:57:05Z},
+  author = {Meyer, Aljoscha},
+  origdate = {2019-03-28T22:51:48Z}
+}
+
+@online{leachUniversallyUniqueIDentifier2005,
+  langid = {english},
+  title = {A {{Universally Unique IDentifier}} ({{UUID}}) {{URN Namespace}}},
+  url = {https://tools.ietf.org/html/rfc4122},
+  abstract = {This specification defines a Uniform Resource Name namespace for
+   UUIDs (Universally Unique IDentifier), also known as GUIDs (Globally
+   Unique IDentifier).  A UUID is 128 bits long, and can guarantee
+   uniqueness across space and time.  UUIDs were originally used in the
+   Apollo Network Computing System and later in the Open Software
+   Foundation's (OSF) Distributed Computing Environment (DCE), and then
+   in Microsoft Windows platforms.
+
+   This specification is derived from the DCE specification with the
+   kind permission of the OSF (now known as The Open Group).
+   Information from earlier versions of the DCE specification have been
+   incorporated into this document.},
+  journaltitle = {Network Working Group},
+  type = {RFC},
+  urldate = {2019-09-20},
+  date = {2005-07},
+  author = {Leach, Paul J. and Mealling, Michael and Salz, Rich},
+  file = {/Users/carsonfarmer/Zotero/storage/97B2LBPK/rfc4122.html}
+}
+
+@article{kleppmannConflictFreeReplicatedJSON2017,
+  archivePrefix = {arXiv},
+  eprinttype = {arxiv},
+  eprint = {1608.03960},
+  title = {A {{Conflict}}-{{Free Replicated JSON Datatype}}},
+  volume = {28},
+  issn = {1045-9219},
+  doi = {10.1109/TPDS.2017.2697382},
+  abstract = {Many applications model their data in a general-purpose storage format such as JSON. This data structure is modified by the application as a result of user input. Such modifications are well understood if performed sequentially on a single copy of the data, but if the data is replicated and modified concurrently on multiple devices, it is unclear what the semantics should be. In this paper we present an algorithm and formal semantics for a JSON data structure that automatically resolves concurrent modifications such that no updates are lost, and such that all replicas converge towards the same state (a conflict-free replicated datatype or CRDT). It supports arbitrarily nested list and map types, which can be modified by insertion, deletion and assignment. The algorithm performs all merging client-side and does not depend on ordering guarantees from the network, making it suitable for deployment on mobile devices with poor network connectivity, in peer-to-peer networks, and in messaging systems with end-to-end encryption.},
+  number = {10},
+  journaltitle = {IEEE Transactions on Parallel and Distributed Systems},
+  shortjournal = {IEEE Trans. Parallel Distrib. Syst.},
+  date = {2017-10-01},
+  pages = {2733-2746},
+  keywords = {Computer Science - Databases,Computer Science - Distributed; Parallel; and Cluster Computing},
+  author = {Kleppmann, Martin and Beresford, Alastair R.},
+  file = {/Users/carsonfarmer/Zotero/storage/Z86B9ZWX/Kleppmann and Beresford - 2017 - A Conflict-Free Replicated JSON Datatype.pdf;/Users/carsonfarmer/Zotero/storage/IM3VTZDR/1608.html}
+}
+
+@online{reduxMotivation,
+  langid = {english},
+  title = {Motivation},
+  url = {https://redux.js.org/introduction/motivation},
+  abstract = {\# Motivation},
+  journaltitle = {Redux},
+  urldate = {2019-09-20},
+  author = {{Redux}},
+  file = {/Users/carsonfarmer/Zotero/storage/HJX25AFC/motivation.html}
+}
+
+@article{sandhuRolebasedAccessControl1996,
+  title = {Role-Based Access Control Models},
+  volume = {29},
+  doi = {10.1109/2.485845},
+  abstract = {Security administration of large systems is complex, but it can be simplified by a role-based access control approach. This article explains why RBAC is receiving renewed attention as a method of security administration and review, describes a framework of four reference models developed to better understand RBAC and categorizes different implementations, and discusses the use of RBAC to manage itself.},
+  number = {2},
+  journaltitle = {Computer},
+  date = {1996-02},
+  pages = {38-47},
+  keywords = {Access control,authorisation,Authorization,data security,Data security,Government,large systems,NIST,Permission,Privacy,RBAC,reference models,Resource management,role-based access control,security administration,security of data,Software systems,Telephony},
+  author = {Sandhu, R. S. and Coyne, E. J. and Feinstein, H. L. and Youman, C. E.},
+  file = {/Users/carsonfarmer/Zotero/storage/YNGGD3K3/485845.html}
+}
+
+@online{KeyRotation,
+  langid = {english},
+  title = {Key {{Rotation}}},
+  url = {https://www.vaultproject.io/docs/internals/rotation.html},
+  abstract = {Learn about the details of key rotation within Vault.},
+  journaltitle = {Vault by HashiCorp},
+  urldate = {2019-09-20},
+  file = {/Users/carsonfarmer/Zotero/storage/E823Q9BZ/rotation.html}
+}
+
+@article{marlinspikeDoubleRatchetAlgorithm2016,
+  langid = {english},
+  title = {The {{Double Ratchet Algorithm}}},
+  volume = {Revision 1},
+  url = {https://signal.org/docs/specifications/doubleratchet},
+  abstract = {The Double Ratchet algorithm is used by two parties to exchange encrypted messages based on a shared secret key. Typically the parties will use some key agreement protocol (such as X3DH [1]) to agree on the shared secret key. Following this, the parties will use the Double Ratchet to send and receive encrypted messages.
+
+The parties derive new keys for every Double Ratchet message so that earlier keys cannot be calculated from later ones. The parties also send Diffie-Hellman public values attached to their messages. The results of Diffie-Hellman calculations are mixed into the derived keys so that later keys cannot be calculated from earlier ones. These properties gives some protection to earlier or later encrypted messages in case of a compromise of a party's keys.
+
+The Double Ratchet and its header encryption variant are presented below, and their security properties are discussed.},
+  date = {2016-11-20},
+  pages = {35},
+  author = {Marlinspike, Moxie},
+  editor = {Perrin, Trevor},
+  file = {/Users/carsonfarmer/Zotero/storage/GU3IK7ZZ/Perrin - The Double Ratchet Algorithm.pdf}
+}
+
+@inproceedings{ungerSoKSecureMessaging2015,
+  title = {{{SoK}}: {{Secure Messaging}}},
+  doi = {10.1109/SP.2015.22},
+  shorttitle = {{{SoK}}},
+  abstract = {Motivated by recent revelations of widespread state surveillance of personal communication, many solutions now claim to offer secure and private messaging. This includes both a large number of new projects and many widely adopted tools that have added security features. The intense pressure in the past two years to deliver solutions quickly has resulted in varying threat models, incomplete objectives, dubious security claims, and a lack of broad perspective on the existing cryptographic literature on secure communication. In this paper, we evaluate and systematize current secure messaging solutions and propose an evaluation framework for their security, usability, and ease-of-adoption properties. We consider solutions from academia, but also identify innovative and promising approaches used "in-the-wild" that are not considered by the academic literature. We identify three key challenges and map the design landscape for each: trust establishment, conversation security, and transport privacy. Trust establishment approaches offering strong security and privacy features perform poorly from a usability and adoption perspective, whereas some hybrid approaches that have not been well studied in the academic literature might provide better trade-offs in practice. In contrast, once trust is established, conversation security can be achieved without any user involvement in most two-party conversations, though conversations between larger groups still lack a good solution. Finally, transport privacy appears to be the most difficult problem to solve without paying significant performance penalties.},
+  eventtitle = {2015 {{IEEE Symposium}} on {{Security}} and {{Privacy}}},
+  booktitle = {2015 {{IEEE Symposium}} on {{Security}} and {{Privacy}}},
+  date = {2015-05},
+  pages = {232-249},
+  keywords = {conversation security,cryptographic literature,cryptography,data privacy,Encryption,message passing,personal communication,Privacy,private messaging,Protocols,secure messaging,SoK,state surveillance,Synthetic aperture sonar,transport privacy,Usability},
+  author = {Unger, N. and Dechand, S. and Bonneau, J. and Fahl, S. and Perl, H. and Goldberg, I. and Smith, M.},
+  file = {/Users/carsonfarmer/Zotero/storage/KZ485EST/Unger et al. - 2015 - SoK Secure Messaging.pdf;/Users/carsonfarmer/Zotero/storage/LL8FGQZD/7163029.html}
 }
 
 
