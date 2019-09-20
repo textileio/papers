@@ -1,0 +1,147 @@
+\begin{thebibliography}{99}
+
+\bibitem{dixonWhyDecentralizationMatters2018}
+Dixon, C.
+\newblock Why {{Decentralization Matters}}.
+
+\bibitem{sambraSolidPlatformDecentralized2016}
+Sambra, A.~V., Mansour, E., Hawke, S., Zereba, M., Greco, N., Ghanem, A.,
+  Zagidulin, D., Aboulnaga, A., and Berners-Lee, T. {\em Solid: {{A Platform}}
+  for {{Decentralized Social Applications Based}} on {{Linked Data}}}.
+
+\bibitem{schneiderImplementingFaulttolerantServices1990}
+Schneider, F.~B. Implementing fault-tolerant services using the state machine
+  approach: {{A}} tutorial, {\bf .
+\newblock 22}, 299--319.
+
+\bibitem{LogWhatEvery}
+The {{Log}}: {{What}} every software engineer should know about real-time
+  data's unifying abstraction.
+
+\bibitem{bettsExploringCQRSEvent2013}
+Betts, D., Dominguez, J., Melnik, G., Simonazzi, F., and Subramanian, M. {\em
+  Exploring {{CQRS}} and {{Event Sourcing}}: {{A Journey}} into {{High
+  Scalability}}, {{Availability}}, and {{Maintainability}} with {{Windows
+  Azure}}},  1st edition. {Microsoft patterns \& practices}.
+
+\bibitem{EventStore}
+Event {{Store}}.
+
+\bibitem{ApacheKafka}
+Apache {{Kafka}}.
+
+\bibitem{Samza}
+Samza.
+
+\bibitem{kleppmannDesigningDataintensiveApplications2017}
+Kleppmann, M. {\em Designing Data-Intensive Applications: {{The}} Big Ideas
+  behind Reliable, Scalable, and Maintainable Systems}. {" O'Reilly Media,
+  Inc."}.
+
+\bibitem{fowlerEventSourcing}
+Fowler, M.
+\newblock Event {{Sourcing}}.
+
+\bibitem{microsoftcorporationAzureApplicationArchitecture}
+{Microsoft Corporation}.
+\newblock Azure {{Application Architecture Guide}}.
+
+\bibitem{eventsouceEventSourcingBasics}
+{Event Souce}.
+\newblock Event {{Sourcing Basics}}.
+
+\bibitem{redux.js.orgGettingStartedRedux}
+{redux.js.org}.
+\newblock Getting {{Started}} with {{Redux}}.
+
+\bibitem{brewerRobustRobustDistributed2000}
+Brewer, E. Towards {{Robust Towards Robust Distributed Systems}} 19th {{ACM
+  Symposium}} on {{Principles}} of {{Distributed Computing}} ({{PODC}}).
+\newblock , {\bf ?}
+
+\bibitem{gilbertBrewerConjectureFeasibility2002a}
+Gilbert, S. and Lynch, N. Brewer's conjecture and the feasibility of
+  consistent, available, partition-tolerant web services, {\bf .
+\newblock 33}, 51--59.
+
+\bibitem{shapiroComprehensiveStudyConvergent2011a}
+Shapiro, M., Pregui\{\textbackslash{}c\{c\}\}a, N., Baquero, C., and Zawirski,
+  M.
+\newblock A comprehensive study of {{Convergent}} and {{Commutative Replicated
+  Data Types}}.
+
+\bibitem{almeidaDeltaStateReplicated2018}
+Almeida, P.~S., Shoker, A., and Baquero, C. Delta state replicated data types,
+  {\bf .
+\newblock 111}, 162--173.
+
+\bibitem{schwarzDetectingCausalRelationships1994}
+Schwarz, R. and Mattern, F. Detecting causal relationships in distributed
+  computations: {{In}} search of the holy grail, {\bf .
+\newblock 7}, 149--174.
+
+\bibitem{katzInterleavingSetTemporal1990}
+Katz, S. and Peled, D. Interleaving set temporal logic, {\bf .
+\newblock 75}, 263--287.
+
+\bibitem{kulkarniLogicalPhysicalClocks2014}
+Kulkarni, S.~S., Demirbas, M., Madappa, D., Avva, B., and Leone, M. Logical
+  {{Physical Clocks}}.
+\newblock In Aguilera, M.~K., Querzoni, L., and Shapiro, M. (eds.), {\em
+  Principles of {{Distributed Systems}}},  pp. 17--32. {Springer International
+  Publishing}.
+
+\bibitem{lamportTimeClocksOrdering1978}
+Lamport, L. Time, clocks, and the ordering of events in a distributed system,
+  {\bf .
+\newblock 21}, 558--565.
+
+\bibitem{ramabajaBloomClock2019}
+Ramabaja, L. The {{Bloom Clock}}.
+\newblock , {\bf ?}
+
+\bibitem{sanjuanMerkleCRDTs2019}
+Sanjuan, H., Poyhtari, S., and Teixeira, P. Merkle-{{CRDTs}}.
+\newblock , {\bf ?}, 26.
+
+\bibitem{mortContentBasedAddressing2012}
+Mört, R. {\em Content {{Based Addressing}} : {{The}} Case for Multiple
+  {{Internet}} Service Providers}.
+
+\bibitem{benetIpfscontentAddressedVersioned2014}
+Benet, J. Ipfs-content addressed, versioned, p2p file system.
+\newblock , {\bf ?}
+
+\bibitem{protocollabsFilecoinDecentralizedStorage2017}
+{Protocol Labs} Filecoin: {{A Decentralized Storage Network}}.
+\newblock , {\bf ?}, 36.
+
+\bibitem{bizerLinkedDataStory2011}
+Bizer, C., Heath, T., and Berners-Lee, T. Linked data: {{The}} story so far.
+\newblock {\em Semantic Services, Interoperability and Web Applications:
+  Emerging Concepts},  pp. 205--227. {IGI Global}.
+
+\bibitem{heathLinkedDataEvolving2011}
+Heath, T. and Bizer, C. Linked {{Data}}: {{Evolving}} the {{Web}} into a
+  {{Global Data Space}}, {\bf .
+\newblock 1}, 1--136.
+
+\bibitem{brendanobrienDeterministicQueryingDistributed2017}
+{Brendan O?Brien} and {Michael Hucka} Deterministic {{Querying}} for the
+  {{Distributed Web}}.
+\newblock , {\bf ?}
+
+\bibitem{Reducers}
+Reducers.
+
+\bibitem{parkerDetectionMutualInconsistency1983}
+Parker, D.~S., Popek, G.~J., Rudisin, G., Stoughton, A., Walker, B.~J., Walton,
+  E., Chow, J.~M., Edwards, D., Kiser, S., and Kline, C. Detection of {{Mutual
+  Inconsistency}} in {{Distributed Systems}}, {\bf .
+\newblock SE-9}, 240--247.
+
+\bibitem{berners-leeLinkedData2009}
+Berners-Lee, T.
+\newblock Linked {{Data}}.
+
+\end{thebibliography}
