@@ -162,11 +162,11 @@ The CAP theorem \cite{brewerRobustRobustDistributed2000,gilbertBrewerConjectureF
 
 How a system provides eventual consistency is often decided based on the intended use of the system. Two well-documented categories of solutions include logs (see Definition  \ref{def:Logs}), sequences of deterministic changes, and CRDTs (see Definition section  \ref{def:CRDT}). Logs work best when there is only a single-writer or complete event causality is known. In many distributed systems with multiple log writers, a minimum requirement for synchronization through logs is that the essential order of events is respected and can be determined \cite{schwarzDetectingCausalRelationships1994,katzInterleavingSetTemporal1990}. For these cases, logical clocks are a useful tool for eventual consistency and total ordering \cite{kulkarniLogicalPhysicalClocks2014}. However, some scenarios (e.g., temporarily missing events, or ambiguous order) can force a replica into a state that cannot be later resolved without costly recalculation. In specific cases, CRDTs can provide an alternative to log-based consensus (see below). 
 
-\subsubsection{Logical Clocks}
+\subsubsection{Logical Clocks}\label{sec:LogicalClocks}
 
 In a distributed system, where multiple machines, each with an independent clock, are creating events, local timestamps can'��t be used to construct global event causality. Machine clocks are never perfectly synchronized \cite{lamportTimeClocksOrdering1978}, meaning that one machine's concept of "now" is not necessarily the same as another machine's. Machine speed, network speed, and other factors compound the issue. For this reason, simple wall-clock time does not provide a sufficient notion of order in a distributed system. Alternatives to wall-clock time exist to help distributed systems achieve eventual consistency. Examples include various logical clocks (Lamport \cite{lamportTimeClocksOrdering1978} Schwartz \cite{schwarzDetectingCausalRelationships1994}, and Bloom \cite{ramabajaBloomClock2019}, Hybrid variants \cite{kulkarniLogicalPhysicalClocks2014}, etc), which use counter-based time-stamping to provide partial ordering. 
 
-Cryptographically linked events can also represent a clock. One such example is called the Merkle-Clock \cite{sanjuanMerkleCRDTs2019}. The Merkle-Clock relies on properties of a Merkle-DAG to provide strict partial ordering between events, which has limitations \cite[sec 4.3]{sanjuanMerkleCRDTs2019}:
+Cryptographically linked events can also represent a clock. One such example is called the Merkle-Clock \cite{sanjuanMerkleCRDTs2019}. The Merkle-Clock relies on properties of a Merkle-DAG to provide strict partial ordering between events, which has limitations \cite[sec. 4.3]{sanjuanMerkleCRDTs2019}:
 
 \begin{quote}
 Merkle-Clocks represent a strict partial order of events. Not all events in the system can be compared and ordered. For example, when having multiple heads, the Merkle-Clock cannot say which of the events happened before.
@@ -188,7 +188,7 @@ Internet application architecture today is often designed as a system of clients
 
 \subsubsection{IPFS \& Content-based addressing}
 
-There are a number of systems that utilize content addressing to access content and information [list some as refs], and there is an active body of literature covering its design and implementation [ref]. The Interplanetary File System (IPFS) — which is a set of protocols to create a content-addressed, peer-to-peer filesystem \cite{benetIpfscontentAddressedVersioned2014} is one such system. In IPFS, the address for any content is determined based on a cryptographic hash of the content itself. In practice, the IPFS Content IDentifier (CID) is a multihash, which is a self-describing “protocol for differentiating outputs from various well-established cryptographic hash functions, addressing size + encoding considerations\footnote{https://github.com/multiformats/multihash}. That addressing system confers several benefits to the network, including tamper resistance (we can be confident that a given piece of content has not been modified en route if its hash matches what we were expected/requested) and de-duplication (because the same content from different peers will produce the same hash address). Additionally, IPFS content addresses are immutable and universally unique.
+There are a number of systems that utilize content addressing to access content and information [LIST SOME], and there is an active body of literature covering its design and implementation [ref]. The Interplanetary File System (IPFS) ---�� which is a set of protocols to create a content-addressed, peer-to-peer filesystem \cite{benetIpfscontentAddressedVersioned2014} --- is one such system. In IPFS, the address for any content is determined based on a cryptographic hash of the content itself. In practice, the IPFS Content IDentifier (CID) is a multihash, which is a self-describing “protocol for differentiating outputs from various well-established cryptographic hash functions, addressing size + encoding considerations\footnote{https://multiformats.io/}. That addressing system confers several benefits to the network, including tamper resistance (we can be confident that a given piece of content has not been modified en route if its hash matches what we were expected/requested) and de-duplication (because the same content from different peers will produce the same hash address). Additionally, IPFS content addresses are immutable and universally unique.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/Hash_Request.png}
@@ -198,16 +198,15 @@ There are a number of systems that utilize content addressing to access content 
 
 While content addressing doesn't tell you how to get a file, IPFS (via libp2p\footnote{https://libp2p.io/}) provides a system for moving files across the network.  On the IPFS network, a client who wants specific content requests the CID from the network of IPFS hosts. The client's request is routed to the first host capable of fulfilling the request (i.e., the first host that is actively storing the content behind the given CID). The IPFS network can be seen as a distributed file system, with all of the benefits that come with this type of file system design.
 
-
 \subsubsection{IPLD}
 
-As discussed above, IPFS uses the cryptographic hash of a given piece of content to define its content address (see [ref] for details on this process). However, in order to provide standards for accessing content-addressable data (on the web or elsewhere), it is necessary to define a common format or specification. In IPFS (and other projects [ref]), this common data format is called Interplanetary Linked Data (IPLD) [ref]. As the name suggests, IPLD is based on principals of linked data [ref, ref] with the added capabilities of a content-addressing storage network. 
+As discussed above, IPFS uses the cryptographic hash of a given piece of content to define its content address (see \cite{benetIpfscontentAddressedVersioned2014} for details on this process). However, in order to provide standards for accessing content-addressable data (on the web or elsewhere), it is necessary to define a common format or specification. In IPFS (and others \cite[e.g.,]{protocollabsFilecoinDecentralizedStorage2017} MORE NEEDED), this common data format is called Interplanetary Linked Data (IPLD)\footnote{https://ipld.io/}. As the name suggests, IPLD is based on principals of linked data \cite{timberners-leeLinkedData2009,bizerLinkedDataStory2011} with the added capabilities of a content-addressing storage network. 
 
-IPLD is used to publish linked data (subject-predicate-object triples in the linked data world [ref]) spread across different hosts, and where everything (entities, predicates, data sources) uses content addresses as unique identifiers [ref]. To form its structure, IPLD implements a Merkle DAG, or directed acyclic graph. This allows all hash-linked data structures to be treated using a unified data model, analogous to linked data in the Semantic Web sense [ref]. In practice, IPLD is represented as objects, each with `Data` and `Links` fields, where `Data` can be a small blob of unstructured, arbitrary binary data, and `Links` is an array of links to other IPLD objects. 
+IPLD is used to publish linked data (subject-predicate-object triples in the linked data world \cite{heathLinkedDataEvolving2011}) spread across different hosts, and where everything (entities, predicates, data sources) uses content addresses as unique identifiers. To form its structure, IPLD implements a Merkle DAG, or directed acyclic graph\footnote{For reference, the Bitcoin Blockchain is a DAG, so is a Git version history.}. This allows all hash-linked data structures to be treated using a unified data model, analogous to linked data in the Semantic Web sense \cite{brendanobrienDeterministicQueryingDistributed2017}. In practice, IPLD is represented as objects, each with \texttt{Data} and \texttt{Links} fields, where \texttt{Data} can be a small blob of unstructured, arbitrary binary data, and \texttt{Links} is an array of links to other IPLD objects. 
 
 \subsubsection{Merkle-Clocks} \label{sec:merkleclocks}
 
-A Merkle-Clock is a Merkle-DAG that represents a sequence of events. In other words, a Merkle-Clock is an append-only log [ref and ipfs-log]. When implemented on IPFS (or an equivalent network where content can be cryptographically addressed and fetched), Merkle-Clocks provide a number of benefits for data synchronization between replicas [ref merkle paper section 4.3]:
+A Merkle-Clock is a Merkle-DAG that represents a sequence of events. In other words, a Merkle-Clock is an append-only log \cite{sanjuanMerkleCRDTs2019}. When implemented on IPFS (or an equivalent network where content can be cryptographically addressed and fetched), Merkle-Clocks provide a number of benefits for data synchronization between replicas \cite[sec. 4.3]{sanjuanMerkleCRDTs2019}:
 
 \begin{enumerate}
 \item \label{Perf1}Broadcasting the Merkle-Clock requires broadcasting only the current root CID. The whole Clock is unambiguously identified by the CID of its root and its full DAG can be walked down from it as needed.
@@ -216,7 +215,7 @@ A Merkle-Clock is a Merkle-DAG that represents a sequence of events. In other wo
 \item \label{Perf4} Identical nodes are de-duplicated by design: there can only be one unique representation for every event.
 \end{enumerate}
 
-On the downside, and as seen above (section 2.2.4.), a Merkle-Clock cannot order divergent heads (or roots):
+On the downside, and as seen above (section \ref{sec:LogicalClocks}), a Merkle-Clock cannot order divergent heads (or roots):
 
 \begin{figure}
   \includegraphics[width=\linewidth]{boat.jpg}
@@ -226,9 +225,7 @@ On the downside, and as seen above (section 2.2.4.), a Merkle-Clock cannot order
 
 In the figure above, two replicas (top row, bottom row) are attempting to write (left to right) events to the same Merkle-Clock. After the first replica writes event A, the second writes event A’ and properly links to A. At that point, the two replicas stop receiving events from one another. To a third replica that does continue to receive events, there would now be two independent heads, 1 and 1’. For the third replica, resolving these two logs of events may be costly (many updates happened since the last common node) or impossible (parts of the chain may not be available on the network). See Section  \ref{sec:EventualConsistency}.
 
-In order to reduce the likelihood of divergent heads, all replicas should be perfectly connected and be able to fetch all events and linkages in the Merkle-Clock. On real networks with many often offline replicas (mobile and IoT devices, laptops, etc.), these conditions are rarely met.
-
-Based on these observations, using a single Merkle-Clock to synchronize replicas can be problematic.
+In order to reduce the likelihood of divergent heads, all replicas should be perfectly connected and be able to fetch all events and linkages in the Merkle-Clock. On real networks with many often offline replicas (mobile and IoT devices, laptops, etc.), these conditions are rarely met. Based on these observations, using a single Merkle-Clock to synchronize replicas can be problematic.
 
 \subsection{Networking}
 
@@ -236,7 +233,7 @@ So far we have primarily discussed the mechanics of creating or linking content 
 
 \subsubsection{Libp2p}
 
-The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects [ref] are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include NAT traversal, peer discovery and handshake protocols, and even encryption and transport security — libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) — among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols [ref, ref]. In addition to “transport layer” modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
+The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects [MISSING] are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include NAT traversal, peer discovery and handshake protocols, and even encryption and transport security — libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) — among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols [ref, ref]. In addition to “transport layer” modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
 
 \subsubsection{Pubsub}
 

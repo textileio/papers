@@ -103,6 +103,33 @@ Ramabaja, L. The {{Bloom Clock}}.
 Sanjuan, H., Poyhtari, S., and Teixeira, P. Merkle-{{CRDTs}}.
 \newblock , {\bf ?}, 26.
 
+\bibitem{mortContentBasedAddressing2012}
+Mört, R. {\em Content {{Based Addressing}} : {{The}} Case for Multiple
+  {{Internet}} Service Providers}.
+
+\bibitem{benetIpfscontentAddressedVersioned2014}
+Benet, J. Ipfs-content addressed, versioned, p2p file system.
+\newblock , {\bf ?}
+
+\bibitem{protocollabsFilecoinDecentralizedStorage2017}
+{Protocol Labs} Filecoin: {{A Decentralized Storage Network}}.
+\newblock , {\bf ?}, 36.
+
+\bibitem{bizerLinkedDataStory2011}
+Bizer, C., Heath, T., and Berners-Lee, T. Linked data: {{The}} story so far.
+\newblock {\em Semantic Services, Interoperability and Web Applications:
+  Emerging Concepts},  pp. 205--227. {IGI Global}.
+
+\bibitem{heathLinkedDataEvolving2011}
+Heath, T. and Bizer, C. Linked {{Data}}: {{Evolving}} the {{Web}} into a
+  {{Global Data Space}}, {\bf .
+\newblock 1}, 1--136.
+
+\bibitem{brendanobrienDeterministicQueryingDistributed2017}
+{Brendan O?Brien} and {Michael Hucka} Deterministic {{Querying}} for the
+  {{Distributed Web}}.
+\newblock , {\bf ?}
+
 \bibitem{Reducers}
 Reducers.
 
@@ -112,12 +139,8 @@ Parker, D.~S., Popek, G.~J., Rudisin, G., Stoughton, A., Walker, B.~J., Walton,
   Inconsistency}} in {{Distributed Systems}}, {\bf .
 \newblock SE-9}, 240--247.
 
-\bibitem{mortContentBasedAddressing2012}
-Mört, R. {\em Content {{Based Addressing}} : {{The}} Case for Multiple
-  {{Internet}} Service Providers}.
-
-\bibitem{benetIpfscontentAddressedVersioned2014}
-Benet, J. Ipfs-content addressed, versioned, p2p file system.
-\newblock , {\bf ?}
+\bibitem{berners-leeLinkedData2009}
+Berners-Lee, T.
+\newblock Linked {{Data}}.
 
 \end{thebibliography}
