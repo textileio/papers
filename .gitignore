@@ -5,3 +5,4 @@
 *.blg
 *.fls
 *.fdb_*
+.vscode
