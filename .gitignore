@@ -6,6 +6,7 @@
 *.fls
 *.fdb_*
 *.bcf
+*.bbl
 *.run.xml
 .vscode
 *.synctex*
