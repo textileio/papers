@@ -686,7 +686,7 @@ Actions can also be batch dispatched, which is the preferred way to dispatch mul
 
 \subsubsection{Read Models}\label{sec:readModels}
 
-The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. In practice, a ReadStore is defined by a Reducer function and a set of query Resolver functions. This is very similar to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern, which is a departure of the ``single source of truth'' in Redux.
+The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. In practice, a ReadStore is defined by a Reducer function and a set of query Resolver functions. This is very similar to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern.
 
 \begin{definition}
   (Reducer). Reducers are ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a ReadStore's state based on incoming Actions.  
@@ -697,6 +697,10 @@ The Dispatcher, combined with Actions and Creators provide a useful interface fo
 \end{definition}
 
 Threads also define \emph{ViewStores}, which are a special kind of ReadStore, akin to a Redux Store. In practice, they are smaller, read-only (immutable) models, that are built on-the-fly, and defined by a pure Reducer function. Textile Threads use ViewStores to define the ACL for a given Thread.
+
+\begin{definition}
+  (ReadStore). Stores in Threads provide flexible APIs for persisting and accessing state. The are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries.
+\end{definition}
 
 \subsection{Abstractions}\label{sec:DefaultViews}
 
