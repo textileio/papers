@@ -211,7 +211,7 @@ In modern applications it is critical to have reliable mechanisms for publishing
 
 ES is particularly useful in contexts where system components are distributed or decentralized, such as in decentralized applications (DApps). This is because the design of systems that use event sourcing often necessitate infrastructure for brokering messages between loosely coupled software components and services. This feature will become increasingly important as we outline background concepts related to data synchronization in the following sections. 
 
-A key principal of ES and append only logs is that all changes to application state are stored as a sequence of events. Because any given state is simply the result of a series of atomic updates, the log can be used to reconstruct past states or process retroactive updates \cite{fowlerEventSourcing}. The same principal means a log can be viewed as a mechanism to support an infinite number of valid state interpretations (see Section  \ref{sec:ViewsProjections}). In other words, with minimal conformity, a single log can model multiple application states \cite{microsoftcorporationAzureApplicationArchitecture}.
+A key principal of ES and append only logs is that all changes to application state are stored as a sequence of events. Because any given state is simply the result of a series of atomic updates, the log can be used to reconstruct past states or process retroactive updates \cite{fowlerEventSourcing}. The same principal means a log can be viewed as a mechanism to support an infinite number of valid state interpretations (Section  \ref{sec:ViewsProjections}). In other words, with minimal conformity, a single log can model multiple application states \cite{microsoftcorporationAzureApplicationArchitecture}.
 
 \subsubsection{Views \& Projections} \label{sec:ViewsProjections}
 
@@ -349,7 +349,7 @@ Mary&-&-&\checkmark&\checkmark\\
 
 Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time \cite{herzbergAccessControlMeets2000}. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
 
-Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, ``grant Bob write access'' and ``revoke read access from Alice'' would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
+Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, ``grant Bob write access'' and ``revoke read access from Alice'' would together result in a final ACL state where, Bob has read and write access, but Alice does not (Section  \ref{sec:ViewsProjections}).
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
 
@@ -387,7 +387,7 @@ For any given Log, Events are authored by a single IPFS Peer, or \emph{Writer}.
 This single-writer setup is a core feature of Logs, and provides properties unique to the Threads protocol. For clarity, we can similarly define a \emph{Reader} as any other Peer capable of reading a Log.
 
 \begin{definition}
-(Reader). Any Peer capable of reading a Log. Practically speaking, this means any Peer with the Log's Read Key (see Section  \ref{sec:KeysEncryption}).
+(Reader). Any Peer capable of reading a Log. Practically speaking, this means any Peer with the Log's Read Key (Section  \ref{sec:KeysEncryption}).
 \end{definition}
 
 As seen above in Section \ref{sec:merkleclocks}, a Merkle-Clock is simply a Merkle-DAG of \emph{Events}:
@@ -422,7 +422,7 @@ As seen above in Section \ref{sec:merkleclocks}, a Merkle-Clock is simply a Merk
 
 \subsubsection{Multi-addressed Event Logs}
 
-Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure \ref{fig:EventLog}) enabling log verification by readers (see Section \ref{sec:KeysEncryption}).
+Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure \ref{fig:EventLog}) enabling log verification by readers (Section \ref{sec:KeysEncryption}).
 
 At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification \cite{meyerBamboo2019}.
 
@@ -438,11 +438,11 @@ Addresses can expire by specifying a time-to-live (TTL) value when adding or upd
 
 Modern, real-world networks consist of many mobile or otherwise sparsely connected computers (Peers). Therefore, datasets distributed across such networks can be thought of as highly partitioned. To ensure updates are available between mostly offline or otherwise disconnected Peers (like mobile devices), Textile Logs are designed with a built-in replication or follower mechanism.
 
-\begin{definition} (Follower). Log Writers can designate other IPFS Peers to ``follow'' a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (see Section  \ref{sec:KeysEncryption}), but is not able to read the Log's contents. Followers should be server-based --- i.e., always online and behind a public IP address.\end{definition}
+\begin{definition} (Follower). Log Writers can designate other IPFS Peers to ``follow'' a Log, potentially replicating and/or republishing Events. A Follower is capable of receiving Log updates and traversing linkages via the Follow Key (Section  \ref{sec:KeysEncryption}), but is not able to read the Log's contents. Followers should be server-based --- i.e., always online and behind a public IP address.\end{definition}
 
 Followers are represented as additional addresses, meaning that a Log address book may contain \emph{multiple} multiaddresses for a single Log (Example \ref{ex:Multiaddress}).
 
-In practice, Writers are solely responsible for announcing their Log's addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (see section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to \emph{pull} (or subscribe to push-based) Events from the Follower's Log address when the Writer is offline or unreachable (Figure \ref{fig:Pulling}).
+In practice, Writers are solely responsible for announcing their Log's addresses. This ensures a conflict-free address list without additional complexity. Some Followers may be in the business of replicating Logs (Section  \ref{sec:Bots}), in which case Writers will announce the additional Log address to Readers. This allows them to \emph{pull} (or subscribe to push-based) Events from the Follower's Log address when the Writer is offline or unreachable (Figure \ref{fig:Pulling}).
 
 \subsubsection{Keys \& Encryption} \label{sec:KeysEncryption}
 
@@ -482,7 +482,7 @@ type KeyBook interface {
 \end{example} 
 
 
-Textile Logs are designed to be shared, composed, and layered into datasets (Figure \ref{fig:LogEncryption}). Therefore, Logs are encrypted by default in a manner that enables access control (see Section  \ref{sec:AccessControl}) and the Follower mechanism discussed in the previous section.
+Textile Logs are designed to be shared, composed, and layered into datasets (Figure \ref{fig:LogEncryption}). Therefore, Logs are encrypted by default in a manner that enables access control (Section  \ref{sec:AccessControl}) and the Follower mechanism discussed in the previous section.
 
 \begin{definition}
 (Identity Key). Every Log requires an asymmetric key-pair that determines ownership and identity. The private key is used to sign each Event added to the Log, so down-stream processes can verify the Log's authenticity. Like IPFS peers, the public key of the Log is used as an identifier (Log ID).
@@ -514,7 +514,7 @@ Much like the Log address book, Log keys are stored in a key book (Example \ref{
 
 \subsection{Threads}
 
-In Textile, the \emph{interface} to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock \cite{kulkarniLogicalPhysicalClocks2014}) or a CRDT (see Section \ref{sec:CRDTs}).
+In Textile, the \emph{interface} to Logs is managed as a Thread. As mentioned previously, a Thread is a collection of Logs on a given topic. Threads are an event-sourced, distributed database, and can be used to maintain a single, collaboratively edited, watched, or hosted dataset across multiple Peers. Threads provide the mechanism to combine multiple Logs from individual authors into singular shared states through the use of either cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid Logical Clock \cite{kulkarniLogicalPhysicalClocks2014}) or a CRDT (Section \ref{sec:CRDTs}).
 
 \subsubsection{Identity}
 
@@ -562,7 +562,7 @@ Certain ID \emph{variants} may be more appropriate than the others in specific u
 \end{definition}
 
 \begin{definition}
-(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (see Section  \ref{sec:AccessControl} and Example \ref{ex:Identity}b).
+(Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (Section  \ref{sec:AccessControl} and Example \ref{ex:Identity}b).
 \end{definition}
 
 \begin{example*}
@@ -593,7 +593,7 @@ Regardless of the network protocol, Events are transported between Peers in a st
 A new Thread is created by generating a TID and Log. The Log's creator is the Writer, meaning it has possession of the Log's Identity, Read, and Follow Keys. All of these keys are needed to compose Events. At this point, the Thread only exists on the Writer's machine. Whether for collaboration, reading, or following, the process of sharing a Thread with other Peers starts by authoring a special Event called an \emph{Invite}, which contains a set of keys from all of the Thread's Logs, called a \emph{Key Set}.
 
 \begin{definition}
-(Invite). An Event containing a mapping of Log IDs to Key Sets, which can be used to join a Thread. Threads backed by an access control list (see Section  \ref{sec:AccessControl}) will also include the current ACL for the Thread in an Invite. This enables Peers to invite others to only read or follow a Thread, instead of becoming a full-on collaborator, i.e., a new Log Writer.
+(Invite). An Event containing a mapping of Log IDs to Key Sets, which can be used to join a Thread. Threads backed by an access control list (Section  \ref{sec:AccessControl}) will also include the current ACL for the Thread in an Invite. This enables Peers to invite others to only read or follow a Thread, instead of becoming a full-on collaborator, i.e., a new Log Writer.
 \end{definition}
 
 \begin{definition}
@@ -650,7 +650,7 @@ There are multiple paths to receiving new Events, that together, maximize connec
 
 Replication of Thread data can happen by duplicating/syncing Log data to other Peers.
 
-The notion of the Follow Key (see Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (see Section  \ref{sec:LogSync}).
+The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (Section  \ref{sec:LogSync}).
 
 \subsection{Thread Views} \label{sec:threadviews}
 
@@ -729,13 +729,13 @@ At an abstract level, the Textile protocol provides a highly distributed framewo
 
 Snapshots\footnote{The literature around snapshots and other CQRS and ES is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a View at a given point in time. They can be used to rebuild the state of a view without having to query and re-play all previous events. When a Snapshot is available, a Thread Peer can rebuild the state of a given View by replaying any events generated since the latest Snapshot (with a corresponding reduction in the total number of events that need to be processed) using the View's Reducer function. Multiple peers processing the same Log could create a Snapshot every 1000 events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
 
-In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (see Section \ref{sec:LogSync}) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing state during recovery.
+In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (Section \ref{sec:LogSync}) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing state during recovery.
 
 Compaction can similarly speed up re-hydration of state, and is useful when only the latest Event per Event type is required. In addition to being used as a starting point for initialization and recovery, compacted logs can be used to \emph{replace} the Log from which they were created in order to free up local disk space. In Textile, compaction becomes much easier because a log only has one writer and conflicts are not possible. In practice, Log compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
 
 \subsubsection{Access Control} \label{sec:AccessControl}
 
-One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can \emph{follow, read, write, and delete} Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition \ref{ex:SequenceID}) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (see Section \ref{sec:TexCRDT}). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
+One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can \emph{follow, read, write, and delete} Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition \ref{ex:SequenceID}) basis. Both types of ACLs are materialized views, or more specifically, JSON CRDT documents, built from Log Events (Section \ref{sec:TexCRDT}). ACLs implemented as JSON documents provides two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
 
 \begin{definition}
 (Sequence). An Event Sequence is a series of ordered events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events. A Sequence might have a unique UUID (see Example \ref{ex:SequenceID}) as in the example below.
