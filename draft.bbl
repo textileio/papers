@@ -38,6 +38,10 @@ Kleppmann, M. {\em Designing Data-Intensive Applications: {{The}} Big Ideas
   behind Reliable, Scalable, and Maintainable Systems}. {" O'Reilly Media,
   Inc."}.
 
+\bibitem{martinfowlerCQRS2011}
+{Martin Fowler}.
+\newblock {{CQRS}}.
+
 \bibitem{fowlerEventSourcing}
 Fowler, M.
 \newblock Event {{Sourcing}}.
@@ -166,18 +170,22 @@ Enes, V., Almeida, P.~S., and Baquero, C. The {{Single}}-{{Writer Principle}}
 \newblock {\em Proceedings of the {{Programming Models}} and {{Languages}} for
   {{Distributed Computing}} on - {{PMLDC}} '17},  pp. 1--3. {ACM Press}.
 
+\bibitem{meyerBamboo2019}
+Meyer, A.
+\newblock Bamboo.
+
 \bibitem{leachUniversallyUniqueIDentifier2005}
 Leach, P.~J., Mealling, M., and Salz, R.
 \newblock A {{Universally Unique IDentifier}} ({{UUID}}) {{URN Namespace}}.
+
+\bibitem{reduxMotivation}
+{Redux}.
+\newblock Motivation.
 
 \bibitem{kleppmannConflictFreeReplicatedJSON2017}
 Kleppmann, M. and Beresford, A.~R. A {{Conflict}}-{{Free Replicated JSON
   Datatype}}, {\bf .
 \newblock 28}, 2733--2746.
-
-\bibitem{reduxMotivation}
-{Redux}.
-\newblock Motivation.
 
 \bibitem{sandhuRolebasedAccessControl1996}
 Sandhu, R.~S., Coyne, E.~J., Feinstein, H.~L., and Youman, C.~E. Role-based
@@ -205,9 +213,5 @@ Parker, D.~S., Popek, G.~J., Rudisin, G., Stoughton, A., Walker, B.~J., Walton,
   E., Chow, J.~M., Edwards, D., Kiser, S., and Kline, C. Detection of {{Mutual
   Inconsistency}} in {{Distributed Systems}}, {\bf .
 \newblock SE-9}, 240--247.
-
-\bibitem{meyerBamboo2019}
-Meyer, A.
-\newblock Bamboo.
 
 \end{thebibliography}
