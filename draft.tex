@@ -356,7 +356,7 @@ Event-driven systems (e.g., event sourcing) often make use of ACLs with some dis
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
 
-We propose Threads, a protocol and decentralized database that runs on IPFS meant to help decouple apps from user-data. The Threads protocol is designed based on an underlying, CQRS-inspired event-sourcing system for synchronizing data across collaborating peers on a network. Threads offer data ownership and a multi-role data access architecture where owners can set independent permissions for writing, reading, and following data updates. Threads differ from previous solutions by extending on the multiaddress addressing scheme to allow pull-based replica synchronization in addition to more common push-based synchronization seen in decentralized protocols. The flexible event-based structure enables client applications to model advanced states through aggregates, views, and custom CRDTs.
+We propose Threads, a protocol and decentralized database that runs on IPFS meant to help decouple apps from user-data. Inspired by Event Sourcing, CQRS, and Flux, Threads is a protocol for creating and synchronizing state across collaborating peers/replicas on a network. Threads offer a multi-layered encryption and data access architecture that enables datasets with independent roles for writing, reading, and following changes. By extending on the multiaddress addressing scheme, Threads differs from previous solutions by allowing PULL based replica synchronization in addition to PUSH based synchronization that is common in distributed protocols. The flexible event-based structure enables client applications to create advanced applications states, including materialized views, and custom CRDTs.
 
 Threads are topic-based collections of single-writer logs. Taken together, these logs represent the current ``state'' of an object or dataset. The basic units of Threads, namely Logs and Events, provide a framework for users to create, store, and transmit data in a P2P distributed network. By structuring the underlying architecture in specific ways, this framework can be deployed to solve many of the problems discussed above.
 
@@ -654,17 +654,21 @@ The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicati
 
 \section{Thread Internals}
 
-To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems, as well as ideas and designs from Flux \cite{facebookFluxInDepthOverview2019} and Redux\footnote{Flux/Redux build on concepts from CRQS and ES themselves, and Redux is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. In this section, we outline the internal structure of a local Threads ``client'' at a relatively high-level, and outline how it can be used to build intuitive developer-facing APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
+To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems, as well as ideas and designs from Flux \cite{facebookFluxInDepthOverview2019} and Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. In this section, we outline the internal structure of a local Threads ``client'' at a relatively high-level, and outline how it can be used to build intuitive developer-facing APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
-For developers familiar with common application state management issues, tools such as Flux/Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of a Flux (or Redux) application, you'll notice several core similaries to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} for example). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
+For developers familiar with common application state management issues, tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similaries to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
 
-We adopt a similar flow in Threads (see Figure \dots), such that views are updated by subscribing to specific events (or actions as in Flux/Redux), and applying a reducer function that is used to update the view state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex event-driven application logic. In the following, we outline the specifics of the Textile Threads internals, focusing on three core components: Actions, the Dispatcher, and Read/View Stores.
+We adopt a similar flow in Threads (see Figure \dots), such that views are updated by subscribing to specific events (or actions), and applying a reducer function that is used to update the view state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex event-driven application logic. In the following, we outline the specifics of the Textile Threads internals, focusing on three core components: Actions, the Dispatcher, and Read/View Stores.
 
 \subsubsection{Actions}\label{sec:actions}
 
-Like with Flux/Redux, to add an Event to the internal Threads system, we use \emph{Actions}. Actions cause predictable updates to state via \emph{Reducer} functions. In practice, Actions are \emph{dispatched} from a singleton \emph{Dispatcher} (Section \ref{sec:dispatcher}), which then stores the Event in an \emph{Event Store}, and calls a set of pure (in the functional sense) Reducer functions that mutate a set of downstream \emph{Read/View Stores}.
+Like with Flux, to add an Event to the internal Threads system, we use \emph{Actions}. Actions cause predictable updates to state via \emph{Reducer} functions. In practice, Actions are \emph{dispatched} from a singleton \emph{Dispatcher} (Section \ref{sec:dispatcher}), which then stores the Event in an \emph{Event Store}, and calls a set of pure (in the functional sense) Reducer functions that mutate a set of downstream \emph{Read/View Stores}.
+
+\begin{definition}
+  (Action). Actions are simple structures that are used to send data from an external application to an internal Event Store. They are the only source of information for the Store, and contain (at a minimum) a \textnormal{\texttt{Type}}, a \textnormal{\texttt{Data}} payload, and a \textnormal{\texttt{Timestamp}}. 
+\end{definition}
 
 In addition to dispatching 'raw' Actions, application developers are able to build and interact with ction \emph{Creators}, which are simple functions (or groups of functions) that create (and possibly dispatch) new Actions. For those familiar with DDD, if built around a specific \emph{domain}, Action Creators provide bounded context that can be (roughly) compared to an aggregate root (i.e., a cluster of objects, that create a clear reference to the root aggregate). This is a powerful design feature that we will take advantage of in section \ref{sec:AccessControl}.
 
@@ -672,35 +676,27 @@ In addition to dispatching 'raw' Actions, application developers are able to bui
 
 In order to actually \emph{store} events and dispatch actions to downstream views, a Dispatcher is used. The dispatcher wraps an embedded Event Store, which is responsible for persisting Events. This means a Dispatcher is both an Event Store an Event Bus/Dispatcher. In practice, the internal Event Store supports ACID transactions \cite{haerderPrinciplesTransactionorientedDatabase1983}, so that Actions are only ever dispatched if they were successfully persisted to the Event Store.
 
-All ``side effects'' of a given Action happen within a \emph{Transaction}, in order to ensure consistently of both storage (Event Store) and actions. Transactions provide a similar experience to Redux ``Sagas''\footnote{\url{https://redux-saga.js.org/}}, but with a simpler interface. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a Store's Reducer callback. In order to make this possible, Stores must \emph{registered} with the Dispatcher. 
+\begin{definition}
+  (Dispatcher). A Dispatcher is used to both persist Events to the local Event Store, as well as broadcast Action payloads to registered Store Reducers. Only one Dispatcher per application is ever required.
+\end{definition}
+
+All ``side effects'' of a given Action happen within a \emph{Transaction}, in order to ensure consistently of both storage (Event Store) and actions. Transactions provide a similar experience to Redux ``Sagas''\footnote{\url{https://redux-saga.js.org/}}, but with a simpler interface. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a Store's Reducer callback. In order to make this possible, Stores must \emph{register} their Reducer with the Dispatcher.
 
 Actions can also be batch dispatched, which is the preferred way to dispatch multiple Actions at a time. This works by grouping Actions into meta Actions, and then running their Reducers in series. An example of where this might be useful is when grouping Actions that regularly occur together, such as image processing pipelines.
 
 \subsubsection{Read Models}\label{sec:readModels}
 
-The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views. Here, we borrow some ideas and terminology from a combination of Flux/Redux and CQRS, but with a slightly more abstracted API layer, similar to DDD.
+The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. In practice, a ReadStore is defined by a Reducer function and a set of query Resolver functions. This is very similar to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern, which is a departure of the ``single source of truth'' in Redux.
 
-As Actions as dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read Models, which provide interfaces for queries and accessing state. In practice, a ReadStore is defined by a Reducer function and a set of query Resolver functions.
+\begin{definition}
+  (Reducer). Reducers are ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a ReadStore's state based on incoming Actions.  
+\end{definition}
 
-Like in Flux, Stores (as they are defined here) have several specific properties:
-
-\begin{itemize}
-  \item Cache data
-  \item Expose public getters to access data (never have public setters)
-  \item Respond to specific `Actions` from the `Dispatcher`
-  \item Always emit a change when their data changes
-  \item Only emit changes during a `Dispatch`
-\end{itemize}
+\begin{definition}
+  (Resolver). Resolvers are simply pre-defined query functions\footnote{Ideally the underlying storage is optimized to support these queries} that exist on the Store instance (i.e., the Store's API). The interesting thing here is that these can similarly be defined around a domain to produce essentially domain aggregates in the DDD sense.
+\end{definition}
 
 Threads also define \emph{ViewStores}, which are a special kind of ReadStore, akin to a Redux Store. In practice, they are smaller, read-only (immutable) models, that are built on-the-fly, and defined by a pure Reducer function. Textile Threads use ViewStores to define the ACL for a given Thread.
-
-\paragraph{Reducers}
-
-The Reducer functions build a ReadStore's state based on incoming Actions. Query Resolvers use data from the accumulated state to answer specific queries. Reducers should be ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}. This is very similar to a Flux Store, and it is possible to have multiple Stores here, each specifying their own model and Reducer function.
-
-\paragraph{Resolvers}
-
-To query Stores, we use their set of Resolver methods. These are just pre-defined query functions\footnote{Ideally the underlying storage is optimized to support these queries} that exist on the Store instance (the public APIs so to speak). The interesting thing here is that these can similarly be defined around a domain to produce essentially domain aggregates in the DDD sense.
 
 \subsection{Abstractions}\label{sec:DefaultViews}
 
