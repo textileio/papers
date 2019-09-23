@@ -651,25 +651,83 @@ There are multiple paths to receiving new Events, that together, maximize connec
 
 \subsubsection{Log Replication}
 
-Replication of Thread data can happen by duplicating/syncing Log data to other Peers.
-
 The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (Section  \ref{sec:LogSync}).
 
-\subsection{Thread Views} \label{sec:threadviews}
+\section{Thread Internals}
 
-The use of well-established design patterns from the CQRS+ES (and related) literature means the Threads protocol can provide the foundation for many higher-level concepts and technologies. Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store\footnote{Though see section \ref{sec:SnapshotsCompaction} for a discussion of Snapshots, which may be used to speed up Views.}. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
+To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems, as well as ideas and designs from Flux\footnote{http://facebook.github.io/flux}/Redux\footnote{Flux/Redux build on concepts from CRQS and ES themselves, and Redux is arguably an implementation of the Flux application architecture (i.e., Flux is a pattern, Redux is a library).} \cite{reduxMotivation} and domain driven design [\dots] (DDD).
+
+One more linking sentence \dots
+
+\subsection{Overview}
+
+For application developers familiar with common application state management issues, tools such as Flux/Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of a Flux (or Redux) application, you'll notice several core similaries to CQRS and ES systems (see Figure MISSING). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
+
+In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
+
+\subsection{Actions}
+
+Both Flux and Redux use `Actions`, which are essentially events. Actions cause predictable updates to state via `Reducer` functions in both Flux and Redux, and in both cases, the `Store` is the current state of the application (to which we can send queries or subscribe to changes). The differences arise in how they two handle actions: in Flux, `Actions` are dispatched from a singleton `Dispatcher`, which then calls a set of `Reducer` functions that mutate a set of `Stores`. Conversely in Redux, `Actions` are dispatched to a singleton `Store`, which then applies a pure (in the functional sense) `Reducer` (which can be composed of multiple pure reducers) to replace the application state with a new immutable state.
+
+\subsubsection{Action Creators}
+
+Both Flux\footnote{\url{https://facebook.github.io/flux/docs/in-depth-overview}} and Redux\footnote{\url{https://redux.js.org/basics/actions}} have the concept of `Action` creators, which are simple functions that create `Actions`.
+In Redux, these create and return a new `Action`, in Flux, they generally also dispatch said `Action` (Redux folks call these bound `Action` creators).
+As you might have noticed, if designed around a domain, Action creators provide bounded context that can be (roughly) compared to an aggregate root (i.e., a cluster of objects, that create a clear reference to the root aggregate). 
+
+\subsection{Dispatcher}
+
+Dispatcher is used to store actions and dispatch events to stores.
+It would be a Datastore, which would be responsible for persisting to its own internal Event Store (it essentially is both the Event Store and the Event Bus/Dispatcher). It is based on a `TxDatastore``, so that Actions` are only ever `Dispatch`ed if they were successfully stored in the Event Store.
+Additionally, all ``side effects'' should happen within the `Transaction`. This is a big reason for the use of Flux rather than Redux architecture\dots because we need some way to consistently and transactionally both store and transmit actions. The Dispatcher is actually responsible for running a `Store`'s `Reducer`, once that `Store` has registered with the Dispatcher. Its quite simple, and ends up being a pretty tiny class/object.
+
+While a `Store`'s `Reducer` can actually `Dispatch` new `Actions` along the way, this is generally discouraged due to the potential for race conditions and infinite loops.
+Having said that, borrowing concepts from ACID databases and some Redux middlewares, it is possible to avoid these issues by using `Transactions` to some degree. Speaking of `Transactions`, if done right, this gets us essentially what you get using Redux ``Sagas'', but with a much simpler interface (basically no interface, the `Transactions` are all hidden inside the `Dispatcher`), which is also really cool.
+Another useful pattern here which works nicely with `Transactions` is batched `Actions` (which is the preferred way\footnote{\url{https://twitter.com/dan_abramov/status/656074974533459968}} to send multiple actions in Redux). 
+This works by grouping Actions into meta `Actions` (`BatchedActions`), and then running their `Reducers` in series. An example of where this is useful is something like image resizing. If you `Dispatch` an `ImageAdded` `Action`, you'd ideally also batch that with a `ImageResized` `Action` or two along the way.
+
+Commands are Actions, the Event Store is your Dispatcher, Projections are Reducers, Materialized Views are Stores, and Queries can be called from Views.
+
+Ok, so that's pretty nice, but what about on the read side? Here's where we have to borrow some ideas and terminology from a combination of CQRS and the Resolve library (because Flux and Redux don't really have a read side, just state).
+
+\subsection{Read Models}
+
+Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of views, which are used to optimize queries on the local event store. 
+
+This focus on uni-directional data flows that produce immutable state updates via pure functions provides an intuitive framework for predictable state management (just like it says on the box). And it is really nice on the client side. However, it doesn't scale very well to large sets of data if you are updating your whole state tree each time a new event comes in. So how might we use this nice front-end pattern on the backend? Others have also thought about this, and they [settled on](https://medium.com/resolvejs/resolve-redux-backend-ebcfc79bbbea)... you guessed it, CQRS+ES+DDD.
+
+
+If we stick with the concept of dispatching `Actions` (Flux and Redux do it differently, but that's an implementation detail), on the write side, then based on these `Actions`, the read side updates the read models, and these models provide data to the queries. In practice, a `ReadStore` is defined by a projection function (`Reducer`) and a set of query resolver functions (`Resolvers`).
+
+The `Reducer` functions build a `ReadStore`'s state based on incoming `Actions`. Query `Resolvers` use data from the accumulated state to answer specific queries. `Reducers` should be ``pure'' functions (where possible), though in practice they aren't really pure, because we are mutating (persistent) state here. So basically, we have a Flux `Store` implementation here. The `Store`(s) hold/define their own `Reducer` and underlying state. Note that we may have multiple `Stores` here (like in Flux).
+
+We might also want to think about `ViewStore`s, which would be more like a Redux `Store`, in that they would be smaller, read-only (immutable), would be built on the fly, and defined by a pure reducer function. There are some additional nice things about `ViewStore`s (such as `Snapshots`) that could be easily baked in. The nice thing about them is they are very much in line with ES and Redux.
+
+Like in Flux, `Stores` (as they are outlined above) have several specific properties:
+
+Cache data\\
+Expose public getters to access data (never have public setters)\\
+Respond to specific `Actions` from the `Dispatcher`\\
+Always emit a change when their data changes\\
+Only emit changes during a `Dispatch`\\
+
+The other thing about `Stores` is their set of `Resolver` methods. These are just pre-defined query functions (ideally the underlying storage is optimized to support these queries) that exist on the `Store` instance (the public APIs so to speak). The interesting thing here is that these can similarly be defined around a domain to produce essentially domain aggregates like in DDD.
+
+`ViewStores` are a special kind of `ReadStore`. They are queried based on aggregate ID (maybe?), and regenerated on the fly from past events. `ViewStores` are like Redux state. They should only ever replace their internal state, not mutate it.
 
 \subsubsection{Databse Views}\label{sec:DefaultViews}
+
+For example, what if your domain was a database? In which case, our earlier thoughts about database wrappers might become something like this:
 
 The public API for a Thread already provides several features that you would expect when operating on a dataset or table within a database. Indeed, each Thread is defined by a unique ID (its Identity), and provides facilities for access control and permissions, networking, sharing, invites, and more. As such, it is not difficult to imagine a simplified API in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems.
 
 The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS + ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
 
-A database built on Threads would map database operations into Events. These Events would then mutate a View Model via its corresponding Reducer function, as per above. The actual View could be persisted or kept in-memory, and would be directly queried via a corresponding database-style APIs. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} Event, marking the database item for removal from the underlying materialized View.
+A database built on Threads would map database operations into \texttt{Actions}. Here, the \emph{domain} is the databse. These \texttt{Actions} would then mutate a \texttt{ReadModel} via its corresponding \texttt{Reducer} function, as per above. The \texttt{Store} could be persisted or kept in-memory (as a \texttt{ViewModel}), and would be directly queried via a corresponding database-style \texttt{Resolver} metods. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} \texttt{Action}, marking the database item for removal from the \texttt{ReadStore}.
 
 \paragraph{Key/Value}
 
-A key/value store built on Threads would ``map'' these database Events into key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del}. These Events would then mutate a map-like View Model. To complete the database-like API, the entire API could be encapsulated in a database sturcture that satisfies a given interface (see for example, Figure \ref{ex:KVStore}).
+A key/value store built on Threads would ``map'' these database \texttt{Actions} into key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del}. These \texttt{Actions} would then mutate a map-like \texttt{ReadModel}. To complete the database-like API, the \texttt{ActionCreator} and \texttt{ReadModel} methods outlined in Section MISSING could be encapsulated in a database structure that satisfies a given interface (see for example, Figure \ref{ex:KVStore}).
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -687,7 +745,7 @@ type TextileKVStore interface {
 
 \paragraph{No-SQL}
 
-Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized View, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
+Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized \texttt{ReadStore}, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -711,16 +769,6 @@ Similar abstractions could (and will) be used to implement additional database t
 \paragraph{CRDTs} \label{sec:TexCRDT}
 
 Eventually consistent, CRDT-based stores can also be implemented on top of Threads. CRDT-based stores are particularly useful for managing Views of a document in a multi-peer collaborative editing environment (like Google Docs or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype \cite{kleppmannConflictFreeReplicatedJSON2017} that applies updates on a JSON document View model. Libraries such as Automerge\footnote{\url{https://github.com/automerge/automerge}} provide useful examples of reducer function that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available. A practical example of using a JSON CRDT in Textile is given in section \ref{sec:AccessControl}, where it is used to represent updates to an ACL document for an access-controlled Thread implementation.
-
-\paragraph{Application State}
-
-For application developers familiar with common state management issues, tools such as Redux provide an opinionated framework for making state mutations predictable by imposing certain restrictions on how and when updates can happen. In fact, Redux builds on concepts from CRQS and ES itself \cite{reduxMotivation}, and combines them with three core principals: 
-
-\begin{enumerate}
-\item The entire \emph{state} of an application should be stored in a single \emph{store}.
-\item The only way to change the state is to emit an \emph{action} (or event).
-\item transforms the application state using a \emph{pure} (i.e., zero side effects) reducer function (projection).
-\end{enumerate}
 
 In practice, Redux doesn't care how a developer persists the application state, which means a Thread's event store and read-only materialized views are excellent candidates. This focus on unidirectional data flow in perfectly in line with architecture proposed in this paper, and as such, a compatible Redux API will be built on top of Textile Threads.
 
