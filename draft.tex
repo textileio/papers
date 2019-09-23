@@ -26,7 +26,7 @@
 \renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
             {-2.5ex\@plus -1ex \@minus -.25ex}%
             {1.25ex \@plus .25ex}%
-            {\normalfont\normalsize\bfseries}}
+            {\normalfont\normalsize\itshape}}
 \makeatother
 \setcounter{secnumdepth}{3} % how many sectioning levels to assign numbers to
 \setcounter{tocdepth}{3}    % how many sectioning levels to show in ToC
@@ -176,14 +176,13 @@ As the Internet expands, the division between a person's digital and physical ex
 
 \maketitle
 
-
 \section{Introduction}
 
 Compared to their predecessors, modern cloud-based apps and services provide an extremely high level of convenience. Users can entirely forget about the risk of data loss and enjoy seamless access to their apps across multiple devices. This convenience is now expected, but has come at the cost of additional consequences for users. One such consequence is that many of the same development patterns that bring convenience (e.g., single sign-on, minimal encryption, centralized servers, and databases) also enable or even require data hoarding by the apps. While collecting large amounts of users' data can create value for the companies building apps (e.g., app telemetry, predictive tools, or even new revenue streams), that value flows mostly in one direction; Apps collect, process and benefit from a user's private data, but users rarely have access to the original data or the new insights that come from it. Additionally,  the data may not be readily accessible to other apps and services. This is app-siloed data.
 
 While companies collecting user data may not be itself a significant problem, it has been shown that over time company incentives often shift from providing value to users to extracting value from users \cite{dixonWhyDecentralizationMatters2018}. When this incentive shift happens for companies that have also been hoarding user data, that data may be a new source of value or even revenue for the company. It may be possible to stop this trend through extreme privacy measures, government intervention/legislation, or by boycotting companies that collect any form of data. Ideally, there is an alternative approach that allows individuals to capture the value of their data and still allow developers to build new interfaces and experience on top of this data. This approach is called user-siloed data and it fundamentally separates apps from their user's data.
 
-One of the most exciting aspects of user-siloed data is the the ability to build data-driven apps and services while users remain in control of their own data. Other projects have identified app silo-ed data as a problem [ref], and some have identified user-siloed data as a solution \cite{sambraSolidPlatformDecentralized2016}. However, none so far have provided a sufficiently interoperable protocol for scalable storage and transmission of user-siloed application data. This is the key to building great applications on user-siloed data.
+One of the most exciting aspects of user-siloed data is the the ability to build data-driven apps and services while users remain in control of their own data. Other projects have identified app silo-ed data as a problem [MISSING], and some have identified user-siloed data as a solution \cite{sambraSolidPlatformDecentralized2016}. However, none so far have provided a sufficiently interoperable protocol for scalable storage and transmission of user-siloed application data. This is the key to building great applications on user-siloed data.
 
 In this paper, we study existing technologies that could be used to build a network for user-siloed data. We outline six challenge areas: flexible data format, efficient synchronization, conflict resolution, access-control, scalable storage, and network communication. Based on our findings, we propose a novel architecture for event sourcing with Interplanetary Linked Data (IPLD), designed to store, share, and host user-sioled datasets at scale. Our proposed design leverages new and existing protocols to solve major challenges involved with building a secure and distributed network for user data while at the same time providing the flexibility and scalability required by today's applications. 
 
@@ -203,7 +202,7 @@ When developing large-scale software systems, it is common to store data in a re
 
 In modern applications it is critical to have reliable mechanisms for publishing updates and events (i.e., to support event-driven architectures), scalability (optimized write and read operations), forward-compatible application updates (e.g., code changes, retroactive events, and others), auditing systems, etc. To support such requirements, developers have begun to utilize event sourcing and command query responsibility segregation (CQRS) patterns \cite{bettsExploringCQRSEvent2013}, relying on append only logs to support immutable state histories. Indeed, a number of commercial and open source software projects have emerged in recent years that facilitate event sourcing and CQRS-based applications, including Event Store \cite{EventStore}, Apache Kafaka \cite{ApacheKafka} and Samza \cite{Samza}, among others (see \cite{kleppmannDesigningDataintensiveApplications2017}). 
 
-\begin{definition} (Command query responsibility segregation). Command query responsibility segregation or CQRS is a design pattern whereby reads and writes are separated into different models, using commands to write data, and queries to read data [ref]. \end{definition}
+\begin{definition} (Command query responsibility segregation). Command query responsibility segregation or CQRS is a design pattern whereby reads and writes are separated into different models, using commands to write data, and queries to read data \cite{martinfowlerCQRS2011}. \end{definition}
 
 \begin{definition} (Event sourcing). Event sourcing (ES) is a design pattern for persisting the state of an application as an append-only log of state-changing events. \end{definition}
 
@@ -234,13 +233,11 @@ How a system provides eventual consistency is often decided based on the intende
 
 In a distributed system, where multiple machines, each with an independent clock, are creating events, local timestamps can't be used to construct global event causality. Machine clocks are never perfectly synchronized \cite{lamportTimeClocksOrdering1978}, meaning that one machine's concept of "now" is not necessarily the same as another machine's. Machine speed, network speed, and other factors compound the issue. For this reason, simple wall-clock time does not provide a sufficient notion of order in a distributed system. Alternatives to wall-clock time exist to help distributed systems achieve eventual consistency. Examples include various logical clocks (Lamport \cite{lamportTimeClocksOrdering1978} Schwartz \cite{schwarzDetectingCausalRelationships1994}, and Bloom \cite{ramabajaBloomClock2019}, Hybrid variants \cite{kulkarniLogicalPhysicalClocks2014}, etc), which use counter-based time-stamping to provide partial ordering. 
 
-Cryptographically linked events can also represent a clock. One such example is called the Merkle-Clock \cite{sanjuanMerkleCRDTs2019}. The Merkle-Clock relies on properties of a Merkle-DAG to provide strict partial ordering between events, which has limitations \cite[sec. 4.3]{sanjuanMerkleCRDTs2019}:
+Cryptographically linked events can also represent a clock (See Section \ref{sec:merkleclocks}). One such example is called the Merkle-Clock \cite{sanjuanMerkleCRDTs2019}. The Merkle-Clock relies on properties of a Merkle-DAG to provide strict partial ordering between events, which has limitations \cite[sec. 4.3]{sanjuanMerkleCRDTs2019}:
 
 \begin{quote}
 Merkle-Clocks represent a strict partial order of events. Not all events in the system can be compared and ordered. For example, when having multiple heads, the Merkle-Clock cannot say which of the events happened before.
 \end{quote}
-
-See Section \ref{sec:merkleclocks}.
 
 \subsubsection{Conflict-Free Replicated Data Types}\label{sec:CRDTs}
 
@@ -330,12 +327,12 @@ Each of these systems leverage cryptographic signatures to validate peer identit
 
 \subsubsection{Access control}
 
-All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure /ref{tbl:ACL}). 
+All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure \ref{tbl:ACL}). 
 
-\begin{table*}
+\begin{table}
 \caption{Example Access Control List.}
     \centering
-    \begin{tabular} [t]{l>{\centering}p{0.2\linewidth}>{\centering}p{0.2\linewidth}>{\centering}p{0.2\linewidth}>{\centering\arraybackslash}p{0.2\linewidth}}
+    \begin{tabular} [t]{l>{\centering}p{0.15\linewidth}>{\centering}p{0.15\linewidth}>{\centering}p{0.15\linewidth}>{\centering\arraybackslash}p{0.15\linewidth}}
 \toprule
 &Create&Delete&Edit&Read\\
 \midrule
@@ -345,12 +342,11 @@ Mary&-&-&\checkmark&\checkmark\\
 \bottomrule
     \end{tabular}
     \label{tbl:ACL}
-\end{table*}%
+\end{table}
 
 Using ACLs in systems where identity is derived from various configurations of public-key infrastructure has been around for some time \cite{herzbergAccessControlMeets2000}. Still, many existing database and communication protocols built on IPFS to date lack support for an ACL or only have primitive ACL support. Where ACLs are missing, many systems use cryptographic primitives like signature schemes or enable encryption without any role-based configuration. Even more, many systems deploy an all-or-none security model, where those with access to a database have complete access, including write capabilities. ACLs should be mutable over time and permission to modify an ACL should also be recorded in an ACL.
 
 Event-driven systems (e.g., event sourcing) often make use of ACLs with some distinct properties. The ACL of an event-driven system is usually a list of access rules built from a series of events. For example, the two events, ``grant Bob write access'' and ``revoke read access from Alice'' would together result in a final ACL state where, Bob has read and write access, but Alice does not (see Section  \ref{sec:ViewsProjections}).
-
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
 
@@ -425,15 +421,13 @@ As seen above in Section \ref{sec:merkleclocks}, a Merkle-Clock is simply a Merk
 
 Together with a cryptographic signature, an Event is written to a log with an additional node (see Figure X.X.) enabling log verification by readers (see Section  \ref{sec:KeysEncryption}).
 
-At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification [ref].
+At a minimum, a node must link to its most immediate ancestor. However, links to older ancestors are often included as well to improve concurrency during traversal and verification \cite{meyerBamboo2019}.
 
 TODO: Ref to appendix
 
 As seen above, an Event's actual content, or body, is contained in a separate node. This allows Events to carry any arbitrary node structure, from complex directories to raw bytes.
 
-Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses [ref]. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses (see Example \ref{ex:Multiaddress}).
-
-In practice, to reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see Example \ref{ex:Multiaddress}).
+Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses\cite{Multiaddr}. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses. To reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see Example \ref{ex:Multiaddress}).
 
 \begin{example}
 \begin{lstlisting}
@@ -451,8 +445,6 @@ type AddrBook interface {
 \end{example} \label{ex:AddrBook}
 
 Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table \cite{benetIPFSContentAddressed2014} (DHT). Instead, they are collected from Log Events. This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed\footnote{This is similar to the append-only message feeds used in Secure Scuttlebutt’s global gossip network \cite{ScuttlebuttProtocolGuide}} like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book:
-
-MISSING PEER ADDRESS BOOK?
 
 Addresses can expire by specifying a time-to-live (TTL) value when adding or updating them in the address book, which allows for unresponsive addresses to eventually be removed.
 
@@ -664,26 +656,26 @@ The notion of the Follow key (see Section  \ref{sec:KeysEncryption}) makes dupli
 
 \subsection{Thread Views} \label{sec:threadviews}
 
-The use of well-established design patterns from the CQRS+ES (and related) literature means the Threads protocol can provide the foundation for many higher-level concepts and technologies. For instance, the public application programming interface (API) for a Thread provides several features that you would expect when operating on a dataset or table within a database. Indeed, each Thread is defined by a unique ID (its Identity), and provides facilities for access control and permissions, networking, sharing, invites, and more.
+The use of well-established design patterns from the CQRS+ES (and related) literature means the Threads protocol can provide the foundation for many higher-level concepts and technologies. Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store\footnote{Though see section \ref{sec:SnapshotsCompaction} for a discussion of Snapshots, which may be used to speed up Views.}. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
 
-Like many CQRS-based systems, the ``public'' API for Threads revolves around the concept of Views, which are used to optimize queries on the local event store. A key feature of Views is they are completely disposable, because they can be entirely rebuilt from the source event store\footnote{Though see section \ref{sec:SnapshotsCompaction} for a discussion of Snapshots, which may be used to speed up Views.}. In Threads, Views are updated by subscribing to specific Event(s), and applying a Reducer function that is used to update the View state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex View-driven application logic.
+\subsubsection{Databse Views}\label{sec:DefaultViews}
 
-\subsubsection{Default Views}\label{sec:DefaultViews}
+The public API for a Thread already provides several features that you would expect when operating on a dataset or table within a database. Indeed, each Thread is defined by a unique ID (its Identity), and provides facilities for access control and permissions, networking, sharing, invites, and more. As such, it is not difficult to imagine a simplified API in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems.
 
-The core Textile Threads interfaces are also exposed via interfaces compatible with \emph{existing} datastores and/or communications systems.
-These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
-In the remainder of this section, we highlight a number of planned database abstractions to provide further utility to developers interested in building on Textile's Threads protocol.
+The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS + ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
 
-\paragraph{Databases}
+A database built on Threads would map database operations into Events. These Events would then mutate a View Model via its corresponding Reducer function, as per above. The actual View could be persisted or kept in-memory, and would be directly queried via a corresponding database-style APIs. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} Event, marking the database item for removal from the underlying materialized View.
 
-A key/value store built on top of Threads can map database \texttt{Put} operations into internal \texttt{KeyValueUpdated} events. These Events would then operate on a map-like view model, via an internal ``projection'' (reducer function). The key/value view could be persisted or kept in-memory, and would be directly queried via a corresponding \texttt{Get} operation. Because Textile uses ES patterns, a \texttt{Del} operation would simply lead to an internal \texttt{KeyValueDeleted} event, marking the key/value pair for removal from the key/value materialized view.
+\paragraph{Key/Value}
+
+A key/value store built on Threads would ``map'' these database Events into key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del}. These Events would then mutate a map-like View Model. To complete the database-like API, the entire API could be encapsulated in a database sturcture that satisfies a given interface (see for example, Figure \ref{ex:KVStore}).
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
 \begin{lstlisting}
 type TextileKVStore interface {
-  Put(key string, value interface{}) error
-  Get(key string) (interface{}, error)
+  Put(key string, value Node) error
+  Get(key string) (Node, error)
   Del(key string) error
 }
 \end{lstlisting}
@@ -691,7 +683,9 @@ type TextileKVStore interface {
 \caption{The Key-Value store interface.}
 \end{example} \label{ex:KVStore}
 
-Similar abstractions could (and will) be used to implement additional database types and functions. The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, but exposes the underlying event sourced data for customizing as needed. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents:
+\paragraph{No-SQL}
+
+Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized View, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -707,18 +701,13 @@ type TextileDocumentStore interface {
 \caption{The Document store interface.}
 \end{example} \label{ex:DocStore}
 
-Where \texttt{Indexable} can be satisfied by any structure with a \texttt{key} field and and \texttt{Query} is taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
-Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores\footnote{In-memory stores are almost always implementable using compositions of basic data structures.}.
-Each database style will be implemented as a standalone software library, allowing application developers to pick and choose the solution most useful to the application at hand.
-Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.
+\paragraph{Others}
+
+Similar abstractions could (and will) be used to implement additional database types and functions. Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores\footnote{In-memory stores are almost always implementable using compositions of basic data structures.}. Each database style would be implemented as a standalone wrapper/software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.
 
 \paragraph{CRDTs} \label{sec:TexCRDT}
 
 Eventually consistent, CRDT-based stores can also be implemented on top of Threads. CRDT-based stores are particularly useful for managing Views of a document in a multi-peer collaborative editing environment (like Google Docs or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype \cite{kleppmannConflictFreeReplicatedJSON2017} that applies updates on a JSON document View model. Libraries such as Automerge\footnote{\url{https://github.com/automerge/automerge}} provide useful examples of reducer function that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available. A practical example of using a JSON CRDT in Textile is given in section \ref{sec:AccessControl}, where it is used to represent updates to an ACL document for an access-controlled Thread implementation.
-
-\paragraph{Application State}
-
-For application developers familiar with common state management issues, tools such as Redux provide an opinionated framework for making state mutations predictable by imposing certain restrictions on how and when updates can happen. In fact, Redux builds on concepts from CRQS and ES itself \cite{reduxMotivation}, and combines them with three core principals: 1) that the entire ``state' of an application should be stored in a single ``store'', 2) where the only way to change the state is to emit an ``action'' (or event), which 3) transforms the application state using a ``pure'' (i.e., zero side effects) reducer function (projection). In practice, Redux doesn't care how a developer persists the application state, which means a Thread's event store and read-only materialized views are excellent candidates. This focus on unidirectional data flow in perfectly in line with architecture proposed in this paper, and as such, a compatible Redux API will be built on top of Textile Threads.
 
 \subsection{Thread Extensions}
 

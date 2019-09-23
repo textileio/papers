@@ -6,3 +6,5 @@
 *.fls
 *.fdb_*
 .vscode
+*.synctex*
+__latexindent_temp.tex
