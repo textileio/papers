@@ -178,10 +178,6 @@ Meyer, A.
 Leach, P.~J., Mealling, M., and Salz, R.
 \newblock A {{Universally Unique IDentifier}} ({{UUID}}) {{URN Namespace}}.
 
-\bibitem{reduxMotivation}
-{Redux}.
-\newblock Motivation.
-
 \bibitem{kleppmannConflictFreeReplicatedJSON2017}
 Kleppmann, M. and Beresford, A.~R. A {{Conflict}}-{{Free Replicated JSON
   Datatype}}, {\bf .
@@ -213,5 +209,9 @@ Parker, D.~S., Popek, G.~J., Rudisin, G., Stoughton, A., Walker, B.~J., Walton,
   E., Chow, J.~M., Edwards, D., Kiser, S., and Kline, C. Detection of {{Mutual
   Inconsistency}} in {{Distributed Systems}}, {\bf .
 \newblock SE-9}, 240--247.
+
+\bibitem{reduxMotivation}
+{Redux}.
+\newblock Motivation.
 
 \end{thebibliography}
