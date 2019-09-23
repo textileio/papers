@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}[2009/07/27]
-\ProvidesClass{comjnl}
+\ProvidesClass{textile}
           [2009/07/27 v0.1c The Computer Journal class (DPC)]
 \def\CJ@err#1{\ClassError{cj}{#1}\@eha}
 \def\CJ@warn#1{\ClassWarningNoLine{cj}{#1}}

@@ -3,6 +3,9 @@
 
 \usepackage{amsmath}
 
+\usepackage[sorting=nyt,style=numeric-comp]{biblatex}
+\bibliography{whitepaper}
+
 %\copyrightyear{2009} \vol{00} \issue{0} \DOI{000}
 
 % for full width figures\
@@ -199,11 +202,11 @@ We now describe some of the technologies and concepts motivating the design of o
 
 \subsubsection{CQRS, Event Sourcing, and Logs}
 
-When developing large-scale software systems, it is common to store data in a relational database management system (RDBMS). To model realistic systems, this type of framework often requires complex techniques for mapping data between domain models and database tables, where the same data model is used to both query and update a database. A powerful alternative is to use a set of append only logs to model the state of an object simply by applying its change sequence in the correct order. This concept can be expressed succinctly by the state machine approach \cite{schneiderImplementingFaulttolerantServices1990}: if two identical, deterministic processes begin in the same state and get the same inputs in the same order, they will produce the same output and end in the same state. This is a powerful concept baked into a simple structure, and is at the heart of many distributed database systems \cite{LogWhatEvery}.
+When developing large-scale software systems, it is common to store data in a relational database management system (RDBMS). To model realistic systems, this type of framework often requires complex techniques for mapping data between domain models and database tables, where the same data model is used to both query and update a database. A powerful alternative is to use a set of append only logs to model the state of an object simply by applying its change sequence in the correct order. This concept can be expressed succinctly by the state machine approach \cite{schneiderImplementingFaulttolerantServices1990}: if two identical, deterministic processes begin in the same state and get the same inputs in the same order, they will produce the same output and end in the same state. This is a powerful concept baked into a simple structure, and is at the heart of many distributed database systems \cite{jaykrepsLogWhatEvery2013}.
 
 \begin{definition} (Logs or Append-only log). A log is a registry of database transactions that is read sequentially (normally ordered by time) from beginning to end. In distributed systems, logs are often treated as append-only, where changes or updates can only be added to the set and never removed.  \end{definition} \label{def:Logs}
 
-In modern applications it is critical to have reliable mechanisms for publishing updates and events (i.e., to support event-driven architectures), scalability (optimized write and read operations), forward-compatible application updates (e.g., code changes, retroactive events, and others), auditing systems, etc. To support such requirements, developers have begun to utilize event sourcing and command query responsibility segregation (CQRS) patterns \cite{bettsExploringCQRSEvent2013}, relying on append only logs to support immutable state histories. Indeed, a number of commercial and open source software projects have emerged in recent years that facilitate event sourcing and CQRS-based applications, including Event Store \cite{EventStore}, Apache Kafaka \cite{ApacheKafka} and Samza \cite{Samza}, among others (see \cite{kleppmannDesigningDataintensiveApplications2017}). 
+In modern applications it is critical to have reliable mechanisms for publishing updates and events (i.e., to support event-driven architectures), scalability (optimized write and read operations), forward-compatible application updates (e.g., code changes, retroactive events, and others), auditing systems, etc. To support such requirements, developers have begun to utilize event sourcing and command query responsibility segregation (CQRS) patterns \cite{bettsExploringCQRSEvent2013}, relying on append only logs to support immutable state histories. Indeed, a number of commercial and open source software projects have emerged in recent years that facilitate event sourcing and CQRS-based applications, including Event Store \cite{EventStore}, Apache Kafaka \cite{ApacheKafka} and Samza \cite{ApacheSamza}, among others (see \cite{kleppmannDesigningDataintensiveApplications2017}). 
 
 \begin{definition} (Command query responsibility segregation). Command query responsibility segregation or CQRS is a design pattern whereby reads and writes are separated into different models, using commands to write data, and queries to read data \cite{martinfowlerCQRS2011}. \end{definition}
 
@@ -217,7 +220,7 @@ A key principal of ES and append only logs is that all changes to application st
 
 \begin{definition}  (View). A (typically highly de-normalized) read-only model of the data. Views are tailored to the interfaces and display requirements of the application, which helps to maximize both display and query performance. Views that are backed by a database or filesystem-optimized access are referred to as materialized views. \end{definition}
 
-\begin{definition} (Projection). An event handler and corresponding reducer/fold function used to build and maintain a view from a set of (filtered) events. While projections may lead to the generation of new events, their reducer should be a pure function (see \cite{eventsouceEventSourcingBasics} and \cite{redux.js.orgGettingStartedRedux} for examples from existing systems). \end{definition}
+\begin{definition} (Projection). An event handler and corresponding reducer/fold function used to build and maintain a view from a set of (filtered) events. While projections may lead to the generation of new events, their reducer should be a pure function (see \cite{eventsourceEventSourcingBasics} and \cite{reduxGettingStartedRedux} for examples from existing systems). \end{definition}
 
 In CQRS and ES, the separation of write operations from read operations is a powerful concept. It allows developers to define views into the underlying data that are best suited for the use case or user interface they are building. Multiple views can be built from the same underlying event log, and they can be quite different from one another.
 
@@ -225,7 +228,7 @@ Views themselves are enabled by projections\footnote{Terminology in this section
 
 \subsubsection{Eventual Consistency} \label{sec:EventualConsistency}
 
-The CAP theorem \cite{brewerRobustRobustDistributed2000,gilbertBrewerConjectureFeasibility2002a} states that a distributed database can guarantee only two of the following three promises at the same time: consistency (i.e., that every read receives the most recent write or an error), availability (i.e., that every request receives a (possibly out-of-date) non-error response, and partition tolerance (i.e., that the system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network). As such, many distributed systems are now designed to provide availability and partition tolerance by trading consistency for eventual consistency. Eventual consistency allows state replicas to diverge temporarily, but eventually arrive back to the same state again. While an active area of research, designing systems with provable eventual consistency guarantees remains challenging \cite{shapiroComprehensiveStudyConvergent2011a,almeidaDeltaStateReplicated2018}.
+The CAP theorem \cite{brewerRobustDistributedSystems2000,gilbertBrewerConjectureFeasibility2002a} states that a distributed database can guarantee only two of the following three promises at the same time: consistency (i.e., that every read receives the most recent write or an error), availability (i.e., that every request receives a (possibly out-of-date) non-error response, and partition tolerance (i.e., that the system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network). As such, many distributed systems are now designed to provide availability and partition tolerance by trading consistency for eventual consistency. Eventual consistency allows state replicas to diverge temporarily, but eventually arrive back to the same state again. While an active area of research, designing systems with provable eventual consistency guarantees remains challenging \cite{shapiroComprehensiveStudyConvergent2011a,almeidaDeltaStateReplicated2018}.
 
 
 \begin{definition} (CRDT). A conflict-free replicated data type (CRDT) assures eventual consistency through optimistic replication (i.e. all new updates are allowed) and eventual merging. CRDTs rely on data structures that are mathematically guaranteed to resolve concurrent updates the same way regardless of the order those events were received. \end{definition} \label{def:CRDT}
@@ -302,7 +305,7 @@ So far we have primarily discussed the mechanics of creating or linking content 
 
 \subsubsection{Libp2p}
 
-The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects (Polkadot, Ethereum 2.0, Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include network address translator \cite{srisureshIPNetworkAddress} (NAT) traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols \cite{Multiaddr}. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
+The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects (Polkadot, Ethereum 2.0, Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include network address translator \cite{srisureshIPNetworkAddress} (NAT) traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols \cite{multiformatsMultiaddr}. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
 
 \subsubsection{Pubsub}
 
@@ -325,7 +328,7 @@ IPFS is an implementation of public key infrastructure, where every node on the 
 Agent-centric security refers to the maintainance of data integrity without leveraging a central or blockchain-based consensus.
 The general approach is just to let the reader enforce permissions and perform validations, not the writer or some central authority.
 Agent-centric security is possible if the reader can reference local-only, tamper-free code or if the state can be used to determine whether a given operation (e.g. delete data) is permitted.
-Many decentralized networks like Secure Scuttlebutt \cite{ScuttlebuttProtocolGuide} and Holochain \cite{ericharris-braunHolochainScalableAgentcentric2018} make use of agent-centric security.
+Many decentralized networks like Secure Scuttlebutt \cite{securescuttlebuttScuttlebuttProtocolGuide} and Holochain \cite{ericharris-braunHolochainScalableAgentcentric2018} make use of agent-centric security.
 Each of these systems leverage cryptographic signatures to validate peer identities and messages.
 
 \subsubsection{Access control}
@@ -428,11 +431,11 @@ At a minimum, a node must link to its most immediate ancestor. However, links to
 
 As shown \ref{appx:EventNode}, an Event's actual content, or body, is contained in a separate node. This allows Events to carry any arbitrary node structure, from complex directories to raw bytes.
 
-Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses\cite{Multiaddr}. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses. To reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see Example \ref{ex:Multiaddress}).
+Much like IPFS Peers, Logs are identified on the network with addresses, or more specifically, with multiaddresses\cite{multiformatsMultiaddr}. Here we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to be used when composing Log multiaddresses. To reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see Example \ref{ex:Multiaddress}).
 
 In practice, to reach a Log via it's IPEL multiaddress, it must be encapsulated in an IPFS Peer multiaddress (Example \ref{ex:Multiaddress}).
 
-Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table \cite{benetIPFSContentAddressed2014} (DHT). Instead, they are collected from Log Events. This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed\footnote{This is similar to the append-only message feeds used in Secure Scuttlebutt’s global gossip network \cite{ScuttlebuttProtocolGuide}} like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book (Example \ref{ex:KeyBook}).
+Unlike peer multiaddresses, Log addresses are not stored in the global IPFS distributed hash table \cite{benetIPFSContentAddressed2014} (DHT). Instead, they are collected from Log Events. This is in contrast to mutable data via IPNS for example, which requires querying the network (DHT) for updates. Instead, updates are requested directly from the (presumably trusted) peers that produced them, resulting in a hybrid of content-addressed Events arranged over a data-feed\footnote{This is similar to the append-only message feeds used in Secure Scuttlebutt’s global gossip network \cite{securescuttlebuttScuttlebuttProtocolGuide}} like topology. Log addresses are recorded in an address book, similar to IPFS Peer address book (Example \ref{ex:KeyBook}).
 
 Addresses can expire by specifying a time-to-live (TTL) value when adding or updating them in the address book, which allows for unresponsive addresses to eventually be removed.
 
@@ -832,15 +835,13 @@ Threads change the relationship between a user, their data, and the services the
 
 \subsubsection{Textile: The Thread \& Bot Network} \label{sec:Bots}
 
-The use of a single Read and Follow Key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets \cite{KeyRotation}, and/or incorporating the Double Ratchet Algorithm \cite{marlinspikeDoubleRatchetAlgorithm2016} for forward secrecy \cite{ungerSoKSecureMessaging2015}.
+The use of a single Read and Follow Key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets \cite{hashicorpKeyRotation}, and/or incorporating the Double Ratchet Algorithm \cite{marlinspikeDoubleRatchetAlgorithm2016} for forward secrecy \cite{ungerSoKSecureMessaging2015}.
 
-\ack{This was all Lucas baby! Thanks Lucas}
-
+\ack{Thanks to the fantastic Textile community for helpful suggestions, feature requests, and reviews.}
 
 \nocite{*}
 
-\bibliographystyle{compj}
-\bibliography{whitepaper}
+\printbibliography
 
 \appendix
 
