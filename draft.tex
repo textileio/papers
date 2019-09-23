@@ -233,7 +233,7 @@ The CAP theorem \cite{brewerRobustDistributedSystems2000,gilbertBrewerConjecture
 
 \begin{definition} (CRDT). A conflict-free replicated data type (CRDT) assures eventual consistency through optimistic replication (i.e. all new updates are allowed) and eventual merging. CRDTs rely on data structures that are mathematically guaranteed to resolve concurrent updates the same way regardless of the order those events were received. \end{definition} \label{def:CRDT}
 
-How a system provides eventual consistency is often decided based on the intended use of the system. Two well-documented categories of solutions include logs (see Definition  \ref{def:Logs}), sequences of deterministic changes, and CRDTs (see Definition section  \ref{def:CRDT}). Logs work best when there is only a single-writer or complete event causality is known. In many distributed systems with multiple log writers, a minimum requirement for synchronization through logs is that the essential order of events is respected and can be determined \cite{schwarzDetectingCausalRelationships1994,katzInterleavingSetTemporal1990}. For these cases, logical clocks are a useful tool for eventual consistency and total ordering \cite{kulkarniLogicalPhysicalClocks2014}. However, some scenarios (e.g., temporarily missing events, or ambiguous order) can force a replica into a state that cannot be later resolved without costly recalculation. In specific cases, CRDTs can provide an alternative to log-based consensus (see below). 
+How a system provides eventual consistency is often decided based on the intended use of the system. Two well-documented categories of solutions include logs (Definition  \ref{def:Logs}), sequences of deterministic changes, and CRDTs (Definition  \ref{def:CRDT}). Logs work best when there is only a single-writer or complete event causality is known. In many distributed systems with multiple log writers, a minimum requirement for synchronization through logs is that the essential order of events is respected and can be determined \cite{schwarzDetectingCausalRelationships1994,katzInterleavingSetTemporal1990}. For these cases, logical clocks are a useful tool for eventual consistency and total ordering \cite{kulkarniLogicalPhysicalClocks2014}. However, some scenarios (e.g., temporarily missing events, or ambiguous order) can force a replica into a state that cannot be later resolved without costly recalculation. In specific cases, CRDTs can provide an alternative to log-based consensus (see below). 
 
 \subsubsection{Logical Clocks}\label{sec:LogicalClocks}
 
@@ -249,7 +249,7 @@ Merkle-Clocks represent a strict partial order of events. Not all events in the 
 
 In distributed models that use clock-based ordering as described above, a replica can arrive in a state that will require conflict resolution through consensus or rollback. Those operations can be expensive, having adverse effects on the scalability of distributed systems, especially ones attempting to synchronize an application state. 
 
-CRDTs (see Definition \ref{def:CRDT}) are one way to achieve strong eventual consistency, where once all replicas have received the same events, they will arrive at the same final state, \emph{regardless of ordering}\footnote{Though non-commutative CRDTs may require a specific ordering of events in certain cases \cite{sanjuanMerkleCRDTs2019}}. A review of the types of possible CRDTs is beyond the scope of this paper, however, it is important to note their role in eventually consistent systems and how they relate to clock-based event ordering. See for example \cite{enesSingleWriterPrincipleCRDT2017,sanjuanMerkleCRDTs2019} for informative reviews of these types of data structures.
+CRDTs (Definition \ref{def:CRDT}) are one way to achieve strong eventual consistency, where once all replicas have received the same events, they will arrive at the same final state, \emph{regardless of ordering}\footnote{Though non-commutative CRDTs may require a specific ordering of events in certain cases \cite{sanjuanMerkleCRDTs2019}}. A review of the types of possible CRDTs is beyond the scope of this paper, however, it is important to note their role in eventually consistent systems and how they relate to clock-based event ordering. See for example \cite{enesSingleWriterPrincipleCRDT2017,sanjuanMerkleCRDTs2019} for informative reviews of these types of data structures.
 
 Whether a system (e.g., an app) uses a CRDT or a clock-based sequence of events is entirely dependent on the use-case and final data model. While CRDTs may seem superior (and are currently a popular choice among decentralized systems), it is not possible to model every system as a CRDT. Additionally, the simplicity of clock-based sequencing often makes it easier to leverage in distributed systems where data conflicts will only rarely arise. Lastly, logs and CRDTs are not mutually exclusive and can be used together or as different stages of a larger system.
 
@@ -531,8 +531,7 @@ A unique Thread IDentity (TID) is used to group together Logs which compose a si
 \par{Thread ID = 0x62\quad}\ubar{0x01}{Version}\quad0x55\quad\ubar{0x539bc1dc03ee8cb5d478e41cc8a4546e}{Random Number} 
 \par\vspace{-.6\baselineskip}\leavevmode%
 \phantom{Thread ID = }\phubar{0x62}{Multibase}%
-  \phantom{\quad0x01\quad}\phubar{0x55}{Variant} \phantom{\quad7513b4dcf4efa291ffa92221659f19e2}
-\par\vspace{-.6\baselineskip}\leavevmode
+  \phantom{\quad0x01\quad}\phubar{0x55}{Variant} \phantom{\quad0x539bc1dc03ee8cb5d478e41cc8a4546}
 \label{fig:ThreadID}
 \end{figure*}
 
@@ -568,7 +567,7 @@ Certain ID \emph{variants} may be more appropriate than the others in specific u
 (Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (Section  \ref{sec:AccessControl} and Example \ref{ex:Identity}b).
 \end{definition}
 
-\begin{example*}
+\begin{example*}[!b]
 \centering
 \begin{minipage}{0.6\textwidth}
 \begin{lstlisting}[language=json,firstnumber=1]
