@@ -5,6 +5,9 @@
 *.blg
 *.fls
 *.fdb_*
+*.bcf
+*.bbl
+*.run.xml
 .vscode
 *.synctex*
 __latexindent_temp.tex
