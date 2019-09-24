@@ -654,7 +654,7 @@ The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicati
 
 \section{Thread Internals}
 
-To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems, as well as ideas and designs from Flux \cite{facebookFluxInDepthOverview2019} and Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. In this section, we outline the internal structure of a local Threads ``client'' at a relatively high-level, and outline how it can be used to build intuitive developer-facing APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
+To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as ideas and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. In this section, we outline the internal structure of a local Threads ``client'' at a relatively high-level, and outline how it can be used to build intuitive developer-facing APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
@@ -686,20 +686,18 @@ Actions can also be batch dispatched, which is the preferred way to dispatch mul
 
 \subsubsection{Read Models}\label{sec:readModels}
 
-The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. In practice, a ReadStore is defined by a Reducer function and a set of query Resolver functions. This is very similar to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern.
+The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. Read Stores are also responsible for notifying downstream consumers (application logic) of changes to their state via \emph{broadcast channels}. In practice, a Store is defined by a Reducer function, a set of query Resolver functions \cite{ereminReduxInspiredBackend2019}, and an Event Bus (or Broadcast channel). This similar in some respects to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern.
 
 \begin{definition}
-  (Reducer). Reducers are ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a ReadStore's state based on incoming Actions.  
+  (Reducer). Reducers are ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a Store's state based on incoming Actions.  
 \end{definition}
 
 \begin{definition}
   (Resolver). Resolvers are simply pre-defined query functions\footnote{Ideally the underlying storage is optimized to support these queries} that exist on the Store instance (i.e., the Store's API). The interesting thing here is that these can similarly be defined around a domain to produce essentially domain aggregates in the DDD sense.
 \end{definition}
 
-Threads also define \emph{ViewStores}, which are a special kind of ReadStore, akin to a Redux Store. In practice, they are smaller, read-only (immutable) models, that are built on-the-fly, and defined by a pure Reducer function. Textile Threads use ViewStores to define the ACL for a given Thread.
-
 \begin{definition}
-  (ReadStore). Stores in Threads provide flexible APIs for persisting and accessing state. The are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries.
+  (Store). Stores in Threads provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream comsumers of updates to their state via a Broadcaster.
 \end{definition}
 
 \subsection{Abstractions}\label{sec:DefaultViews}
@@ -708,7 +706,7 @@ Building on the idea of bounded context and aggregate roots from DDD, Threads pr
 
 The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS + ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
 
-A database built on Threads would map database operations into Actions. Here, the \emph{domain} is the databse. These Actions would then mutate a ReadModel via its corresponding Reducer function, as per above. The Store could be persisted or kept in-memory (as a ViewModel), and would be directly queried via corresponding database-style Resolver metods. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} Action, marking the database item for removal from the ReadStore.
+A database built on Threads would map database operations into Actions. Here, the \emph{domain} is the databse. These Actions would then mutate a ReadModel via its corresponding Reducer function, as per above. The Store could be persisted or kept in-memory (as a ViewModel), and would be directly queried via corresponding database-style Resolver metods. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} Action, marking the database item for removal from the Store.
 
 \paragraph{Key/Value}
 
@@ -730,7 +728,7 @@ type TextileKVStore interface {
 
 \paragraph{No-SQL}
 
-Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized \texttt{ReadStore}, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
+Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized Store, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -757,7 +755,7 @@ Eventually consistent, CRDT-based stores can also be implemented on top of Threa
 
 \subsection{Thread Extensions}
 
-At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Actions, a Dispartcher, and generic ReadStores, we aim to make easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
+At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Actions, a Dispartcher, and generic Stores, we aim to make easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
 
 \subsubsection{Snapshots and Compaction}\label{sec:SnapshotsCompaction}
 
