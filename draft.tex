@@ -200,7 +200,7 @@ We now describe some of the technologies and concepts motivating the design of o
 
 \subsection{Data Synchronization}
 
-\subsubsection{CQRS, Event Sourcing, and Logs}
+\subsubsection{CQRS, Event Sourcing, and Logs}\label{sec:cqrs}
 
 When developing large-scale software systems, it is common to store data in a relational database management system (RDBMS). To model realistic systems, this type of framework often requires complex techniques for mapping data between domain models and database tables, where the same data model is used to both query and update a database. A powerful alternative is to use a set of append only logs to model the state of an object simply by applying its change sequence in the correct order. This concept can be expressed succinctly by the state machine approach \cite{schneiderImplementingFaulttolerantServices1990}: if two identical, deterministic processes begin in the same state and get the same inputs in the same order, they will produce the same output and end in the same state. This is a powerful concept baked into a simple structure, and is at the heart of many distributed database systems \cite{jaykrepsLogWhatEvery2013}.
 
@@ -356,7 +356,7 @@ Event-driven systems (e.g., event sourcing) often make use of ACLs with some dis
 
 \section{The Threads protocol}\label{sec:ThreadsProtocol}
 
-We propose Threads, a protocol and decentralized database that runs on IPFS meant to help decouple apps from user-data. Inspired by Event Sourcing, CQRS, and Flux, Threads is a protocol for creating and synchronizing state across collaborating peers/replicas on a network. Threads offer a multi-layered encryption and data access architecture that enables datasets with independent roles for writing, reading, and following changes. By extending on the multiaddress addressing scheme, Threads differs from previous solutions by allowing PULL based replica synchronization in addition to PUSH based synchronization that is common in distributed protocols. The flexible event-based structure enables client applications to create advanced applications states, including materialized views, and custom CRDTs.
+We propose Threads, a protocol and decentralized database that runs on IPFS meant to help decouple apps from user-data. Inspired by Event Sourcing, CQRS, and Redux, Threads is a protocol for creating and synchronizing state across collaborating peers/replicas on a network. Threads offer a multi-layered encryption and data access architecture that enables datasets with independent roles for writing, reading, and following changes. By extending on the multiaddress addressing scheme, Threads differs from previous solutions by allowing PULL based replica synchronization in addition to PUSH based synchronization that is common in distributed protocols. The flexible event-based structure enables client applications to create advanced applications states, including materialized views, and custom CRDTs.
 
 Threads are topic-based collections of single-writer logs. Taken together, these logs represent the current ``state'' of an object or dataset. The basic units of Threads, namely Logs and Events, provide a framework for users to create, store, and transmit data in a P2P distributed network. By structuring the underlying architecture in specific ways, this framework can be deployed to solve many of the problems discussed above.
 
@@ -371,15 +371,31 @@ Threads are topic-based collections of single-writer logs. Taken together, these
   \label{fig:EventLog}
 \end{figure}
 
-In multi-writer systems, determining causal order in all replicas is particularity challenging. As previously discussed (Section \ref{sec:merkleclocks}), a solution based on a Merkle-Clock is only partially ordered. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
+In multi-writer systems, determining causal order in all replicas is particularity challenging. As previously discussed (Section \ref{sec:merkleclocks}), a multi-writer solution, such as \texttt{ipfs-log}\footnote{\url{https://github.com/orbitdb/ipfs-log}}, creates a Merkle-Clock that is only partially ordered. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
 
 \begin{quote}
 A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
 \end{quote}
 
-In many cases, the total order of an event sequence is meaningful, and this type of deterministic merge strategy in not sufficient. A git merge highlights one such case, in which additional information is sometimes needed in order to resolve a line conflict. Ledger based transactions present a similar challenge where the absolute order of transactions between multiple peers really does matter.
+In many cases, the total order of an event sequence is meaningful, and this type of deterministic merge strategy is not sufficient. A git merge highlights one such case, in which additional information is sometimes needed in order to resolve a line conflict. Ledger based transactions present a similar challenge where the absolute order of transactions between multiple peers really does matter.
+
+Multi-writer systems based on linked log events [MISSING] with relaxed conssitency [CAP] (which is common in p2p systems) can lead to situtaitons in which merges are imppossible due to computational or network-based restrictions. For example, any one missing event may cause a branching or split, leading to (effectively) independent event 'trees'.
 
 Our solution to deal with divergent Merkle-Clocks is to institute a \emph{single-writer rule}: A log can only be updated by a single replica or \emph{identity}. An Event Log is a \emph{single-writer Merkle-Clock} that can be totally ordered (Figure \ref{fig:EventLog}). \emph{Separate} Event Logs can be composed into advanced structures, including CRDTs \cite{enesSingleWriterPrincipleCRDT2017}.
+
+in multi-writer logs we solve this by having linked-data in single-writer logs
+
+in multi-writer systems, conflicts arise along the way
+in order to proceed, we need to define ways to deal with conflits
+with imperfect information (which is common) this inevitably leads to situations where we need to decide how to reconsile the conflict
+this might include a merge, etc
+
+in single writer systems, conflict resolution is deferred to a point at which a decision is required
+this means that imperfect information may be supplemented along the way, without causing conflucts
+it also means that applications can choose conflict resolution strategies specific to the task at hand
+if using crdt, conflicts are irrelevant
+in some instances, an additional clock may be required, such as vector or bloom clock to deal with total ordering
+finally, even merges are possible if this is the desired confluct resolution strategy
 
 For any given Log, Events are authored by a single IPFS Peer, or \emph{Writer}.
 
@@ -584,7 +600,7 @@ bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 
 \subsubsection{Log Synchronization} \label{sec:LogSync}
 
-Log Writers, Readers, and Followers synchronize the state of their Logs by sending and receiving Events. Inspired by Git\footnote{\url{https://git-scm.com/}}, a reference to the latest Event in a Log is referred to as the \emph{Head} (or sometimes the \emph{root}). When a new Event is received, Readers and Followers simply advance their Head reference.
+Log Writers, Readers, and Followers synchronize the state of their Logs by sending and receiving Events. Inspired by Git\footnote{\url{https://git-scm.com/}}, a reference to the latest Event in a Log is referred to as the \emph{Head} (or sometimes the \emph{root}). When a new Event is received, Readers and Followers simply advance their Head reference for the given Log\footnote{This is similar to how a system such as OrbitDB [MISSING] works, except we are tracking \emph{multiple} Heads (one per Log), rather than a single Head.}.
 
 Regardless of the network protocol, Events are transported between Peers in a standardized \emph{Event Envelope}:
 
@@ -652,65 +668,74 @@ There are multiple paths to receiving new Events, that together, maximize connec
 
 The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (Section  \ref{sec:LogSync}).
 
-\section{Thread Internals}
+\section{Thread Internals}\label{sec:internals}
 
-To make Threads as easy to adopt and use as possible, we've designed the internal event store to take advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as ideas and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. In this section, we outline the internal structure of a local Threads ``client'' at a relatively high-level, and outline how it can be used to build intuitive developer-facing APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
+Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive \emph{public} (developer-facing) APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
 For developers familiar with common application state management issues, tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similaries to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
 
-We adopt a similar flow in Threads (see Figure \dots), such that views are updated by subscribing to specific events (or actions), and applying a reducer function that is used to update the view state (which may be \emph{materialized} to local persistent storage). This simple subscription system provides a flexible framework for building complex event-driven application logic. In the following, we outline the specifics of the Textile Threads internals, focusing on three core components: Actions, the Dispatcher, and Read/View Stores.
+% [!b] indicates that it will try to be on the bottom of the page
+\begin{figure}
+  \includegraphics[width=\linewidth]{figures/Architecture.png}
+  \caption{Architectural diagram for internal Event Store implementation.}
+  \label{fig:Architecture}
+\end{figure}
 
-\subsubsection{Actions}\label{sec:actions}
+We adopt a similar flow in Threads (see Figure \ref{fig:Architecture}). Like any ES-based system, Threads are built on \emph{Events}. Events are similar to actions in a Flux-based system, and are used to produce \emph{predictable} updates to downstream state. Similarly to a DDD-based pattern, to add an Event to the internal Threads system, we use \emph{Commands}, which are dispatched from a singleton \emph{Dispatcher} as Events. The Dispatcher then stores the derived Event in an \emph{Event Store}, and calls a set of registered \emph{Reducer} functions that mutate a (set of) downstream view \emph{Stores} defined by a corresponding set of view \emph{Models}, all within a single \emph{Transaction}. This unidirectional, transaction-based system, provides a flexible framework for building complex event-driven application logic.
 
-Like with Flux, to add an Event to the internal Threads system, we use \emph{Actions}. Actions cause predictable updates to state via \emph{Reducer} functions. In practice, Actions are \emph{dispatched} from a singleton \emph{Dispatcher} (Section \ref{sec:dispatcher}), which then stores the Event in an \emph{Event Store}, and calls a set of pure (in the functional sense) Reducer functions that mutate a set of downstream \emph{Read/View Stores}.
+\subsubsection{Events \& Commands}\label{sec:commands}
 
-\begin{definition}
-  (Action). Actions are simple structures that are used to send data from an external application to an internal Event Store. They are the only source of information for the Store, and contain (at a minimum) a \textnormal{\texttt{Type}}, a \textnormal{\texttt{Data}} payload, and a \textnormal{\texttt{Timestamp}}. 
-\end{definition}
-
-In addition to dispatching 'raw' Actions, application developers are able to build and interact with ction \emph{Creators}, which are simple functions (or groups of functions) that create (and possibly dispatch) new Actions. For those familiar with DDD, if built around a specific \emph{domain}, Action Creators provide bounded context that can be (roughly) compared to an aggregate root (i.e., a cluster of objects, that create a clear reference to the root aggregate). This is a powerful design feature that we will take advantage of in section \ref{sec:AccessControl}.
+Like most CQRS + ES based systems, \emph{Events} are at the heart of Threads. Every update to local and shared (i.e., across peers) application state happens via Events (see also Section \ref{sec:cqrs}). Events are similar to actions in Redux, and are used to describe ``changes to an application state'' \cite{fowlerEventSourcing} (e.g., a photo was added, an item was added to a shopping cart, etc). Related, \emph{Commands} are simple structures that are used to send data from a \emph{local application} to an internal Event Store. They are generally called via an \emph{Event Creator}, which, if built around a specific \emph{domain}, provide bounded context that can be (roughly) compared to an aggregate root in DDD \cite{evansDomaindrivenDesignTackling2004a}.
 
 \subsubsection{Dispatcher}\label{sec:dispatcher}
 
-In order to actually \emph{store} events and dispatch actions to downstream views, a Dispatcher is used. The dispatcher wraps an embedded Event Store, which is responsible for persisting Events. This means a Dispatcher is both an Event Store an Event Bus/Dispatcher. In practice, the internal Event Store supports ACID transactions \cite{haerderPrinciplesTransactionorientedDatabase1983}, so that Actions are only ever dispatched if they were successfully persisted to the Event Store.
+In order to actually persist and dispatch Events to downstream view Models, a \emph{Dispatcher} is used. As shown in Figure \ref{fig:Architecture}, the Dispatcher is at the center of the ES system. All Events must go through the singleton Dispatcher, whether these be from local Event Creators, or Network Peers. The Dispatcher is responsible for ensuring that incoming Events are persisted to the Event Store (the ``source of truth'' for the system), as well as dispatched to downstream view Models by way of a set of Reducer functions.
 
-\begin{definition}
-  (Dispatcher). A Dispatcher is used to both persist Events to the local Event Store, as well as broadcast Action payloads to registered Store Reducers. Only one Dispatcher per application is ever required.
-\end{definition}
+% \begin{definition}
+%   (Dispatcher). A Dispatcher is used to both persist Events to the local Event Store, as well as broadcast Event payloads to registered Store Reducers. Only one Dispatcher per application is ever required.
+% \end{definition}
 
-All ``side effects'' of a given Action happen within a \emph{Transaction}, in order to ensure consistently of both storage (Event Store) and actions. Transactions provide a similar experience to Redux ``Sagas''\footnote{\url{https://redux-saga.js.org/}}, but with a simpler interface. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a Store's Reducer callback. In order to make this possible, Stores must \emph{register} their Reducer with the Dispatcher.
+\subsubsection{Transactions}\label{sec:transactions}
 
-Actions can also be batch dispatched, which is the preferred way to dispatch multiple Actions at a time. This works by grouping Actions into meta Actions, and then running their Reducers in series. An example of where this might be useful is when grouping Actions that regularly occur together, such as image processing pipelines.
+All Reducer function calls (and ``side effects'') due to a given Event happen within a single \emph{Transaction} \cite{haerderPrinciplesTransactionorientedDatabase1983}, in order to ensure consistently of both storage (Event Store) and Models. Transactions provide a similar experience to Redux \emph{Sagas}\footnote{\url{https://redux-saga.js.org/}}, but with a simpler interface. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a view Model's Reducer callback. In order to make this possible, Models must \emph{register} their Reducer with the Dispatcher.
 
-\subsubsection{Read Models}\label{sec:readModels}
+Events can also be \emph{batch dispatched}, which is the preferred way to dispatch multiple Events at a time. This works by grouping Events, and then running their Reducers in series. An example of where this is useful is when grouping externally derived \emph{Peer-Events}, which can be dispatched directly from the local Peer Host.
 
-The Dispatcher, combined with Actions and Creators provide a useful interface for the write side of the Threads CQRS framework. Like many CQRS-based systems, the read side revolves around the concept of views (or Stores). As Actions are dispatched on the write side, they are reacted to on the read side via Reducers, causing updates to Read/View Models, which provide interfaces for queries and accessing state. Read Stores are also responsible for notifying downstream consumers (application logic) of changes to their state via \emph{broadcast channels}. In practice, a Store is defined by a Reducer function, a set of query Resolver functions \cite{ereminReduxInspiredBackend2019}, and an Event Bus (or Broadcast channel). This similar in some respects to a Redux Store, though it is possible to have \emph{multiple} Stores as in the more general Flux pattern.
+\subsubsection{View Models/Stores}\label{sec:views}
 
-\begin{definition}
-  (Reducer). Reducers are ``pure'' functions (where possible)\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a Store's state based on incoming Actions.  
-\end{definition}
+As in many CQRS-based systems, as Events are dispatched on the \emph{write side}, they are reacted to on the \emph{read side} via Reducers, causing updates to view Models, which provide interfaces for queries and accessing persisted view \emph{Stores} (state). View Stores are then responsible for notifying downstream consumers (application logic) of changes to their state via a \emph{Broadcaster} (i.e., event emitter). They are similar in some respects to a Redux Store, though it is possible to have \emph{multiple} view Models/Stores as in the more general Flux pattern.
 
-\begin{definition}
-  (Resolver). Resolvers are simply pre-defined query functions\footnote{Ideally the underlying storage is optimized to support these queries} that exist on the Store instance (i.e., the Store's API). The interesting thing here is that these can similarly be defined around a domain to produce essentially domain aggregates in the DDD sense.
-\end{definition}
+A view Model is generally defined by custom update logic (i.e., a Reducer), a (possibly ORM\footnote{Object-relational mapping}-based) view Store for persistence, an Event Bus (or Broadcaster) for notifying downstream consumers, and a set of query/\emph{Resolver} \cite{ereminReduxInspiredBackend2019} functions. In practice, a view Model may \emph{also} wrap the Event Creator application logic that is used to generate upstream Events. This provides an intuitive, singular access point to the \emph{local} system, while also leaving room for updates via \emph{external} peer-events.
 
-\begin{definition}
-  (Store). Stores in Threads provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream comsumers of updates to their state via a Broadcaster.
-\end{definition}
+\subsubsection{External Events}\label{sec:external}
 
-\subsection{Abstractions}\label{sec:DefaultViews}
+In addition to locally derived Events (such as via application logic and user interactions), Threads are designed so that Peers may collaborate in a given Thread via Events. Events generated by other, network peers are called Peer Events, and they enter the system via a Peer Host. The Peer Host is responsible for dealing with incoming Events (be they push or pull). These Events are no different from locally-derived Events, though in practice, the Peer Host is required to validate incoming Events before they are dispatched to the system via the Dispatcher.
+
+% \begin{definition}
+%   (Reducer). Reducers are ``pure'' (in the functional sense) functions\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a Store's state based on incoming Actions.
+% \end{definition}
+
+% \begin{definition}
+%   (Resolver). Resolvers are simply pre-defined query functions that exist on the Store instance (i.e., the Store's API). The interesting thing here is that these can similarly be defined around a domain to produce domain aggregates (in the DDD sense).
+% \end{definition}
+
+% \begin{definition}
+%   (Store). Stores provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream comsumers of updates to their state via a Broadcaster.
+% \end{definition}
+
+\section{Thread Interfaces}\label{sec:interfaces}
+
+To make Threads as easy to adopt and use as possible, we've 
 
 Building on the idea of bounded context and aggregate roots from DDD, Threads provides several default abstractions based on the idea that a database provides a useful context within which to structure our Events/Actions. Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset, or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, sharing, invites, and more. As such, it is not difficult to imagine a simplified API in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems --- database domains.
 
 The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS + ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
 
-A database built on Threads would map database operations into Actions. Here, the \emph{domain} is the databse. These Actions would then mutate a ReadModel via its corresponding Reducer function, as per above. The Store could be persisted or kept in-memory (as a ViewModel), and would be directly queried via corresponding database-style Resolver metods. Because Textile uses ES patterns, any delete-type operation would simply lead to an internal \emph{tombstone} Action, marking the database item for removal from the Store.
+\subsection{Databases}\label{sec:databases}
 
-\paragraph{Key/Value}
-
-A key/value store built on Threads would ``map'' these database Actions into key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del}. These Actions would then mutate a map-like ReadModel. To complete the database-like API, the Action Creator and ReadModel methods outlined in Section \ref{sec:actions} could be encapsulated in a database structure that satisfies a given interface (see for example, Figure \ref{ex:KVStore}).
+Even higher-level database abstractions could also be built on Threads. For example, a key/value store built on Threads would ``map'' key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) view Model with similarly defined Event Creators and Resolver functions. These Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example).
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -726,9 +751,7 @@ type TextileKVStore interface {
  \label{ex:KVStore}
 \end{example}
 
-\paragraph{No-SQL}
-
-Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a materialized Store, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
+Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a ``wrapped'' view Model, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -745,13 +768,11 @@ type TextileDocumentStore interface {
 \label{ex:DocStore}
 \end{example} 
 
-\paragraph{Others}
+Similar abstractions could (and will) be used to implement additional database types and functions. Tables, feeds, counters, and other simple stores can also be built on Threads. Each database style would be implemented as a standalone wrapper/software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.
 
-Similar abstractions could (and will) be used to implement additional database types and functions. Tables, feeds, counters, and other simple stores can also be built on Threads, and may require ORM-based solutions to support persistence to certain backing stores\footnote{In-memory stores are almost always implementable using compositions of basic data structures.}. Each database style would be implemented as a standalone wrapper/software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these ``example'' libraries.
+\subsection{CRDTs} \label{sec:TexCRDT}
 
-\paragraph{CRDTs} \label{sec:TexCRDT}
-
-Eventually consistent, CRDT-based stores can also be implemented on top of Threads' Event-driven architecture. CRDT-based Stores are particularly useful for managing views of a document in a multi-peer collaborative editing environment (like Google Docs or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype \cite{kleppmannConflictFreeReplicatedJSON2017} that merges updates to a JSON document in a ReadModels Reduder function. Libraries such as Automerge\footnote{\url{https://github.com/automerge/automerge}} provide useful examples of reducer functions that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available [\dots]. A practical example of using a JSON CRDT in Threads is given in section \ref{sec:AccessControl}, where it is used to represent updates to an ACL document defined as a ReadModel, with queries defined for an access-controlled Thread implementation.
+Eventually consistent, CRDT-based structures can also be implemented on top of Threads' Event-driven architecture. CRDT-based Stores are particularly useful for managing views of a document in a multi-peer collaborative editing environment (like Google Docs or similar). For example to support offline-first, potentially concurrent edits on a shared JSON document, one could implement a JSON CRDT datatype \cite{kleppmannConflictFreeReplicatedJSON2017} that merges updates to a JSON document in a view Model's Reduder function. Libraries such as Automerge\footnote{\url{https://github.com/automerge/automerge}} provide useful examples of reducer functions that make working with JSON CRDTs relatively straightforward, and implementations in other programming languages are also available [\dots]. A practical example of using a JSON CRDT in Threads is given in section \ref{sec:AccessControl}, where it is used to represent updates to an ACL document defined as a default view Model, with interfaces defined for an access-controlled Threads implementation.
 
 \subsection{Thread Extensions}
 
