@@ -360,7 +360,15 @@ We propose Threads, a protocol and decentralized database that runs on IPFS mean
 
 Threads are topic-based collections of single-writer logs. Taken together, these logs represent the current ``state'' of an object or dataset. The basic units of Threads, namely Logs and Events, provide a framework for users to create, store, and transmit data in a P2P distributed network. By structuring the underlying architecture in specific ways, this framework can be deployed to solve many of the problems discussed above.
 
-\subsection{ Event Logs}
+\subsection{Event Logs}
+
+In multi-writer systems, conflicts arise as disparate peers end up producing conflicting state changes, or changes that end up out of sync. In order to proceed, there must be some way to deal with these conflits. As mentioned previously (see Section \ref{sec:merkleclocks}), one way to avoid conflicts to some degree is to determine the total order of events in the shared log. In multi-writer systems, determining this causal order in all replicas is particularity challenging. In some cases (e.g, \texttt{ipfs-log} \cite{markroberthendersonOrbitDBFieldManual2019}), a Merkle-Clock can be used to induce ordering. However, this is only \emph{partially ordered}. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
+
+\begin{quote}
+A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
+\end{quote}
+
+In many cases, the total order of an event sequence is meaningful, and this type of deterministic merge strategy is not sufficient. A git merge highlights one such case, in which additional information is sometimes needed in order to resolve a line conflict. Ledger based transactions present a similar challenge where the absolute order of transactions between multiple peers really does matter.
 
 \subsubsection{Single-writer Event Logs}
 
@@ -371,31 +379,11 @@ Threads are topic-based collections of single-writer logs. Taken together, these
   \label{fig:EventLog}
 \end{figure}
 
-In multi-writer systems, determining causal order in all replicas is particularity challenging. As previously discussed (Section \ref{sec:merkleclocks}), a multi-writer solution, such as \texttt{ipfs-log}\footnote{\url{https://github.com/orbitdb/ipfs-log}}, creates a Merkle-Clock that is only partially ordered. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
+Clearly, multi-writer systems with relaxed conssitency \cite{brewerRobustDistributedSystems2000,gilbertBrewerConjectureFeasibility2002a} and imperfect information (e.g., caused by computational or network issues, both of which are common in p2p systems) will almost inevitably lead to situations where we need to decide how to reconsile a conflict. Some systems come with conflict resolution strategies ``built in'' (e.g., \texttt{ipfs-log} uses a built-in CRDT). However, this is not ideal, because it forces developers/users into a very specific usage pattern. It is particularly limiting in situations where developers might like to institute their own CRDT or domain-specific conflict resolution strategies.
 
-\begin{quote}
-A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
-\end{quote}
+Our solution to dealing with log conflicts (i.e., divergent Merkle-Clocks) is to institute a \emph{single-writer rule}: A Log can only be updated by a single replica or \emph{identity}. An Event Log is then a \emph{single-writer Merkle-Clock} that can be totally ordered (Figure \ref{fig:EventLog}). \emph{Separate} Event Logs can be composed into advanced structures, including CRDTs \cite{enesSingleWriterPrincipleCRDT2017}.
 
-In many cases, the total order of an event sequence is meaningful, and this type of deterministic merge strategy is not sufficient. A git merge highlights one such case, in which additional information is sometimes needed in order to resolve a line conflict. Ledger based transactions present a similar challenge where the absolute order of transactions between multiple peers really does matter.
-
-Multi-writer systems based on linked log events [MISSING] with relaxed conssitency [CAP] (which is common in p2p systems) can lead to situtaitons in which merges are imppossible due to computational or network-based restrictions. For example, any one missing event may cause a branching or split, leading to (effectively) independent event 'trees'.
-
-Our solution to deal with divergent Merkle-Clocks is to institute a \emph{single-writer rule}: A log can only be updated by a single replica or \emph{identity}. An Event Log is a \emph{single-writer Merkle-Clock} that can be totally ordered (Figure \ref{fig:EventLog}). \emph{Separate} Event Logs can be composed into advanced structures, including CRDTs \cite{enesSingleWriterPrincipleCRDT2017}.
-
-in multi-writer logs we solve this by having linked-data in single-writer logs
-
-in multi-writer systems, conflicts arise along the way
-in order to proceed, we need to define ways to deal with conflits
-with imperfect information (which is common) this inevitably leads to situations where we need to decide how to reconsile the conflict
-this might include a merge, etc
-
-in single writer systems, conflict resolution is deferred to a point at which a decision is required
-this means that imperfect information may be supplemented along the way, without causing conflucts
-it also means that applications can choose conflict resolution strategies specific to the task at hand
-if using crdt, conflicts are irrelevant
-in some instances, an additional clock may be required, such as vector or bloom clock to deal with total ordering
-finally, even merges are possible if this is the desired confluct resolution strategy
+This presents a novel take on multi-writer systems \cite{enesSingleWriterPrincipleCRDT2017}, such that conflict resolution is deferred to a point at which a decision is actually \emph{required}. This means that imperfect information may be supplemented along the way (i.e., at a later time), without causing conflicts in the mean time. It also means that applications can choose conflict resolution strategies specific to the task at hand. For example, if using a downstream CRDT, ordering is actually irrelevant, and can be ignored completely. Alternatively, an additional clock may be required to ensure consistent ordering, such as vector or bloom clock (see Section \ref{sec:LogicalClocks}). Finally, even manual merge-type strategies are possible if this is the desired conflict resolution strategy.
 
 For any given Log, Events are authored by a single IPFS Peer, or \emph{Writer}.
 
@@ -901,7 +889,7 @@ In building on top of an existing Module, developers ensure other application de
 
 \subsection{Databases}\label{sec:databases}
 
-With such a simple interface to such a complex underlying process, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
+With such a simple interface to such a complex underlying process, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
