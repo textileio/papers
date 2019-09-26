@@ -715,7 +715,7 @@ In addition to locally derived Events (such as via application logic and user in
 
 \section{Thread Interfaces}\label{sec:interfaces}
 
-To make Threads as easy to adopt and use as possible, Textile has designed a public (developer facing) API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB [REF], Parse [REF], and Realm [REF], as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions and associated framework for performing distributed database operations as if they were local.
+To make Threads as easy to adopt and use as possible, Textile has designed a public (developer facing) API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB\footnote{\url{http://www.mongodb.com}}, Parse\footnote{\url{https://parseplatform.org}}, and Realm\footnote{\url{https://realm.io}}, as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions and associated framework for performing distributed database operations as if they were local.
 
 Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, sharing, invites, and more. To illustrate how these underlying components can we combined to produce a simple API with minimal configuration and boilerplate, consider the following example, in which we provide pseudo-code for a hypothetical Photos application.
 
@@ -892,15 +892,15 @@ In building on top of an existing Module, developers ensure other application de
 With such a simple interface to such a complex underlying process, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
 
 \begin{example}
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
 type TextileKVStore interface {
   Put(key string, value Node) error
   Get(key string) (Node, error)
   Del(key string) error
 }
-\end{lstlisting}
-\end{minipage}
+    \end{lstlisting}
+  \end{minipage}
 \caption{The Key-Value store interface.}
  \label{ex:KVStore}
 \end{example}
@@ -908,16 +908,16 @@ type TextileKVStore interface {
 Other database abstractions include a no-sql style document store for storing and indexing arbitrary structs and/or JSON documents. The interface for such as store, again built using a ``wrapped'' view Model, might look like Figure \ref{ex:DocStore}, where \texttt{Indexable} could be satisfied by any structure with a \texttt{Key} field and \texttt{Query} might be taken from the \texttt{go-datastore} interface library\footnote{\url{https://github.com/ipfs/go-datastore}} or similar.
 
 \begin{example}
-\begin{minipage}{.45\textwidth}
-\begin{lstlisting}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
 type TextileDocumentStore interface {
   Put(doc Inedexable) error
   Get(key string) (Indexable, error)
   Del(key string) error
   Query(query Query) ([]Indexable, error)
 }
-\end{lstlisting}
-\end{minipage}
+    \end{lstlisting}
+  \end{minipage}
 \caption{The Document store interface.}
 \label{ex:DocStore}
 \end{example} 
