@@ -263,7 +263,7 @@ There are a number of systems that utilize content addressing to access content 
 
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/Hash_Request.png}
-  \caption{The crypographic hash of content is used to make a request to the network of IPFS peers. Using the built-in routing machanisms and the distributed hash table, a peer(s) hosting the requested content is identified and content is returned. }
+  \caption{The cryptographic hash of content is used to make a request to the network of IPFS peers. Using the built-in routing mechanisms and the distributed hash table, a peer(s) hosting the requested content is identified and content is returned. }
   \label{fig:contentaddressing}
 \end{figure}
 
@@ -305,7 +305,7 @@ So far we have primarily discussed the mechanics of creating or linking content 
 
 \subsubsection{Libp2p}
 
-The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects (Polkadot, Ethereum 2.0, Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include network address translator \cite{srisureshIPNetworkAddress} (NAT) traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both unencrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols \cite{multiformatsMultiaddr}. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
+The libp2p project provides a robust protocol communication stack. IPFS and a growing list of other projects (Polkadot, Ethereum 2.0, Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of libp2p. Libp2p solves a number of challenges that are distinct to peer-to-peer (p2p) networks. A comprehensive coverage of networking issues in P2P systems is out of the scope for this paper, however, some core challenges that libp2p helps to address include network address translator \cite{srisureshIPNetworkAddress} (NAT) traversal, peer discovery and handshake protocols, and even encryption and transport security --- libp2p supports both un-encrypted (e.g. TCP, UDP) and encrypted protocols (e.g. TLS, Noise) --- among others. Libp2p uses the concept of a multiaddress to address peers on a network, which essentially models network addresses as arbitrary encapsulations of protocols \cite{multiformatsMultiaddr}. In addition to ``transport layer'' modules, libp2p provides several tools for sharing and/or disseminating data over a p2p network.
 
 \subsubsection{Pubsub}
 
@@ -325,7 +325,7 @@ IPFS is an implementation of public key infrastructure, where every node on the 
 
 \subsubsection{Agent-centric security}
 
-Agent-centric security refers to the maintainance of data integrity without leveraging a central or blockchain-based consensus.
+Agent-centric security refers to the maintenance of data integrity without leveraging a central or blockchain-based consensus.
 The general approach is just to let the reader enforce permissions and perform validations, not the writer or some central authority.
 Agent-centric security is possible if the reader can reference local-only, tamper-free code or if the state can be used to determine whether a given operation (e.g. delete data) is permitted.
 Many decentralized networks like Secure Scuttlebutt \cite{securescuttlebuttScuttlebuttProtocolGuide} and Holochain \cite{ericharris-braunHolochainScalableAgentcentric2018} make use of agent-centric security.
@@ -333,7 +333,7 @@ Each of these systems leverage cryptographic signatures to validate peer identit
 
 \subsubsection{Access control}
 
-All filesystems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure \ref{tbl:ACL}). 
+All file-systems and databases have some notion of ``access control''. Many make use of an access-control list (ACL), which is a list of permissions attached to an object or group of objects \cite{shireyInternetSecurityGlossary2007}. An ACL determines which users or processes can access an object and whether a particular user or process with access can modify or delete the object (see Figure \ref{tbl:ACL}). 
 
 \begin{table}
 \caption{Example Access Control List.}
@@ -362,7 +362,7 @@ Threads are topic-based collections of single-writer logs. Taken together, these
 
 \subsection{Event Logs}
 
-In multi-writer systems, conflicts arise as disparate peers end up producing conflicting state changes, or changes that end up out of sync. In order to proceed, there must be some way to deal with these conflits. As mentioned previously (see Section \ref{sec:merkleclocks}), one way to avoid conflicts to some degree is to determine the total order of events in the shared log. In multi-writer systems, determining this causal order in all replicas is particularity challenging. In some cases (e.g, \texttt{ipfs-log} \cite{markroberthendersonOrbitDBFieldManual2019}), a Merkle-Clock can be used to induce ordering. However, this is only \emph{partially ordered}. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
+In multi-writer systems, conflicts arise as disparate peers end up producing conflicting state changes, or changes that end up out of sync. In order to proceed, there must be some way to deal with these conflicts. As mentioned previously (see Section \ref{sec:merkleclocks}), one way to avoid conflicts to some degree is to determine the total order of events in the shared log. In multi-writer systems, determining this causal order in all replicas is particularity challenging. In some cases (e.g, \texttt{ipfs-log} \cite{markroberthendersonOrbitDBFieldManual2019}), a Merkle-Clock can be used to induce ordering. However, this is only \emph{partially ordered}. That is, this approach cannot achieve a total order of events without implementing a data-layer conflict resolution strategy \cite{sanjuanMerkleCRDTs2019}:
 
 \begin{quote}
 A total order can be useful \dots and could be obtained, for example, by considering concurrent events to be equal. Similarly, a strict total order could be built by sorting concurrent events by the CID or their nodes or by any other arbitrary user-defined strategy based on additional information attached to the clock nodes (data-layer conflict resolution).
@@ -379,11 +379,11 @@ In many cases, the total order of an event sequence is meaningful, and this type
   \label{fig:EventLog}
 \end{figure}
 
-Clearly, multi-writer systems with relaxed conssitency \cite{brewerRobustDistributedSystems2000,gilbertBrewerConjectureFeasibility2002a} and imperfect information (e.g., caused by computational or network issues, both of which are common in p2p systems) will almost inevitably lead to situations where we need to decide how to reconsile a conflict. Some systems come with conflict resolution strategies ``built in'' (e.g., \texttt{ipfs-log} uses a built-in CRDT). However, this is not ideal, because it forces developers/users into a very specific usage pattern. It is particularly limiting in situations where developers might like to institute their own CRDT or domain-specific conflict resolution strategies.
+Clearly, multi-writer systems with relaxed consistency \cite{brewerRobustDistributedSystems2000,gilbertBrewerConjectureFeasibility2002a} and imperfect information (e.g., caused by computational or network issues, both of which are common in p2p systems) will almost inevitably lead to situations where we need to decide how to reconcile a conflict. Some systems come with conflict resolution strategies ``built in'' (e.g., \texttt{ipfs-log} uses a built-in CRDT). However, this is not ideal, because it forces developers/users into a very specific usage pattern. It is particularly limiting in situations where developers might like to institute their own CRDT or domain-specific conflict resolution strategies.
 
 Our solution to dealing with log conflicts (i.e., divergent Merkle-Clocks) is to institute a \emph{single-writer rule}: A Log can only be updated by a single replica or \emph{identity}. An Event Log is then a \emph{single-writer Merkle-Clock} that can be totally ordered (Figure \ref{fig:EventLog}). \emph{Separate} Event Logs can be composed into advanced structures, including CRDTs \cite{enesSingleWriterPrincipleCRDT2017}.
 
-This presents a novel take on multi-writer systems \cite{enesSingleWriterPrincipleCRDT2017}, such that conflict resolution is deferred to a point at which a decision is actually \emph{required}. This means that imperfect information may be supplemented along the way (i.e., at a later time), without causing conflicts in the mean time. It also means that applications can choose conflict resolution strategies specific to the task at hand. For example, if using a downstream CRDT, ordering is actually irrelevant, and can be ignored completely. Alternatively, an additional clock may be required to ensure consistent ordering, such as vector or bloom clock (see Section \ref{sec:LogicalClocks}). Finally, even manual merge-type strategies are possible if this is the desired conflict resolution strategy.
+This presents a novel take on multi-writer systems \cite{enesSingleWriterPrincipleCRDT2017}, such that conflict resolution is deferred to a point at which a decision is actually \emph{required}. This means that imperfect information may be supplemented along the way (i.e., at a later time), without causing conflicts in the mean time. It also means that applications can choose conflict resolution strategies specific to the task at hand. For example, if using a downstream CRDT, ordering is actually irrelevant, and can be ignored completely. Alternatively, an additional clock may be required to ensure consistent ordering, such as a vector or Bloom clock (see Section \ref{sec:LogicalClocks}). Finally, even manual merge-type strategies are possible if this is the desired conflict resolution strategy.
 
 For any given Log, Events are authored by a single IPFS Peer, or \emph{Writer}.
 
@@ -658,11 +658,11 @@ The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicati
 
 \section{Thread Internals}\label{sec:internals}
 
-Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive developer-facing application programing interfaces (APIs) to make adopting and using Threads ``the right choice'' for a wide range of developers.
+Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CQRS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive developer-facing application programing interfaces (APIs) to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
-For developers familiar with common application state management issues, tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similaries to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
+For developers familiar with common application state management issues, tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similarities to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
 
 % [!b] indicates that it will try to be on the bottom of the page
 \begin{figure}
@@ -710,16 +710,16 @@ In addition to locally derived Events (such as via application logic and user in
 % \end{definition}
 
 % \begin{definition}
-%   (Store). Stores provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream comsumers of updates to their state via a Broadcaster.
+%   (Store). Stores provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream consumers of updates to their state via a Broadcaster.
 % \end{definition}
 
 \section{Thread Interfaces}\label{sec:interfaces}
 
 To make Threads as easy to adopt and use as possible, Textile has designed a public (developer facing) API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB\footnote{\url{http://www.mongodb.com}}, Parse\footnote{\url{https://parseplatform.org}}, and Realm\footnote{\url{https://realm.io}}, as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions and associated framework for performing distributed database operations as if they were local.
 
-Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, sharing, invites, and more. To illustrate how these underlying components can we combined to produce a simple API with minimal configuration and boilerplate, consider the following example, in which we provide pseudo-code for a hypothetical Photos application.
+Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, and more. To illustrate how these underlying components can we combined to produce a simple API with minimal configuration and boilerplate, consider the following example, in which we provide pseudo-code for a hypothetical Photos application.
 
-\subsection{Illustative Example}\label{sec:example}
+\subsection{Illustrative Example}\label{sec:example}
 
 For any application, the first step would be to import the software development kit (SDK) for the given platform or system; however, for the sake of brevity we do not cover this process here. Instead we focus on the higher-level logic required to create and interact with a shared Thread. 
 
@@ -831,7 +831,7 @@ An example Event is given in Example \ref{ex:event}, and is the result of a new 
   \begin{minipage}{.45\textwidth}
     \begin{lstlisting}
 MyMessage.body = "Actually, this is Fido."
-MyMessage.save()
+MyMessage.Save()
 
 // New Event with diff and document id
 {
@@ -858,23 +858,23 @@ Additional core Threads functionality is also enabled from this higher-level API
   \begin{minipage}{.45\textwidth}
     \begin{lstlisting}
 // Query for message, select only thumbnail.
-Dogs.findOne({ "_id": MyMessage._id }, "thumbnail")
+Dogs.FindOne({ "_id": MyMessage._id }, "thumbnail")
 
 // Every (Event increments version tag
-MyMessage.version
+MyMessage.Version()
 
 // All doc changes in Dogs Thread
 Dogs.subscribe()
 // All changes to all Messages in all Threads
-Message.subscribe() 
+Message.Subscribe() 
 // Changes specific to this document
-MyMessage.subscribe() 
+MyMessage.Subscribe() 
 
 // Create invite Event IFF User has permission
-Dogs.grant(<peer_id>, <role>)
+Dogs.Grant(<peer_id>, <role>)
 
 // Alter ACL OR create invite if needed/allowed
-MyMessage.grant(<peer_id>, <role>)
+MyMessage.Grant(<peer_id>, <role>)
     \end{lstlisting}
   \end{minipage}
 \caption{Additional Threads-based API functionality.}
@@ -883,9 +883,9 @@ MyMessage.grant(<peer_id>, <role>)
 
 \subsection{Modules}\label{sec:modules}
 
-One of Textile's stated goals is to allow individuals to better capture the value of their data while still enabling developers to build new interfaces and experiences on top of said data. A key piece of this goal is to provide \emph{inter-application} data access to the \emph{same underlying user(-sioled) data}. In order to meet this goal, it is necessary for developers to be using the same data structure and conventions when building their apps. In conjunction with community developers, Textile will provide a number of \emph{Modules} designed to wrap a given domain (e.g., Photos) into a singular software package to facilitate this. This way, developers need only agree on the given data Module in order to provide seamless cross- and even inter-application experiences. For example, any developer looking to provide a view on top of a user's Photos (perhaps their phone's camera roll) may utilize the Photos Module (which may be designed as in the example above). They may also extend this Module, to provide additional functionality.
+One of Textile's stated goals is to allow individuals to better capture the value of their data while still enabling developers to build new interfaces and experiences on top of said data. A key piece of this goal is to provide \emph{inter-application} data access to the \emph{same underlying user(-siloed) data}. In order to meet this goal, it is necessary for developers to be using the same data structure and conventions when building their apps. In conjunction with community developers, Textile will provide a number of \emph{Modules} designed to wrap a given domain (e.g., Photos) into a singular software package to facilitate this. This way, developers need only agree on the given data Module in order to provide seamless cross- and even inter-application experiences. For example, any developer looking to provide a view on top of a user's Photos (perhaps their phone's camera roll) may utilize the Photos Module (which may be designed as in the example above). They may also extend this Module, to provide additional functionality.
 
-In building on top of an existing Module, developers ensure other application developers are also able to interact with the data produced by their app. This is a powerful feature, as it enables tigher coupling between applications, and it allows for smaller apps that focus on a very specific user experience (say, filters on Photos). However, it is also useful because it provides a \emph{logically centralized}, platform-based developer experience, without the actual centralized infrastructure. APIs for Photos, Messages/Chat, Music, Video, Storage, etc are all possible, extensible, and available to all developers. This is a powerful concept, but it is also flexible. For application developers working on very specific or niche apps with less need for cross-application usability, Modules are not needed, and they can instead focus on custom Models. However, it is likely that developers who build on openly available 'standard' Modules will provide a more useful experience for their users.
+In building on top of an existing Module, developers ensure other application developers are also able to interact with the data produced by their app. This is a powerful feature, as it enables tighter coupling between applications, and it allows for smaller apps that focus on a very specific user experience (say, filters on Photos). However, it is also useful because it provides a \emph{logically centralized}, platform-based developer experience, without the actual centralized infrastructure. APIs for Photos, Messages/Chat, Music, Video, Storage, etc are all possible, extensible, and available to all developers. This is a powerful concept, but it is also flexible. For application developers working on very specific or niche apps with less need for cross-application usability, Modules are not needed, and they can instead focus on custom Models. However, it is likely that developers who build on openly available \emph{standard} Modules will provide a more useful experience for their users.
 
 \subsection{Databases}\label{sec:databases}
 
@@ -930,7 +930,7 @@ Eventually consistent, CRDT-based structures can also be implemented on top of T
 
 \subsection{Thread Extensions}
 
-At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Actions, a Dispartcher, and generic Stores, we aim to make easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
+At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Actions, a Dispartcher, and generic Stores, we aim to make it easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
 
 \subsubsection{Snapshots and Compaction}\label{sec:SnapshotsCompaction}
 
