@@ -571,7 +571,7 @@ Base32 encoding is used by default. However, any multibase-supported string enco
 (Random Number). A random number of a user-specified length. 16 bytes or more  (see Example \ref{ex:Identity}).
 \end{definition}
 
-\subsubsection{Variants}
+\subsubsection{Variants}\label{sec:variants}
 
 Certain ID \emph{variants} may be more appropriate than the others in specific use cases. For example, Textile provides an \emph{access-controlled} Thread variant, which supports various collaborative structures --- e.g., social media feeds, shared documents, blogs, photo albums, etc.
 
@@ -670,7 +670,7 @@ The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicati
 
 \section{Thread Internals}\label{sec:internals}
 
-Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive \emph{public} (developer-facing) APIs to make adopting and using Threads ``the right choice'' for a wide range of developers.
+Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CRQS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive developer-facing application programing interfaces (APIs) to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
@@ -727,15 +727,181 @@ In addition to locally derived Events (such as via application logic and user in
 
 \section{Thread Interfaces}\label{sec:interfaces}
 
-To make Threads as easy to adopt and use as possible, we've 
+To make Threads as easy to adopt and use as possible, Textile has designed a public (developer facing) API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB [REF], Parse [REF], and Realm [REF], as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions and associated framework for performing distributed database operations as if they were local.
 
-Building on the idea of bounded context and aggregate roots from DDD, Threads provides several default abstractions based on the idea that a database provides a useful context within which to structure our Events/Actions. Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset, or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, sharing, invites, and more. As such, it is not difficult to imagine a simplified API in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems --- database domains.
+Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, sharing, invites, and more. To illustrate how these underlying components can we combined to produce a simple API with minimal configuration and boilerplate, consider the following example, in which we provide pseudo-code for a hypothetical Photos application.
 
-The key here is to create simple, higher-level interfaces on top of Textile Threads that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS + ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability.
+\subsection{Illustative Example}\label{sec:example}
+
+For any application, the first step would be to import the software development kit (SDK) for the given platform or system; however, for the sake of brevity we do not cover this process here. Instead we focus on the higher-level logic required to create and interact with a shared Thread. 
+
+To create a useful application, developers start with view \texttt{Models}, as in Example \ref{ex:models}. A Model is essentially the public API for the underlying view Models from Section \ref{sec:views}). Building on this, developers might create a new Thread for a user to store \texttt{Contact} information, as well as their mobile phone's camera roll photos, as in Example \ref{ex:stores}. This would create a new view Store ``under-to-hood'', to be populated by any corresponding update Events. All Model instances (returned via \texttt{AddModel}) have several special methods and properties specific to the Threads API, several of which we will explore here.
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+Photo = NewModel({
+  _id: UUID,
+  thumbnail: Buffer,
+  original: Buffer,
+});
+
+Contact = NewModel({
+  _id: UUID,
+  name: {type: String, index: true},
+  avatar: Photo,
+});
+
+// Photos may be grouped into messages.
+Message = NewModel({
+  _id: UUID,
+  author: Contact,
+  body: String,
+  photos: [Photo],
+})
+    \end{lstlisting}
+  \end{minipage}
+  \caption{Create a photo entity and some way to represent a photo's author.}
+  \label{ex:models}
+\end{example}
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+AddressBook = NewDocumentStore("AddressBook")
+// This store should take Contacts.
+AddressBook.AddModel("Contact", Contact)
+// If needed, additional models can be added...
+
+// Create another store for camera roll photos.
+CameraRoll = NewDocumentStore("CameraRoll")
+// This store should take photos.
+CameraRoll.AddModel("Photo", Photo)
+
+// Create another store for a shared album.
+Dogs = NewDocumentStore("Dogs")
+Dogs.AddModel("Message", Message)
+
+// Messages can also be nested.
+Message.AddModel("Message", Message)
+    \end{lstlisting}
+  \end{minipage}
+  \caption{Create address book and camera roll stores. This will create new Threads.}
+  \label{ex:stores}
+\end{example}
+
+The next step is to actually \emph{create} and add a \texttt{Message} object to a shared album. In example \ref{ex:adding}, a message instance is created via the custom \texttt{Message} class, and then added to the shared \texttt{Dogs} album. Behind the scenes, the Model (which is providing an Event Creator interface) is internally responsible for transforming the \texttt{Add} \emph{Command} to an Event.
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+// Create a message with a photo.
+MyMessage = Message.Create({
+  author: <author_id>,
+  body: "This is Lucas.",
+  photos: [{
+    thumbnail: <buffer>,
+    original: <buffer>
+  }]
+})
+// Now it can be added to Dogs "album".
+Dogs.Add(MyMessage)
+    \end{lstlisting}
+  \end{minipage}
+  \caption{Adding data to a shared Thread.}
+  \label{ex:adding}
+\end{example}
+
+An example Event is given in Example \ref{ex:event}, and is the result of a new Message Event. Now, any updates to an existing Message instance will automatically generate the required underlying update Events. For example, Example \ref{ex:updates} shows the body text of the previous example being updated, and saved (committed) to the Thread. Behind the scenes, this event will be added to the User's local Log, and pushed to any peers identified in the Thread's ACL document (see Sections \ref{sec:variants} and \ref{sec:TexCRDT}). In practice, the Model generates another Event that carries the diff and a document identifier.
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+{
+  "body": {
+    "data": {
+      "author_id": <author_id>,
+      "body": "This is Lucas.",
+      "photos": [{
+        "thumbnail": <buffer>,
+        "original": <buffer>
+      }]
+    }
+  },
+  "header": {
+    "time": 1569434034737,
+    "key": "215bs...1DXJ"
+  }
+}
+    \end{lstlisting}
+  \end{minipage}
+\caption{A new Message Event.}
+\label{ex:event}
+\end{example}
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+MyMessage.body = "Actually, this is Fido."
+MyMessage.save()
+
+// New Event with diff and document id
+{
+  "body": {
+    "data": {
+      "doc_id": MyMessage._id,
+      "body": "Actually, this is Fido."
+    }
+  },
+  "header": {
+    "time": 1569434035737,
+    "key": "iJMfqWy...1qfJyc29RS"
+  }
+}
+    \end{lstlisting}
+  \end{minipage}
+\caption{Message updates are persisted and transmitted automatically.}
+\label{ex:updates}
+\end{example}
+
+Additional core Threads functionality is also enabled from this higher-level API. Example \ref{ex:others} demonstrates several features common in a Threads-based workflow, including queries, creating invites and changing permissions/access control (see also Section \ref{sec:AccessControl}), as well as subscribing to updates and changes at various levels of the Threads API. These subscriptions would enable downstream consumers (views, front-end stores, etc.) to receive updates as changes to the Thread are made via underlying Events.
+
+\begin{example}
+  \begin{minipage}{.45\textwidth}
+    \begin{lstlisting}
+// Query for message, select only thumbnail.
+Dogs.findOne({ "_id": MyMessage._id }, "thumbnail")
+
+// Every (Event increments version tag
+MyMessage.version
+
+// All doc changes in Dogs Thread
+Dogs.subscribe()
+// All changes to all Messages in all Threads
+Message.subscribe() 
+// Changes specific to this document
+MyMessage.subscribe() 
+
+// Create invite Event IFF User has permission
+Dogs.grant(<peer_id>, <role>)
+
+// Alter ACL OR create invite if needed/allowed
+MyMessage.grant(<peer_id>, <role>)
+    \end{lstlisting}
+  \end{minipage}
+\caption{Additional Threads-based API functionality.}
+\label{ex:others}
+\end{example}
+
+\subsection{Modules}\label{sec:modules}
+
+One of Textile's stated goals is to allow individuals to better capture the value of their data while still enabling developers to build new interfaces and experiences on top of said data. A key piece of this goal is to provide \emph{inter-application} data access to the \emph{same underlying user(-sioled) data}. In order to meet this goal, it is necessary for developers to be using the same data structure and conventions when building their apps. In conjunction with community developers, Textile will provide a number of \emph{Modules} designed to wrap a given domain (e.g., Photos) into a singular software package to facilitate this. This way, developers need only agree on the given data Module in order to provide seamless cross- and even inter-application experiences. For example, any developer looking to provide a view on top of a user's Photos (perhaps their phone's camera roll) may utilize the Photos Module (which may be designed as in the example above). They may also extend this Module, to provide additional functionality.
+
+In building on top of an existing Module, developers ensure other application developers are also able to interact with the data produced by their app. This is a powerful feature, as it enables tigher coupling between applications, and it allows for smaller apps that focus on a very specific user experience (say, filters on Photos). However, it is also useful because it provides a \emph{logically centralized}, platform-based developer experience, without the actual centralized infrastructure. APIs for Photos, Messages/Chat, Music, Video, Storage, etc are all possible, extensible, and available to all developers. This is a powerful concept, but it is also flexible. For application developers working on very specific or niche apps with less need for cross-application usability, Modules are not needed, and they can instead focus on custom Models. However, it is likely that developers who build on openly available 'standard' Modules will provide a more useful experience for their users.
 
 \subsection{Databases}\label{sec:databases}
 
-Even higher-level database abstractions could also be built on Threads. For example, a key/value store built on Threads would ``map'' key/value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) view Model with similarly defined Event Creators and Resolver functions. These Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example).
+With such a simple interface to such a complex underlying process, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
@@ -780,18 +946,18 @@ At an abstract level, the Textile protocol provides a highly distributed framewo
 
 \subsubsection{Snapshots and Compaction}\label{sec:SnapshotsCompaction}
 
-Snapshots\footnote{The literature around snapshots and other CQRS and ES is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a Store at a given point in time. They can be used to rebuild the state of a ViewStore without having to query and re-play all previous events. When a Snapshot is available, a Thread Peer can rebuild the state of a given ViewStore by replaying any events generated since the latest Snapshot (with a corresponding reduction in the total number of events that need to be processed) using the Stores's Reducer function. Multiple peers processing the same Log could create a Snapshot every 1000 events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
+Snapshots\footnote{The literature around snapshots and other CQRS and ES terms is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a Store at a given point in time. They can be used to rebuild the state of a view Store without having to query and re-play all previous Events. When a Snapshot is available, a Thread Peer can rebuild the state of a given view Store/Model by replaying any Events generated since the latest Snapshot (with a corresponding reduction in the total number of Events that need to be processed) using the Model's Reducer function. Multiple Peers processing the same Log could create a Snapshot every 1000 Events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
 
-In practice, Snapshots are written to their own Event log and stored locally. They can potentially be synced (Section \ref{sec:LogSync}) to other peers as a form of data backup or to optimize state initialization when a new peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing a Store's during recovery.
+In practice, Snapshots are written to their own internal Event Store and stored locally. They can potentially be synced (Section \ref{sec:LogSync}) to other Peers as a form of data backup or to optimize state initialization when a new Peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing a local view Store during recovery.
 
-Compaction can similarly speed up re-hydration of a Stores's state, and is useful when only the latest Action of a given type is required. In addition to being used as a starting point for initialization and recovery, compacted Stores can be used to \emph{replace} the Store from which they were created in order to free up local disk space. In practice, Compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
+Compaction can similarly speed up re-hydration of a Stores's state, and is useful when only the latest Event of a given type is required. In addition to being used as a starting point for initialization and recovery, compacted Stores can be used to \emph{replace} the Store from which they were created in order to free up local disk space. In practice, Compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
 
 \subsubsection{Access Control} \label{sec:AccessControl}
 
-One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Sequence-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can \emph{follow, read, write, and delete} Thread data. Similarly, sequence-level ACLs provide more granular control to Thread-writers on a per-sequence (see Definition \ref{ex:SequenceID}) basis. Both types of ACLs are implemented as JSON CRDT ViewStores (see Section \ref{sec:TexCRDT}). ACLs implemented as JSON ViewStores provide two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are JSON documents, ACLs can specify their own editing rules (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
+One of the most important properties of a shared data model is the ability to apply access control rules. There are two forms of access control possible in Threads, Entity-level ACLs and Thread-level ACLs. Thread-level access control lists (ACLs) allow creators to specify who can \emph{follow, read, write, and delete} Thread data. Similarly, Entity-level ACLs provide more granular control to Thread-writers on a per-Entity (see Definition \ref{ex:SequenceID}) basis. Both types of ACLs are implemented as JSON CRDTs (see Section \ref{sec:TexCRDT}) wrapped in a custom view Model (see Section \ref{sec:interfaces}). ACLs implemented as JSON Models provide two advantages over static or external ACL rules (although static and external ACLs are also possible). First, ACLs are fully mutable, allowing developers to create advanced rules for collaboration with any combination of readers, writers, and followers. Second, because ACLs are essentially mutable JSON documents, they can specify their \emph{own editing rules} (i.e. allowing multiple Thread participants to modify the ACL) in a self-referencing way.
 
 \begin{definition}
-(Sequence). An Event Sequence is a series of ordered events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events. A Sequence might have a unique UUID (see Example \ref{ex:SequenceID}) as in the example below.
+(Entity). An Entity is made of of a series of ordered Events referring to a specific entity or object. For example, an ACL JSON document is a single entity made up of a sequence of Thread Events that describe a JSON document. An Entity might have a unique UUID (see Example \ref{ex:SequenceID}) which can be referenced across/within Event updates.
 \end{definition}
 
 % [!b] moves it to the bottom of the page
@@ -827,7 +993,7 @@ Textile's Threads includes ACL management tooling based on a \emph{Role-based ac
 (Delete). Members of this role are able to delete Events, which implies access to Log Follow Keys. In practice, this means marking an older Event as ``deleted''.
 \end{definition}
 
-A typical Thread-level ACL JSON (see Example \ref{ex:AclJson}) can be persisted to a local document store as part of a materialized view.
+A typical Thread-level ACL JSON (see Example \ref{ex:AclJson}) can be persisted to a local Event Store as part of the flow described in Section \ref{sec:internals}. See also Section \ref{sec:interfaces}, and in particular, Example \ref{ex:others} for the public API for editing ACL definitions.
 
 \begin{example}
 \begin{minipage}{.45\textwidth}
