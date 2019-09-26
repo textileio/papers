@@ -527,8 +527,7 @@ In Textile, the \emph{interface} to Logs is managed as a Thread. As mentioned pr
 
 A unique Thread IDentity (TID) is used to group together Logs which compose a single dataset and as a topic identifier within Pub/Sub-based synchronization. TIDs are defined with the format shown Figure \ref{fig:ThreadID}.
 
-% [!b] bottom page
-\begin{figure*}[!t]
+\begin{figure*}[th]
 \centering
 \caption{Components of a Thread Identity.}
 \par\vspace{.9\baselineskip}\leavevmode%
@@ -571,7 +570,7 @@ Certain ID \emph{variants} may be more appropriate than the others in specific u
 (Access-Controlled): This variant declares that consumers should assume an access control list is composable from Log Events. The ACL represents a permissions rule set that must be applied when reading data (Section  \ref{sec:AccessControl} and Example \ref{ex:Identity}b).
 \end{definition}
 
-\begin{example*}[!b]
+\begin{example}[hb]
 \centering
 \begin{minipage}{0.6\textwidth}
 \begin{lstlisting}[language=json,firstnumber=1]
@@ -584,7 +583,7 @@ bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 \end{minipage}
   \caption{Identity variants.}
   \label{ex:Identity}
-\end{example*}
+\end{example}
 
 \subsubsection{Log Synchronization} \label{sec:LogSync}
 
@@ -656,26 +655,25 @@ There are multiple paths to receiving new Events, that together, maximize connec
 
 The notion of the Follow Key (Section  \ref{sec:KeysEncryption}) makes duplicating all Log Events trivial. This allows any Peer in the network to be granted the responsibility of replicating data from another Peer without having read access to the data contained within the Log entries. This type of Log replication can act as a data backup mechanism. It can also be used to build services that react to Log Events, potentially pushing data to disparate, non-Textile systems, especially if the replication service is granted read access to the Log Events (Section  \ref{sec:LogSync}).
 
-\section{Thread Internals}\label{sec:internals}
+\section{Threads Internals}\label{sec:internals}
 
-Previous sections have outlined and discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a relatively high-level discussion of the internal implementation details of a Threads compatible Event Store. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CQRS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive developer-facing application programing interfaces (APIs) to make adopting and using Threads ``the right choice'' for a wide range of developers.
+Previous sections have discussed the core features of the Textile Threads protocol. However, we have not yet discussed dealing with Log Events in practice. In this section, we provide a description of a Threads-compatible Event Store implementation. The Event Store outlined here takes advantage of ideas from several existing CQRS and ES systems (e.g., \cite{ereminReduxInspiredBackend2019}), as well as concepts and designs from Flux \cite{facebookFluxInDepthOverview2019}, Redux\footnote{Redux builds on concepts from CQRS and ES itself, and is arguably an implementation of the Flux application architecture.} \cite{reduxMotivation} and domain driven design \cite{evansDomaindrivenDesignTackling2004a} (DDD)\footnote{\url{https://dddcommunity.org}}. Following this discussion of Threads \emph{internals}, in Section \ref{sec:interfaces} we outline how it can be used to build intuitive developer-facing application programing interfaces (APIs) to make adopting and using Threads ``the right choice'' for a wide range of developers.
 
 \subsection{Overview}
 
-For developers familiar with common application state management issues, tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similarities to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
+Application state management tools such as Redux provide opinionated frameworks for making state mutations \emph{predictable} by imposing certain restrictions on how and when updates can happen. If you take a look at the architecture of such an application, you'll notice several core similarities to CQRS and ES systems (see \cite{facebookFluxInDepthOverview2019} and/or \cite{abramovCaseFlux2015}). In both cases, the focus is on unidirectional data flows that build downstream views from atomic updates in the form of events (or actions).
 
-% [!b] indicates that it will try to be on the bottom of the page
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/Architecture.png}
   \caption{Architectural diagram for internal Event Store implementation.}
   \label{fig:Architecture}
 \end{figure}
 
-We adopt a similar flow in Threads (see Figure \ref{fig:Architecture}). Like any ES-based system, Threads are built on \emph{Events}. Events are similar to actions in a Flux-based system, and are used to produce \emph{predictable} updates to downstream state. Similarly to a DDD-based pattern, to add an Event to the internal Threads system, we use \emph{Commands}, which are dispatched from a singleton \emph{Dispatcher} as Events. The Dispatcher then stores the derived Event in an \emph{Event Store}, and calls a set of registered \emph{Reducer} functions that mutate a (set of) downstream view \emph{Stores} defined by a corresponding set of view \emph{Models}, all within a single \emph{Transaction}. This unidirectional, transaction-based system, provides a flexible framework for building complex event-driven application logic.
+We adopt a similar flow in Threads (see Figure \ref{fig:Architecture}). Like any ES-based system, Threads are built on \emph{Events}. Events are similar to actions in a Flux-based system, and are used to produce \emph{predictable} updates to downstream state. Similarly to a DDD-based pattern, to add an Event to the internal Threads system, we use \emph{Event Creators}, which dispatch Events to the system via a singleton \emph{Dispatcher}. The Dispatcher then stores the derived Event in an \emph{Event Store}, and calls a set of registered \emph{Reducer} functions that mutate a (set of) downstream view \emph{Stores} defined by a corresponding set of view \emph{Models}, all within a single \emph{Transaction}. This unidirectional, transaction-based system, provides a flexible framework for building complex event-driven application logic.
 
-\subsubsection{Events \& Commands}\label{sec:commands}
+\subsubsection{Events \& Creators}\label{sec:creators}
 
-Like most CQRS + ES based systems, \emph{Events} are at the heart of Threads. Every update to local and shared (i.e., across peers) application state happens via Events (see also Section \ref{sec:cqrs}). Events are similar to actions in Redux, and are used to describe ``changes to an application state'' \cite{fowlerEventSourcing} (e.g., a photo was added, an item was added to a shopping cart, etc). Related, \emph{Commands} are simple structures that are used to send data from a \emph{local application} to an internal Event Store. They are generally called via an \emph{Event Creator}, which, if built around a specific \emph{domain}, provide bounded context that can be (roughly) compared to an aggregate root in DDD \cite{evansDomaindrivenDesignTackling2004a}.
+Like most CQRS + ES based systems, \emph{Events} are at the heart of Threads. Every update to local and shared (i.e., across peers) application state happens via Events (see also Section \ref{sec:cqrs}). Events are similar to actions in Redux, and are used to describe ``changes to an application state'' \cite{fowlerEventSourcing} (e.g., a photo was added, an item was added to a shopping cart, etc). Related, \emph{Event Creators} are used to send Events from a \emph{local application} to an internal Event Store. If built around a specific \emph{domain}, Creators provide bounded context that can be roughly compared to an aggregate root in DDD \cite{evansDomaindrivenDesignTackling2004a}.
 
 \subsubsection{Dispatcher}\label{sec:dispatcher}
 
@@ -687,19 +685,19 @@ In order to actually persist and dispatch Events to downstream view Models, a \e
 
 \subsubsection{Transactions}\label{sec:transactions}
 
-All Reducer function calls (and ``side effects'') due to a given Event happen within a single \emph{Transaction} \cite{haerderPrinciplesTransactionorientedDatabase1983}, in order to ensure consistently of both storage (Event Store) and Models. Transactions provide a similar experience to Redux \emph{Sagas}\footnote{\url{https://redux-saga.js.org/}}, but with a simpler interface. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a view Model's Reducer callback. In order to make this possible, Models must \emph{register} their Reducer with the Dispatcher.
+All Reducer function calls (and ``side effects'') due to a given Event happen within a single \emph{Transaction} \cite{haerderPrinciplesTransactionorientedDatabase1983}, in order to ensure consistently of both storage (Event Store) and Models. Transactions are similar to Redux \emph{Sagas}\footnote{\url{https://redux-saga.js.org/}} in terms of outcome, but with stronger consistency guarantees. Once an Event has been persisted in the internal Event Store, the Dispatcher is responsible for running a view Model's Reducer callback. In order to make this possible, Models must \emph{register} their Reducer with the Dispatcher.
 
-Events can also be \emph{batch dispatched}, which is the preferred way to dispatch multiple Events at a time. This works by grouping Events, and then running their Reducers in series. An example of where this is useful is when grouping externally derived \emph{Peer-Events}, which can be dispatched directly from the local Peer Host.
+% Events can also be \emph{batch dispatched}, which is the preferred way to dispatch multiple Events at a time. This works by grouping Events, and then running their Reducers in series. An example of where this is useful is when grouping externally derived \emph{Peer-Events}, which can be dispatched directly from the local Peer Host.
 
 \subsubsection{View Models/Stores}\label{sec:views}
 
-As in many CQRS-based systems, as Events are dispatched on the \emph{write side}, they are reacted to on the \emph{read side} via Reducers, causing updates to view Models, which provide interfaces for queries and accessing persisted view \emph{Stores} (state). View Stores are then responsible for notifying downstream consumers (application logic) of changes to their state via a \emph{Broadcaster} (i.e., event emitter). They are similar in some respects to a Redux Store, though it is possible to have \emph{multiple} view Models/Stores as in the more general Flux pattern.
+As in many CQRS-based systems, Events are dispatched on the write side, and are \emph{reacted to} on the read side. Reactions happen via Reducer fuctions, which cause updates to view Models, which in turn provide interfaces for queries and accessing persisted view \emph{Stores} (state). View Stores are then responsible for notifying downstream consumers (application logic) of changes to their state via a \emph{Broadcaster} (i.e., event emitter). They are similar in some respects to a Redux Store, though it is possible to have \emph{multiple} view Models/Stores as in the more general Flux pattern.
 
 A view Model is generally defined by custom update logic (i.e., a Reducer), a (possibly ORM\footnote{Object-relational mapping}-based) view Store for persistence, an Event Bus (or Broadcaster) for notifying downstream consumers, and a set of query/\emph{Resolver} \cite{ereminReduxInspiredBackend2019} functions. In practice, a view Model may \emph{also} wrap the Event Creator application logic that is used to generate upstream Events. This provides an intuitive, singular access point to the \emph{local} system, while also leaving room for updates via \emph{external} peer-events.
 
 \subsubsection{External Events}\label{sec:external}
 
-In addition to locally derived Events (such as via application logic and user interactions), Threads are designed so that Peers may collaborate in a given Thread via Events. Events generated by other, network peers are called Peer Events, and they enter the system via a Peer Host. The Peer Host is responsible for dealing with incoming Events (be they push or pull). These Events are no different from locally-derived Events, though in practice, the Peer Host is required to validate incoming Events before they are dispatched to the system via the Dispatcher.
+In addition to locally derived Events (i.e., from application logic and user interactions), Threads are designed so that Peers may collaborate in a given Thread via Events. Events generated by other, network peers are called Peer Events, and they enter the system via a Peer Host. The Peer Host is responsible for dealing with incoming Events (be they push or pull). These Events are no different from locally-derived Events, though in practice, the Peer Host is required to validate incoming Events before they are dispatched to the system via the Dispatcher.
 
 % \begin{definition}
 %   (Reducer). Reducers are ``pure'' (in the functional sense) functions\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a Store's state based on incoming Actions.
@@ -715,15 +713,15 @@ In addition to locally derived Events (such as via application logic and user in
 
 \section{Thread Interfaces}\label{sec:interfaces}
 
-To make Threads as easy to adopt and use as possible, Textile has designed a public (developer facing) API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB\footnote{\url{http://www.mongodb.com}}, Parse\footnote{\url{https://parseplatform.org}}, and Realm\footnote{\url{https://realm.io}}, as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions and associated framework for performing distributed database operations as if they were local.
+To make Threads as easy to adopt and use as possible, Textile has designed a developer facing API on top of the Threads internals that simplifies dealing with events and data, while still maintaining the power and flexibility of CQRS and ES. Developers should not have to learn a whole new set of terms and tools to take advantage of Textile's Threads capabilities. These simple, public-facing APIs will be comfortable to application developers looking to leverage highly-distributed systems that connect user-controlled data, with minimal configuration and maximum interoperability. Inspired by tools such as MondoDB\footnote{\url{http://www.mongodb.com}}, Parse\footnote{\url{https://parseplatform.org}}, and Realm\footnote{\url{https://realm.io}}, as well as the idea of bounded context and aggregate roots from DDD, we provide simple abstractions for performing distributed database operations as if they were local.
 
 Indeed, the components of a Thread already provide several features that you would expect when operating on a dataset or table within a database: each Thread is defined by a unique ID, and provides facilities for access control and permissions, networking, and more. To illustrate how these underlying components can we combined to produce a simple API with minimal configuration and boilerplate, consider the following example, in which we provide pseudo-code for a hypothetical Photos application.
 
 \subsection{Illustrative Example}\label{sec:example}
 
-For any application, the first step would be to import the software development kit (SDK) for the given platform or system; however, for the sake of brevity we do not cover this process here. Instead we focus on the higher-level logic required to create and interact with a shared Thread. 
+% For any application, the first step would be to import the software development kit (SDK) for the given platform or system; however, for the sake of brevity we do not cover this process here. Instead we focus on the higher-level logic required to create and interact with a shared Thread. 
 
-To create a useful application, developers start with view \texttt{Models}, as in Example \ref{ex:models}. A Model is essentially the public API for the underlying view Models from Section \ref{sec:views}). Building on this, developers might create a new Thread for a user to store \texttt{Contact} information, as well as their mobile phone's camera roll photos, as in Example \ref{ex:stores}. This would create a new view Store ``under-to-hood'', to be populated by any corresponding update Events. All Model instances (returned via \texttt{AddModel}) have several special methods and properties specific to the Threads API, several of which we will explore here.
+To create a useful application, developers start with view \texttt{Models}, as in Example \ref{ex:models}. A Model is essentially the public API for the underlying view Models from Section \ref{sec:views}). Building on this, developers might create a new Thread for a user to store \texttt{Contact} information, as well as their mobile phone's camera roll photos, as in Example \ref{ex:stores}. This would create a new view Store ``under-to-hood'' (with corresponding indexes, etc), to be mutated by incoming Events.
 
 \begin{example}
   \begin{minipage}{.45\textwidth}
@@ -767,8 +765,8 @@ CameraRoll = NewDocumentStore("CameraRoll")
 CameraRoll.AddModel("Photo", Photo)
 
 // Create another store for a shared album.
-Dogs = NewDocumentStore("Dogs")
-Dogs.AddModel("Message", Message)
+MyDogsAlbum = NewDocumentStore("Dogs")
+MyDogsAlbum.AddModel("Message", Message)
 
 // Messages can also be nested.
 Message.AddModel("Message", Message)
@@ -778,7 +776,7 @@ Message.AddModel("Message", Message)
   \label{ex:stores}
 \end{example}
 
-The next step is to actually \emph{create} and add a \texttt{Message} object to a shared album. In example \ref{ex:adding}, a message instance is created via the custom \texttt{Message} class, and then added to the shared \texttt{Dogs} album. Behind the scenes, the Model (which is providing an Event Creator interface) is internally responsible for transforming the \texttt{Add} \emph{Command} to an Event.
+The next step is to actually \emph{create} and add a \texttt{Message} object to a shared album. In example \ref{ex:adding}, a message instance is created via the custom \texttt{Message} class, and then added to the shared \texttt{Dogs} Thread (which represents an album here). Behind the scenes, the Model (which is providing an Event Creator interface) is internally responsible for dispatching the Event through the local Dispatcher.
 
 \begin{example}
   \begin{minipage}{.45\textwidth}
@@ -793,7 +791,7 @@ MyMessage = Message.Create({
   }]
 })
 // Now it can be added to Dogs "album".
-Dogs.Add(MyMessage)
+MyDogsAlbum.Add(MyMessage)
     \end{lstlisting}
   \end{minipage}
   \caption{Adding data to a shared Thread.}
@@ -852,7 +850,7 @@ MyMessage.Save()
 \label{ex:updates}
 \end{example}
 
-Additional core Threads functionality is also enabled from this higher-level API. Example \ref{ex:others} demonstrates several features common in a Threads-based workflow, including queries, creating invites and changing permissions/access control (see also Section \ref{sec:AccessControl}), as well as subscribing to updates and changes at various levels of the Threads API. These subscriptions would enable downstream consumers (views, front-end stores, etc.) to receive updates as changes to the Thread are made via underlying Events.
+All instances and models in Threads have several special methods and properties specific to the Threads API, several of which we will explore here. Example \ref{ex:others} demonstrates several features common in a Threads-based workflow, including queries, creating invites and changing permissions/access control (see also Section \ref{sec:AccessControl}), as well as subscribing to updates and changes at various levels of the Threads API. These subscriptions would enable downstream consumers (views, front-end stores, etc.) to receive updates as changes to the Thread are made via underlying Events.
 
 \begin{example}
   \begin{minipage}{.45\textwidth}
@@ -883,13 +881,13 @@ MyMessage.Grant(<peer_id>, <role>)
 
 \subsection{Modules}\label{sec:modules}
 
-One of Textile's stated goals is to allow individuals to better capture the value of their data while still enabling developers to build new interfaces and experiences on top of said data. A key piece of this goal is to provide \emph{inter-application} data access to the \emph{same underlying user(-siloed) data}. In order to meet this goal, it is necessary for developers to be using the same data structure and conventions when building their apps. In conjunction with community developers, Textile will provide a number of \emph{Modules} designed to wrap a given domain (e.g., Photos) into a singular software package to facilitate this. This way, developers need only agree on the given data Module in order to provide seamless cross- and even inter-application experiences. For example, any developer looking to provide a view on top of a user's Photos (perhaps their phone's camera roll) may utilize the Photos Module (which may be designed as in the example above). They may also extend this Module, to provide additional functionality.
+One of Textile's stated goals is to allow individuals to better capture the value of their data while still enabling developers to build new interfaces and experiences on top of said data. A key piece of this goal is to provide \emph{inter-application} data access to the \emph{same underlying user-siloed data}. In order to meet this goal, it is necessary for developers to be using the same data structure and conventions when building their apps. In conjunction with community developers, Textile will provide a number of \emph{Modules} designed to wrap a given domain (e.g., Photos) into a singular software package to facilitate this. This way, developers need only agree on the given data Module in order to provide seamless inter-application experiences. For example, any developer looking to provide a view on top of a user's Photos (perhaps their phone's camera roll) may utilize the Photos Module (which may be designed as in the example above). They may also extend this Module, to provide additional functionality.
 
-In building on top of an existing Module, developers ensure other application developers are also able to interact with the data produced by their app. This is a powerful feature, as it enables tighter coupling between applications, and it allows for smaller apps that focus on a very specific user experience (say, filters on Photos). However, it is also useful because it provides a \emph{logically centralized}, platform-based developer experience, without the actual centralized infrastructure. APIs for Photos, Messages/Chat, Music, Video, Storage, etc are all possible, extensible, and available to all developers. This is a powerful concept, but it is also flexible. For application developers working on very specific or niche apps with less need for cross-application usability, Modules are not needed, and they can instead focus on custom Models. However, it is likely that developers who build on openly available \emph{standard} Modules will provide a more useful experience for their users.
+In building on top of an existing Module, developers ensure other application developers are also able to interact with the data produced by their app. This enables tighter coupling between applications, and it allows for smaller apps that can focus on a very specific user experience (say, filters on Photos). Furthermore, it provides a \emph{logically centralized}, platform-like developer experience, without the actual centralized infrastructure. APIs for Photos, Messages/Chat, Music, Video, Storage, etc are all possible, extensible, and available to all developers. This is a powerful concept, but it is also flexible. For application developers working on very specific or niche apps with less need for inter-application usability, Modules are not needed, and they can instead focus on custom Models. However, it is likely that developers who build on openly available \emph{standard} Modules will provide a more useful experience for their users, and will benefit from the \emph{network effects} \cite{shapiroInformationRulesStrategic1998} produced by many interoperable apps.
 
 \subsection{Databases}\label{sec:databases}
 
-With such a simple interface to such a complex underlying process, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
+With these interface simplifications, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores and/or communications systems. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
 
 \begin{example}
   \begin{minipage}{.45\textwidth}
@@ -930,15 +928,15 @@ Eventually consistent, CRDT-based structures can also be implemented on top of T
 
 \subsection{Thread Extensions}
 
-At an abstract level, the Textile protocol provides a highly distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Actions, a Dispartcher, and generic Stores, we aim to make it easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
+At an abstract level, the Textile protocol provides a distributed framework for building shared, offline first, Stores that are fault tolerant\footnote{When using an ACID compliant backing store for example.}, eventually consistent, and scalable. Any internal implementation details of a compliant Threads ``client'' may use any number of well-established design patterns from the CQRS and ES (and related) literature to ``extend'' the Threads protocol with additional features and controls. Indeed, by designing our system around Events, a Dispatcher, and generic Stores, we make it easy to extend Threads in many different ways. Some examples of extensions that are included by default in Textile's Threads implementation are outlined in this section to provide some indication of the extensibility this design affords.
 
 \subsubsection{Snapshots and Compaction}\label{sec:SnapshotsCompaction}
 
-Snapshots\footnote{The literature around snapshots and other CQRS and ES terms is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a Store at a given point in time. They can be used to rebuild the state of a view Store without having to query and re-play all previous Events. When a Snapshot is available, a Thread Peer can rebuild the state of a given view Store/Model by replaying any Events generated since the latest Snapshot (with a corresponding reduction in the total number of Events that need to be processed) using the Model's Reducer function. Multiple Peers processing the same Log could create a Snapshot every 1000 Events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
+Snapshots\footnote{The literature around snapshots and other CQRS and ES terms is somewhat confusing, we attempt to use the most common definitions here.} are simply the current state of a Store at a given point in time. They can be used to rebuild the state of a view Store without having to query and re-play all previous Events. When a Snapshot is available, a Thread Peer can rebuild the state of a given view Store/Model by replaying only Events generated since the latest Snapshot using the Model's Reducer function. Multiple Peers processing the same Log could create a Snapshot every 1000 Events and be guaranteed to create the exact same Snapshot because each Peer's Event counts are identical\footnote{Assuming any network partitions are only short-lived (i.e., that peers are able to share events consistently).}. 
 
 In practice, Snapshots are written to their own internal Event Store and stored locally. They can potentially be synced (Section \ref{sec:LogSync}) to other Peers as a form of data backup or to optimize state initialization when a new Peer starts participating in a shared Thread (saving disk space, bandwidth, and time). They can similarly be used for initializing a local view Store during recovery.
 
-Compaction can similarly speed up re-hydration of a Stores's state, and is useful when only the latest Event of a given type is required. In addition to being used as a starting point for initialization and recovery, compacted Stores can be used to \emph{replace} the Store from which they were created in order to free up local disk space. In practice, Compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed).
+Compaction is a local-only operation (i.e., other Peers do not need to be aware that Compaction was performed) performed on an Event Store to free up local disk space. As a result, it can speed up re-hydration of a downstream Stores's state by reducing the number of Events that need to be processed. Compaction is useful when only the latest Event of a given type is required. 
 
 \subsubsection{Access Control} \label{sec:AccessControl}
 
