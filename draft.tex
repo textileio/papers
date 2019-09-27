@@ -157,10 +157,13 @@
 \begin{document}
 \pagecolor{white}
 
-\title[An event-sourced and decentralized database with IPLD and materialized views]{An event-sourced and decentralized database with IPLD and materialized views}
+\title[A protocol and event-sourced database for decentralized user-siloed data]{A protocol and event-sourced database for decentralized user-siloed data}
 \author{Pick}
 \author{Farmer}
 \author{Sutula}
+\affiliation{www.textile.io} \email{research@textile.io}
+\author{?Others?}
+\affiliation{other?} \email{research@textile.io}
 \author{Hill}
 \affiliation{www.textile.io} \email{contact@textile.io}
 
@@ -693,7 +696,7 @@ All Reducer function calls (and ``side effects'') due to a given Event happen wi
 
 As in many CQRS-based systems, Events are dispatched on the write side, and are \emph{reacted to} on the read side. Reactions happen via Reducer fuctions, which cause updates to view Models, which in turn provide interfaces for queries and accessing persisted view \emph{Stores} (state). View Stores are then responsible for notifying downstream consumers (application logic) of changes to their state via a \emph{Broadcaster} (i.e., event emitter). They are similar in some respects to a Redux Store, though it is possible to have \emph{multiple} view Models/Stores as in the more general Flux pattern.
 
-A view Model is generally defined by custom update logic (i.e., a Reducer), a (possibly ORM\footnote{Object-relational mapping}-based) view Store for persistence, an Event Bus (or Broadcaster) for notifying downstream consumers, and a set of query/\emph{Resolver} \cite{ereminReduxInspiredBackend2019} functions. In practice, a view Model may \emph{also} wrap the Event Creator application logic that is used to generate upstream Events. This provides an intuitive, singular access point to the \emph{local} system, while also leaving room for updates via \emph{external} peer-events.
+A view Model is generally defined by custom update logic (i.e., a Reducer), a (possibly ORM\footnote{Object-relational mapping}-based) view Store for persistence, an Event Bus (or Broadcaster) for notifying downstream consumers, and a set of query/\emph{Resolver} \cite{ereminReduxInspiredBackend2019} functions. In practice, a view Model may \emph{also} wrap the Event Creator application logic that is used to generate upstream Events. This provides an intuitive, singular access point to the \emph{local} system, while also leaving room for updates via \emph{external} peer-events. In practice, the Store is a lightweight interface that can be implemented by one of many database management systems (\ref{appx:DBMS}).
 
 \subsubsection{External Events}\label{sec:external}
 
@@ -1049,8 +1052,7 @@ Implementing Threads internals (see Section \ref{sec:internals}) using similar p
 
 \printbibliography
 
-\appendix
-
+\appendix 
 % [!p] forces it to just take the whole page
 \begin{example*}[!p]
 \section{Event node interface} \label{appx:EventNode} % stuck it inside the example so it lands on the same full page
@@ -1104,5 +1106,29 @@ type EventHeader interface {
 }
 \end{lstlisting} 
 \end{example*} 
+
+\onecolumn
+\section{Database Management Systems (DBMS)} \label{appx:DBMS} 
+
+\begin{enumerate}
+	\item Relational
+    \begin{enumerate}
+        \item MariaDB \url{https://mariadb.org/}
+    	\item PostgreSQL \url{https://www.postgresql.org/}
+        \item SQLite \url{https://www.sqlite.org}
+    \end{enumerate}
+    \item Key value stores
+    \begin{enumerate}
+        \item Dynamo \url{https://aws.amazon.com/dynamodb/}
+    	\item LevelDB \url{https://github.com/google/leveldb}
+        \item Redis \url{https://redis.io/}
+    \end{enumerate}
+    \item Document stores
+    \begin{enumerate}
+        \item CouchDB \url{http://couchdb.apache.org/}
+    	\item MongoDB \url{https://www.mongodb.com/}
+        \item RethinkDB \url{https://rethinkdb.com/}
+    \end{enumerate}
+\end{enumerate} 
 
 \end{document}
