@@ -1039,6 +1039,10 @@ Threads change the relationship between a user, their data, and the services the
 
 The use of a single Read and Follow Key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets \cite{hashicorpKeyRotation}, and/or incorporating the Double Ratchet Algorithm \cite{marlinspikeDoubleRatchetAlgorithm2016} for forward secrecy \cite{ungerSoKSecureMessaging2015}.
 
+\subsubsection{Tighter Coupling with Front End Models}\label{sec:coupling}
+
+Implementing Threads internals (see Section \ref{sec:internals}) using similar patterns to common frontend workflows (e.g., Redux) presents opportunities for tighter coupling between ``backend'' logic and fontend views. This is a major advantage of tools such as reSolve\footnote{\url{https://reimagined.github.io/resolve/}}, where ``system changes can be reflected immediately [on the frontend], without the need to re-query the backend'' \cite{ereminReduxInspiredBackend2019}. Textile developers will develop frameworks to more directly expose the internals of Threads to frontend SDKs, making it possible to sync application state across and between apps and services on the Textile network.
+
 \ack{Thanks to our funders and the excellent Textile community for helpful suggestions, feature requests, and reviews.}
 
 \nocite{*}
