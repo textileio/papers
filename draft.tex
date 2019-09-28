@@ -1018,11 +1018,11 @@ We show that the flexible core structure of single-writer append-only logs can b
 
 The research and development of Textile Threads has highlighted several additional areas of work that would lead to increased benefits for users and developers. In particular, we have highlighted network services and security enhancements as core future work. In the following two sections, we briefly outline planned future work in these critical areas.
 
-\subsubsection{Enhanced Log Security}
+\subsubsection{Textile: The Thread \& Bot Network} \label{sec:Bots}
 
 Threads change the relationship between a user, their data, and the services they connect with that data. The nested, or multi-layered, encryption combined with powerful ACL capabilities create new opportunities to build distributed services, or Bots, on a network of Textile peers. Based on the Follow Key now available in Threads, Bots would be able to relay, replicate, or store data that is synchronized via real-time updates in a \emph{trust-less} way. Bots can additionally enhance the IPFS network by providing a framework to build and deploy many kinds of trust-less or trusted services. Examples include simple archival, caching and republishing Bots. Other examples include payment, re-encryption, or bridges to Web 2.0 services to offer decentralized access to Web 2.0.
 
-\subsubsection{Textile: The Thread \& Bot Network} \label{sec:Bots}
+\subsubsection{Enhanced Log Security}
 
 The use of a single Read and Follow Key for an entire Log means that, should either of these keys be leaked via malicious (or other/accidental) means, there is no way to prevent a Peer with the leaked keys from listening to Events or traversing the Log history. Potential solutions currently being explored by Textile developers include key rotation at specific Event offsets \cite{hashicorpKeyRotation}, and/or incorporating the Double Ratchet Algorithm \cite{marlinspikeDoubleRatchetAlgorithm2016} for forward secrecy \cite{ungerSoKSecureMessaging2015}.
 
