@@ -878,7 +878,7 @@ In building on top of an existing Module, developers ensure other application de
 
 \subsection{Databases}\label{sec:databases}
 
-With these interface simplifications, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores or DBMS. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal (map-like) view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
+With these interface simplifications, it is not difficult to imagine even higher-level APIs in which Threads are exposed via interfaces compatible with \emph{existing} datastores or DBMS. Here we draw inspiration from similar projects (e.g., OrbitDB \cite{markroberthendersonOrbitDBFieldManual2019}) which have made it much easier for developers familiar with centralized database systems to make the move to decentralized systems such as Threads. For example, a key-value store built on Threads would ``map'' key-value operations, such as \texttt{Put}, \texttt{Get}, and \texttt{Del} to an internal (i.e., private) Model as in the previous section, with similarly defined methods. The generated Events would then mutate the internal map-like view Model effectively encapsulating the entire Event Store in a database structure that satisfies a given interface (see Figure \ref{ex:KVStore} for example). These too would be distributed as Modules, making it easy for developers to swap in/substitute existing backend infrastructure.
 
 \begin{example}
   \begin{minipage}{.45\textwidth}
@@ -911,7 +911,7 @@ type TextileDocumentStore interface {
 \label{ex:DocStore}
 \end{example} 
 
-Similar abstractions could (and will) be used to implement additional database types and functions. Tables, feeds, counters, and other simple stores can also be built on Threads. Each database style would be implemented as a standalone wrapper/software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these \emph{reference} libraries.
+Similar abstractions will be used to implement additional database types and functions. Tables, feeds, counters, and other simple stores can also be built on Threads. Each database style would be implemented as a standalone wrapper/software library, allowing application developers to pick and choose the solution most useful to the application at hand. Similarly, more advanced applications could be implemented using a combination of database types, or by examining the source code of these \emph{reference} libraries.
 
 \subsection{CRDTs} \label{sec:TexCRDT}
 
