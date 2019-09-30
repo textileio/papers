@@ -21,6 +21,8 @@
 
 \usepackage{dblfloatfix}    % To enable figures at the bottom of page
 
+\usepackage[useregional]{datetime2}
+
 % keep footnotes from wrapping pages,
 \interfootnotelinepenalty=10000
 
@@ -169,7 +171,7 @@
 
 \shortauthors{draft - www.textile.io}
 
-\revised{29 September 2019}
+\revised{\today}
 
 
 %\category{C.2}{Computer Communication Networks}{Computer Networks}
@@ -660,15 +662,15 @@ Application state management tools such as Redux provide opinionated frameworks 
   \label{fig:Architecture}
 \end{figure}
 
-We adopt a similar flow in Threads (see Figure \ref{fig:Architecture}). Like any ES-based system, Threads are built on \emph{Events}. Events are similar to actions in a Flux-based system, and are used to produce \emph{predictable} updates to downstream state. Similarly to a DDD-based pattern, to add an Event to the internal Threads system, we use \emph{Event Creators}, which dispatch Events to the system via a singleton \emph{Dispatcher}. The Dispatcher then stores the derived Event in an \emph{Event Store}, and calls a set of registered \emph{Reducer} functions that mutate a (set of) downstream view \emph{Stores} defined by a corresponding set of view \emph{Models}, all within a single \emph{Transaction}. This unidirectional, transaction-based system, provides a flexible framework for building complex event-driven application logic.
+We adopt a similar flow in Threads (see Figure \ref{fig:Architecture}). Like any CQRS/ES-based system, Threads are built on \emph{Events}. Events are similar to actions in a Flux-based system, and are used to produce \emph{predictable} updates to downstream state. Similarly to a DDD-based pattern, to add an Event to the internal Threads system, we use \emph{Event Creators}, which dispatch Events to the system via a singleton \emph{Dispatcher}. The Dispatcher then stores the derived Event in an \emph{Event Store}, and calls a set of registered \emph{Reducer} functions that mutate a (set of) downstream view \emph{Stores} defined by a corresponding set of view \emph{Models}, all within a single \emph{Transaction}. This unidirectional, transaction-based system provides a flexible framework for building complex event-driven application logic.
 
 \subsubsection{Events \& Creators}\label{sec:creators}
 
-Like most CQRS and ES based systems, \emph{Events} are at the heart of Threads. Every update to local and shared (i.e., across peers) application state happens via Events (see also Section \ref{sec:cqrs}). Events are used to describe ``changes to an application state'' \cite{fowlerEventSourcing} (e.g., a photo was added, an item was added to a shopping cart, etc). Related, \emph{Event Creators} are used to send Events from a \emph{local application} to an internal Event Store. If built around a specific \emph{domain}, Creators provide bounded context that can be roughly compared to an aggregate root in DDD \cite{evansDomaindrivenDesignTackling2004a}.
+\emph{Events} are at the heart of Threads --- every update to local and shared (i.e., across peers) state happens via Events (see also Section \ref{sec:cqrs}). Events are used to describe ``changes to an application state'' \cite{fowlerEventSourcing} (e.g., a photo was added, an item was added to a shopping cart, etc). Related, \emph{Event Creators} are used to send Events from a \emph{local} application to an internal Event Store. If built around a specific \emph{domain}, Creators provide bounded context that can be roughly compared to an aggregate root in DDD \cite{evansDomaindrivenDesignTackling2004a}.
 
 \subsubsection{Dispatcher}\label{sec:dispatcher}
 
-In order to actually persist and dispatch Events to downstream view Models, a \emph{Dispatcher} is used. As shown in Figure \ref{fig:Architecture}, the Dispatcher is at the center of the ES system. All Events must go through the singleton Dispatcher, whether these be from local Event Creators or Network Peers. The Dispatcher is responsible for ensuring that incoming Events are persisted to the Event Store (the ``source of truth'' for the system), as well as dispatched to downstream view Models by way of a set of Reducer functions.
+In order to persist and dispatch Events to downstream view Models, a \emph{Dispatcher} is used. As shown in Figure \ref{fig:Architecture}, the Dispatcher is at the center of the ES system. All Events must go through the singleton Dispatcher, whether these be from local Event Creators or remote Peers. The Dispatcher is responsible for ensuring that incoming Events are persisted to the Event Store (the ``source of truth'' for the system), as well as dispatched to downstream view Models by way of a set of Reducer functions.
 
 % \begin{definition}
 %   (Dispatcher). A Dispatcher is used to both persist Events to the local Event Store, as well as broadcast Event payloads to registered Store Reducers. Only one Dispatcher per application is ever required.
@@ -686,21 +688,9 @@ As in many CQRS-based systems, Events are dispatched on the write side, and are 
 
 A view Model is generally defined by custom update logic (i.e., a Reducer), a (possibly ORM\footnote{Object-relational mapping}-based) view Store for persistence, an Event Bus (or Broadcaster) for notifying downstream consumers, and a set of query/\emph{Resolver} \cite{ereminReduxInspiredBackend2019} functions. In practice, a view Model may \emph{also} wrap the Event Creator application logic that is used to generate upstream Events. This provides an intuitive, singular access point to the \emph{local} system, while also leaving room for updates via \emph{external} Peer Events. In practice, the Store is a lightweight interface that can be implemented by one of many database management systems (\ref{appx:DBMS}) providing end users/developers the greatest flexibility.
 
-\subsubsection{External Events}\label{sec:external}
+\subsubsection{Remote Events}\label{sec:external}
 
-In addition to locally derived Events (i.e., from application logic and user interactions), Threads are designed so that Peers may collaborate in a given Thread via Events. Events generated by other, network peers are called Peer Events, and they enter the system via a Peer Host. The Peer Host is responsible for dealing with incoming Events (be they push or pull). These Events are no different from locally-derived Events, though in practice the Peer Host is required to validate incoming Events before they are dispatched to the system via the Dispatcher.
-
-% \begin{definition}
-%   (Reducer). Reducers are ``pure'' (in the functional sense) functions\footnote{In practice they aren't really pure, because we are mutating (persistent) state here}, and are written to modify a Store's state based on incoming Actions.
-% \end{definition}
-
-% \begin{definition}
-%   (Resolver). Resolvers are simply pre-defined query functions that exist on the Store instance (i.e., the Store's API). The interesting thing here is that these can similarly be defined around a domain to produce domain aggregates (in the DDD sense).
-% \end{definition}
-
-% \begin{definition}
-%   (Store). Stores provide flexible APIs for persisting and accessing state. They are defined by a Reducer function for handling incoming Actions, and a set of query Resolver functions for handling queries. They are additionally responsible for notifying downstream consumers of updates to their state via a Broadcaster.
-% \end{definition}
+In addition to locally derived Events (i.e., from application logic and user interactions), Threads are designed so that Peers may collaborate in a given Thread via Events. Events generated by other, network peers are called \emph{Remote Events}, and they enter the system via a Peer Host. The Peer Host is responsible for dealing with incoming Events (be they push or pull). These Events are no different from \emph{Local Events}, though in practice the Peer Host is required to validate Remote Events before they are dispatched to the internal system.
 
 \section{Thread Interfaces}\label{sec:interfaces}
 
