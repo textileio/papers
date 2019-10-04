@@ -28,8 +28,6 @@ abstract: |
 # - name: Hill
 #   affiliation: Textile
 bibliography: whitepaper.bib
-nocite: '[@*]'
-# numberSections: true
 link-citations: true
 sectionsDepth: 3
 linkReferences: true

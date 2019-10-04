@@ -16,9 +16,9 @@ You'll want to use the following settings:
     "markdown-preview-enhanced.breakOnSingleNewLine": false,
     "markdown-preview-enhanced.usePandocParser": true,
     "markdown-preview-enhanced.pandocMarkdownFlavor": "markdown-raw_tex+tex_math_dollars+fenced_code_attributes+backtick_code_blocks",
-    "markdown-preview-enhanced.pandocArguments": "--filter=pandoc-crossref",
+    "markdown-preview-enhanced.pandocArguments": "--number-sections,--filter=pandoc-crossref",
     "markdown-preview-enhanced.mathRenderingOption": "MathJax",
-    "markdown-preview-enhanced.codeBlockTheme": "github.css",
+    "markdown-preview-enhanced.codeBlockTheme": "auto.css",
     "markdown-preview-enhanced.enableEmojiSyntax": false
 }
 ```
