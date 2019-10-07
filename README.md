@@ -25,6 +25,8 @@ You'll want to use the following settings:
 }
 ```
 
+We use [pandoc crossref](https://github.com/lierdakil/pandoc-crossref) to do the internal section/fig/equation references, [pandoc citeproc](https://github.com/jgm/pandoc-citeproc) for the citations. These use a special syntax in the markdown that might be slightly unfamiliar to some. The [docs are pretty good](https://pandoc.org/MANUAL.html#citations), so check those out before making citation or ref changes.
+
 # Export
 
 To generate a pretty-bare bones HTML version:
