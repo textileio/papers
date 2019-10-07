@@ -4,6 +4,8 @@
 brew install pandoc pandoc-crossref pandoc-citeproc
 ```
 
+If you want to do the `Markdown -> LaTeX -> PDF` step below, you'll also want a working LaTeX environment. On MacOS grab it [from here](http://www.tug.org/mactex/) and follow the install instructions. The setup below should use that LaTeX install automatically.
+
 # Develop
 
 You'll probably also want to use VSCode with the [Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced) plugin.
