@@ -355,9 +355,10 @@ addressing size \[and\] encoding considerations"
 [@protocollabsMultihash]. That addressing system confers several
 benefits to the network, including tamper resistance (i.e., a given
 piece of content has not been modified en route if its hash matches what
-we were expecting/requested) and de-duplication (i.e., the same content
-from different peers will produce the same hash address). Additionally,
-IPFS content-based addresses are immutable and universally unique.
+we were expecting/requested), de-duplication (i.e., the same content
+from different peers will produce the same hash address), and data-corruption (again if a hash matches what we were expecting, we
+know it is complete). Additionally, IPFS content-based addresses are
+immutable and universally unique.
 
 ![The cryptographic hash of content is used to make a request to the
 network of IPFS peers. Using the built-in routing mechanisms and a
