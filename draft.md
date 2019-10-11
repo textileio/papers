@@ -1421,7 +1421,16 @@ working with JSON CRDTs relatively straightforward.
 A practical example of using CRDTs in Threads is given in [@sec:AccessControl],
 where they are used to represent updates to an ACL document. Textile provides
 a default ACL view Model, with interfaces defined for an *access-controlled*
-Threads implementation. In practice, an Observed Remove Map (ORMap) is used to compose a map of keys (PeerIDs) to Remove-Wins Observed-Remove Sets (RWORSet) [@almeidaDeltaStateReplicated2018]. The benefit of using an ORMap in this context is that if updates to the ACL are made concurrently by separate Peers (with access), they will only affect the data of which a Peer is already aware. Similarly, an RWORSet is used such that concurrent edits will favor permissions *removal* over addition. While this is designed to reduce tampering with the ACL to some degree, it is important to note that Threads are designed for networks of collaborating peers, and does not specifically guard against bad actors or otherwise malicious peers[^malicious].
+Threads implementation. In practice, an Observed Remove Map (ORMap) is used
+to compose a map of keys (PeerIDs) to Remove-Wins Observed-Remove Sets
+(RWORSet) [@almeidaDeltaStateReplicated2018]. The benefit of using an ORMap
+in this context is that if updates to the ACL are made concurrently by
+separate Peers (with access), they will only affect the data of which a Peer
+is already aware. Similarly, an RWORSet is used such that concurrent edits
+will favor permissions *removal* over addition. While this is designed to
+reduce tampering with the ACL to some degree, it is important to note that
+Threads are designed for networks of collaborating peers, and does not
+specifically guard against bad actors or otherwise malicious peers[^malicious].
 
 [^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACls.
 
