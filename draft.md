@@ -1307,7 +1307,7 @@ Dogs.FindOne({ "_id": MyMessage._id }, "thumbnail")
 MyMessage.Version()
 
 // All doc changes in Dogs Thread
-Dogs.subscribe()
+Dogs.Subscribe()
 // All changes to all Messages in all Threads
 Message.Subscribe() 
 // Changes specific to this document
