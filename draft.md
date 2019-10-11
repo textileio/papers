@@ -807,8 +807,8 @@ Identity Key
 : Every Log requires an asymmetric key-pair that
 determines ownership and identity. The private key is used to sign each
 Event added to the Log, so down-stream processes can verify the Log's
-authenticity. Like IPFS peers, the public key of the Log is used as an
-identifier (Log ID).
+authenticity. Like IPFS peers, a hash of the public key of the Log is
+used as an identifier (Log ID).
 
 The body, or content of an Event, is encrypted by a *Content Key*.
 Content Keys are generated for each piece of content and never reused.
