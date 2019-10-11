@@ -1176,7 +1176,7 @@ underlying view Models from [@sec:views].
 Building on this, developers might create a new Thread for a user to
 store `Contact` information, as well as their mobile phone's camera roll
 photos, as in [@lst:stores]. This would create a new view Store
-"under-to-hood" (with corresponding indexes, etc), to be mutated by
+under-to-hood (with corresponding indexes, etc), to be mutated by
 incoming Events.
 
 ~~~ {#lst:models .javascript caption="Create a photo entity and some way to represent a photo's author."}
