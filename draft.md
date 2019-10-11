@@ -116,7 +116,7 @@ build a network for user-siloed data. We outline six challenge areas:
 flexible data formats, efficient synchronization, conflict resolution,
 access-control, scalable storage, and network communication. Based on
 our findings, we propose a novel architecture for event sourcing (ES)
-with Interplanetary Linked Data (IPLD), that is designed to store,
+with Interplanetary Linked Data (IPLD) --- which we call *Threads* -- that is designed to store,
 share, and host user-siloed datasets at scale. Our proposed design
 leverages new and existing protocols to solve major challenges with
 building a secure and distributed network for user data while at the
@@ -285,9 +285,9 @@ time-stamps to provide partial ordering.
 
 Cryptographically linked events can also represent a clock (see [@sec:merkleclocks]). One such example is called the
 Merkle-Clock [@sanjuanMerkleCRDTs2019], which relies on properties of a
-Merkle-DAG to provide strict partial ordering between events. This
-approach does have its limitations however [@sanjuanMerkleCRDTs2019 sec.
-4.3]:
+Merkle-DAG to provide strict partial ordering between events.
+Like any logical clock, this approach does have its limitations
+[@sanjuanMerkleCRDTs2019 sec. 4.3]:
 
 > Merkle-Clocks represent a strict partial order of events. Not all
 > events in the system can be compared and ordered. For example, when
@@ -396,9 +396,9 @@ directed acyclic graph[^5]. This allows all hash-linked data structures
 to be treated using a unified data model, analogous to linked data in
 the Semantic Web sense
 [@brendanobrienDeterministicQueryingDistributed2017]. In practice, IPLD
-is represented as objects, each with `Data` and `Links` fields, where
+is represented as objects, each with `Data` and (possibly multiple) `Link` fields, where
 `Data` can be a small blob of unstructured, arbitrary binary data, and
-`Links` is an array of links to other IPLD objects.
+a `Link` simply 'links' to other IPLD objects.
 
 ### Merkle-Clocks {#sec:merkleclocks}
 
@@ -413,26 +413,22 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 1.  Sharing the Merkle-Clock can be done using only the *root* CID. The
     whole Clock is unambiguously identified by the CID of its root, and
     its full structure can be traversed as needed.
-
 2.  The immutable nature of a Merkle-DAG allows every replica to perform
     quick comparisons, and fetch only those nodes (leaves) that it is
     missing.
-
 3.  Merkle-DAG nodes are self-verified and immune to corruption and
     tampering. They can be fetched from any source willing to provide
     them, trusted or not.
-
 4.  Identical nodes are de-duplicated by design: there can only be one
     unique representation for every event.
 
-On the downside (see also [@sec:LogicalClocks]), a Merkle-Clock cannot order divergent
-heads (or roots). For example, in [@fig:merkledag], two
-replicas (left and right columns) are attempting to write (top to
-bottom) events to the same Merkle-Clock. After the first replica writes
-event A, the second writes event A' and properly links to A. At that
-point, perhaps the two replicas stop receiving events from one another.
-To a third replica (not pictured) that does continue to receive events,
-there would now be two independent heads, 1 and 1'. For the third
+However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),they cannot be used order divergent heads (or roots) alone. For example, in
+[@fig:merkledag], two replicas (left and right columns) are attempting
+to write (top to bottom) events to the same Merkle-Clock. After the first
+replica writes event A, the second writes event A' and properly links to A.
+At that point, perhaps the two replicas stop receiving events from one
+another. To a third replica (not pictured) that does continue to receive
+events, there would now be two independent heads, 1 and 1'. For the third
 replica, resolving these two logs of events may be costly (many updates
 happened since the last common node) or impossible (parts of the chain
 may not be available on the network).
@@ -628,7 +624,7 @@ producing disconnected state changes, or changes that end up out of
 sync. In order to proceed, there must be some way to deal with these
 conflicts. In some cases (e.g, `ipfs-log`
 [@markroberthendersonOrbitDBFieldManual2019]), a Merkle-Clock can be
-used to induce ordering. This approach cannot achieve a total order of
+used to induce ordering. Like all solutions based on logical clocks, this approach cannot achieve a total order of
 events without implementing a data-layer conflict resolution strategy
 [@sanjuanMerkleCRDTs2019]:
 
@@ -640,7 +636,7 @@ events without implementing a data-layer conflict resolution strategy
 > conflict resolution).
 
 Solutions such as `ipfs-log` include a built-in CRDT to manage conflicts
-not resolved by the Merkle-Clock. This approach works for many cases,
+not resolved by its logical clock. This approach works for many cases,
 but the use of a deterministic resolution strategy can be insufficient
 in cases with complicated data structures or complicated network
 topologies. A git merge highlights one such example, in which a
@@ -750,7 +746,7 @@ Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
 networks can be thought of as highly partitioned. To ensure updates are
 available between mostly offline or otherwise disconnected Peers,
-Textile Logs are designed with a built-in replication or *Follower*
+Logs are designed with a built-in replication or *Follower*
 mechanism. Followers are represented as additional addresses, meaning
 that a Log address book may contain *multiple* multiaddresses for a
 single Log (see [@lst:Multiaddress]).
@@ -798,7 +794,7 @@ type KeyBook interface {
 }
 ~~~
 
-Textile Logs are designed to be shared, composed, and layered into
+Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
 in a manner that enables access control ([@sec:AccessControl]) and the Follower mechanism discussed in
 the previous section. Much like the Log address book, Log *keys* are
@@ -855,7 +851,7 @@ the Log.
 Threads
 -------
 
-In Textile, the *interface* to Logs is managed as a Thread, which is a
+The *interface* to Logs is managed as a Thread, which is a
 collection of Logs on a given topic. Threads are an event sourced,
 distributed database, and can be used to maintain a single,
 collaboratively edited, followed, or hosted dataset across multiple
@@ -949,8 +945,7 @@ Invite
 : An Event containing a mapping of Log IDs to Key Sets, which
 can be used to join a Thread. Threads backed by an ACL ([@sec:AccessControl]) will also include the current ACL for
 the Thread in an Invite. This enables Peers to invite others to only
-read or follow a Thread, instead of becoming a full-on collaborator
-(i.e., a new Log Writer).
+read or follow a Thread, instead of becoming a new Log Writer. Invites are sent directly to invitees, and added to a Log as a "regular" Event.
 
 Key Set
 : A set of keys for a Log. Depending on the context, a Key Set
@@ -1010,20 +1005,15 @@ There are multiple paths to receiving new Events, that together maximize
 connectivity between Peers who are often offline or unreachable.
 
 1.  Log Writers can receive Events directly from the Writer.
-
-2.  Events can be pulled from Followers via HTTP, libp2p, RSS, Atom,
-    etc.
-
+2.  Events can be pulled from Followers via HTTP, libp2p (DHT/bitswap), RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
         web-based Readers and Followers with a reliable mechanism for
         receiving Log Events ([@fig:Pulling]).
-
 3.  Writers and readers can receive new Events via a Pub/Sub
     subscription at the TID.
 
-![A pull-based request from a
-Follower.](figures/Pulling.png){#fig:Pulling height="350px"}
+![A pull-based request from a Follower.](figures/Pulling.png){#fig:Pulling height="350px"}
 
 ### Log Replication
 
@@ -1152,7 +1142,7 @@ they are dispatched to the internal system.
 Thread Interfaces {#sec:interfaces}
 =================
 
-To make Threads as easy to adopt and use as possible, Textile has
+To make Threads as easy to adopt and use as possible, we have
 designed a developer facing API on top of the Threads internals that
 simplifies dealing with events and data, while still maintaining the
 power and flexibility of CQRS and ES. Developers should not have to
@@ -1426,16 +1416,19 @@ shared JSON document, one could implement a JSON CRDT datatype
 [@kleppmannConflictFreeReplicatedJSON2017] that merges updates to a JSON
 document in a view Model's Reduder function. Libraries such as
 Automerge[^20] provide useful examples of reducer functions that make
-working with JSON CRDTs relatively straightforward, and implementations
-in other programming languages are also available [...]. A practical
-example of using a JSON CRDT in Threads is given in [@sec:AccessControl], where it is used to represent updates to
-an ACL document defined as a default view Model, with interfaces defined
-for an access-controlled Threads implementation.
+working with JSON CRDTs relatively straightforward.
+
+A practical example of using CRDTs in Threads is given in [@sec:AccessControl],
+where they are used to represent updates to an ACL document. Textile provides
+a default ACL view Model, with interfaces defined for an *access-controlled*
+Threads implementation. In practice, an Observed Remove Map (ORMap) is used to compose a map of keys (PeerIDs) to Remove-Wins Observed-Remove Sets (RWORSet) [@almeidaDeltaStateReplicated2018]. The benefit of using an ORMap in this context is that if updates to the ACL are made concurrently by separate Peers (with access), they will only affect the data of which a Peer is already aware. Similarly, an RWORSet is used such that concurrent edits will favor permissions *removal* over addition. While this is designed to reduce tampering with the ACL to some degree, it is important to note that Threads are designed for networks of collaborating peers, and does not specifically guard against bad actors or otherwise malicious peers[^malicious].
+
+[^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACls.
 
 Thread Extensions
 -----------------
 
-The Textile protocol provides a distributed framework for building
+The Threads protocol provides a distributed framework for building
 shared, offline first, Stores that are fault tolerant[^21], eventually
 consistent, and scalable. Any internal implementation details of a
 compliant Threads *client* may use any number of well-established design
@@ -1443,7 +1436,7 @@ patterns from the CQRS and ES (and related) literature to *extend* the
 Threads protocol with additional features and controls. Indeed, by
 designing our system around Events, a Dispatcher, and generic Stores, we
 make it easy to extend Threads in many different ways. Some extensions
-included by Textile's Threads implementation are outlined in this
+included by *Textile's* Threads implementation are outlined in this
 section to provide some understanding of the extensibility this design
 affords.
 
@@ -1466,7 +1459,7 @@ when a new Peer starts participating in a shared Thread (saving disk
 space, bandwidth, and time). They can similarly be used for initializing
 a local view Store during recovery.
 
-Compaction is a local-only operation (i.e., other Peers do not need to
+Compaction is a *local-only operation* (i.e., other Peers do not need to
 be aware that Compaction was performed) performed on an Event Store to
 free up local disk space. As a result, it can speed up re-hydration of a
 downstream Stores's state by reducing the number of Events that need to
@@ -1494,15 +1487,15 @@ self-referencing way.
 
 [Entity]{#def:Entity}
 : An Entity is made of of a series of ordered Events referring
-to a specific entity or object. For example, an ACL JSON document is a
-single entity made up of a sequence of Thread Events that describe a
-JSON document. An Entity might have a unique UUID (see [@lst:EntityId]) which can be referenced across/within Event
-updates.
+to a specific entity or object. For example, an ACL document is a
+single entity made up of a sequence of Thread Events that encode updates
+to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see
+[@lst:EntityId])--> which can be referenced across/within Event updates.
 
-~~~ {#lst:EntityId .bash caption="Entity Id."}
+<!-- ~~~ {#lst:EntityId .bash caption="Entity Id."}
 // UUID
 bafykrq5i25vd64ghamtgus6lue74k
-~~~
+~~~ -->
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1534,11 +1527,12 @@ Delete
 access to Log Follow Keys. In practice, this means marking an older
 Event as "deleted".
 
-A typical Thread-level ACL JSON (see [@lst:AclJson]) can be persisted to a local Event Store as part
-of the flow described in [@sec:internals]. See
-also [@sec:interfaces], and in particular [@lst:others] for the public API for editing ACL definitions.
+A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
+local Event Store as part of the flow described in [@sec:internals].
+See also [@sec:interfaces], and in particular [@lst:others] for the
+public API for editing ACL definitions.
 
-~~~ {#lst:AclJson .json caption="ACL JSON document."}
+~~~ {#lst:AclJson .json caption="ACL map structure."}
 {
   "_id": "bafykrq5i25vd64ghamtgus6lue74k",
   "default": "no-access",
@@ -1554,9 +1548,8 @@ The `default` key states the default role for all network peers. The
 `peers` map is where roles are delegated to specific peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 follower, and `12D..P2c6ifo` has been given read access. A Thread-level
-ACL has it's own document ACL, which also applies to all other document
-ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe` is able to alter the access-control
-list.
+ACL has it's own Entity ACL, which also applies to all other Entity
+ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe` is able to alter the access-control list.
 
 ~~~ {#lst:ThreadAcl .json caption="Thread and Entity ACL"}
 {
@@ -1577,8 +1570,8 @@ synchronization, and use in a distributed system. We identified six
 requirements for enabling *user-siloed* data: flexible data formats,
 efficient synchronization, conflict resolution, access-control, scalable
 storage, and network communication. We have introduced a solution to
-these requirements that extends on IPFS and prior research done by
-Textile and others, which we term Threads. Threads are a novel data
+these requirements that extends on IPFS and prior research conducted by
+ourselves and others, which we term Threads. Threads are a novel data
 architecture that builds upon a collection of protocols to deliver a
 scalable and robust storage system for end-user data.
 
@@ -1596,7 +1589,7 @@ shift the data ownership model from apps to users.
 Future Work
 -----------
 
-The research and development of Textile Threads has highlighted several
+The research and development of Threads has highlighted several
 additional areas of work that would lead to increased benefits for users
 and developers. In particular, we have highlighted network services and
 security enhancements as core future work. In the following two
@@ -1727,7 +1720,7 @@ type EventHeader interface {
 
 [^1]: Terminology in this section may differ from some other examples of
     ES and CQRS patterns, but reflects the underlying architecture and
-    designs that the Textile team will elaborate on in Section
+    designs that we will elaborate on in Section
     [3](#sec:ThreadsProtocol){reference-type="ref"
     reference="sec:ThreadsProtocol"}
 
