@@ -116,7 +116,8 @@ build a network for user-siloed data. We outline six challenge areas:
 flexible data formats, efficient synchronization, conflict resolution,
 access-control, scalable storage, and network communication. Based on
 our findings, we propose a novel architecture for event sourcing (ES)
-with Interplanetary Linked Data (IPLD) --- which we call *Threads* -- that is designed to store,
+with Interplanetary Linked Data (IPLD) --- which we call *Threads* --
+that is designed to store,
 share, and host user-siloed datasets at scale. Our proposed design
 leverages new and existing protocols to solve major challenges with
 building a secure and distributed network for user data while at the
@@ -422,7 +423,8 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 4.  Identical nodes are de-duplicated by design: there can only be one
     unique representation for every event.
 
-However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),they cannot be used order divergent heads (or roots) alone. For example, in
+However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
+they cannot be used order divergent heads (or roots) alone. For example, in
 [@fig:merkledag], two replicas (left and right columns) are attempting
 to write (top to bottom) events to the same Merkle-Clock. After the first
 replica writes event A, the second writes event A' and properly links to A.
@@ -624,7 +626,8 @@ producing disconnected state changes, or changes that end up out of
 sync. In order to proceed, there must be some way to deal with these
 conflicts. In some cases (e.g, `ipfs-log`
 [@markroberthendersonOrbitDBFieldManual2019]), a Merkle-Clock can be
-used to induce ordering. Like all solutions based on logical clocks, this approach cannot achieve a total order of
+used to induce ordering. Like all solutions based on logical clocks, this
+approach cannot achieve a total order of
 events without implementing a data-layer conflict resolution strategy
 [@sanjuanMerkleCRDTs2019]:
 
@@ -945,7 +948,8 @@ Invite
 : An Event containing a mapping of Log IDs to Key Sets, which
 can be used to join a Thread. Threads backed by an ACL ([@sec:AccessControl]) will also include the current ACL for
 the Thread in an Invite. This enables Peers to invite others to only
-read or follow a Thread, instead of becoming a new Log Writer. Invites are sent directly to invitees, and added to a Log as a "regular" Event.
+read or follow a Thread, instead of becoming a new Log Writer. Invites are
+sent directly to invitees, and added to a Log as a "regular" Event.
 
 Key Set
 : A set of keys for a Log. Depending on the context, a Key Set
@@ -1558,7 +1562,8 @@ The `default` key states the default role for all network peers. The
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 follower, and `12D..P2c6ifo` has been given read access. A Thread-level
 ACL has it's own Entity ACL, which also applies to all other Entity
-ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe` is able to alter the access-control list.
+ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe`
+is able to alter the access-control list.
 
 ~~~ {#lst:ThreadAcl .json caption="Thread and Entity ACL"}
 {
