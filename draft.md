@@ -1499,7 +1499,7 @@ allowing multiple Thread participants to modify the ACL) in a
 self-referencing way.
 
 [Entity]{#def:Entity}
-: An Entity is made of of a series of ordered Events referring
+: An Entity is made up of a series of ordered Events referring
 to a specific entity or object. For example, an ACL document is a
 single entity made up of a sequence of Thread Events that encode updates
 to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see
