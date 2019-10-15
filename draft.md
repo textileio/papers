@@ -1437,7 +1437,7 @@ reduce tampering with the ACL to some degree, it is important to note that
 Threads are designed for networks of collaborating peers, and does not
 specifically guard against bad actors or otherwise malicious peers[^malicious].
 
-[^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACls.
+[^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACLs.
 
 Thread Extensions
 -----------------
