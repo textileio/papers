@@ -93,7 +93,7 @@ from users [@dixonWhyDecentralizationMatters2018]. When this incentive
 shift happens, companies that have been creating data-silos may treat
 that data as new source of value or revenue for the company. It may be
 possible to stop this trend through extreme privacy measures, government
-intervention/legislation, or by boycotting companies that collect any
+intervention or legislation, or by boycotting companies that collect any
 form of data. Ideally, there is an alternative approach that allows
 individuals to capture the value of their data and still allow
 developers to build new interfaces and experience on top of this data.
@@ -355,7 +355,7 @@ addressing size \[and\] encoding considerations"
 [@protocollabsMultihash]. That addressing system confers several
 benefits to the network, including tamper resistance (i.e., a given
 piece of content has not been modified en route if its hash matches what
-we were expecting/requested), de-duplication (i.e., the same content
+we were expecting), de-duplication (i.e., the same content
 from different peers will produce the same hash address), and data-corruption (again if a hash matches what we were expecting, we
 know it is complete). Additionally, IPFS content-based addresses are
 immutable and universally unique.
@@ -1295,7 +1295,7 @@ All instances and models in Threads have several special methods and
 properties specific to the Threads API, several of which we will explore
 here. [@Lst:others] demonstrates several features common in a
 Threads-based workflow, including queries, creating invites and changing
-permissions/access control (see also [@sec:AccessControl]), as well as subscribing to updates and
+permissions and access control (see also [@sec:AccessControl]), as well as subscribing to updates and
 changes at various levels of the Threads API. These subscriptions would
 enable downstream consumers (views, front-end stores, etc.) to receive
 updates as changes to the Thread are made via underlying Events.
@@ -1317,7 +1317,7 @@ MyMessage.Subscribe()
 // Create invite Event IFF User has permission
 Dogs.Grant(<peer_id>, <role>)
 
-// Alter ACL OR create invite if needed/allowed
+// Alter ACL OR create invite if needed and allowed
 MyMessage.Grant(<peer_id>, <role>)
 ~~~
 
@@ -1346,7 +1346,7 @@ by their app. This enables tighter coupling between applications, and it
 allows for smaller apps that can focus on a very specific user
 experience (say, filters on Photos). Furthermore, it provides a
 *logically centralized*, platform-like developer experience, without the
-actual centralized infrastructure. APIs for Photos, Messages/Chat,
+actual centralized infrastructure. APIs for Photos, Messages, Chat,
 Music, Video, Storage, etc are all possible, extensible, and available
 to all developers. This is a powerful concept, but it is also flexible.
 For application developers working on very specific or niche apps with
@@ -1373,7 +1373,7 @@ the previous section, with similarly defined methods. The generated
 Events would then mutate the internal map-like view Model effectively
 encapsulating the entire Event Store in a database structure that
 satisfies a given interface (see [@lst:KVStore] for example). These too would be distributed as
-Modules, making it easy for developers to swap in/substitute existing
+Modules, making it easy for developers to swap in or substitute existing
 backend infrastructure.
 
 ~~~ {#lst:KVStore .go caption="A proposed key-value store interface"}
@@ -1403,7 +1403,7 @@ type TextileDocStore interface {
 Similar abstractions will be used to implement additional database types
 and functions. Tables, feeds, counters, and other simple stores can also
 be built on Threads. Each database style would be implemented as a
-standalone wrapper/software library, allowing application developers to
+standalone software library, allowing application developers to
 pick and choose the solution most useful to the application at hand.
 Similarly, more advanced applications could be implemented using a
 combination of database types, or by examining the source code of these
@@ -1503,10 +1503,10 @@ self-referencing way.
 : An Entity is made up of a series of ordered Events referring
 to a specific entity or object. For example, an ACL document is a
 single entity made up of a sequence of Thread Events that encode updates
-to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see
-[@lst:EntityId])--> which can be referenced across/within Event updates.
+to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see [@lst:EntityId])--> which can be referenced across Event updates.
 
-<!-- ~~~ {#lst:EntityId .bash caption="Entity Id."}
+<!--
+~~~ {#lst:EntityId .bash caption="Entity Id."}
 // UUID
 bafykrq5i25vd64ghamtgus6lue74k
 ~~~ -->
@@ -1615,7 +1615,7 @@ areas.
 
 The use of a single Read and Follow Key for an entire Log means that,
 should either of these keys be leaked via malicious (or
-other/accidental) means, there is no way to prevent a Peer with the
+other possibly accidental) means, there is no way to prevent a Peer with the
 leaked keys from listening to Events or traversing the Log history.
 Potential solutions currently being explored by Textile developers
 include key rotation at specific Event offsets [@hashicorpKeyRotation],
