@@ -1010,7 +1010,7 @@ There are multiple paths to receiving new Events, that together maximize
 connectivity between Peers who are often offline or unreachable.
 
 1.  Log Writers can receive Events directly from the Writer.
-2.  Events can be pulled from Followers via HTTP, libp2p (DHT/bitswap), RSS, Atom, etc.
+2.  Events can be pulled from Followers via HTTP, RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
         web-based Readers and Followers with a reliable mechanism for
