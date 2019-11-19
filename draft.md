@@ -1103,7 +1103,7 @@ downstream view Models by way of a set of Reducer functions.
 All Reducer function calls (and "side effects") due to a given Event
 happen within a single *Transaction*
 [@haerderPrinciplesTransactionorientedDatabase1983], in order to ensure
-consistently of both storage (Event Store) and Models. Transactions are
+consistency of both storage (Event Store) and Models. Transactions are
 similar to Redux *Sagas*[^14] in terms of outcome, but with stronger
 consistency guarantees. Once an Event has been persisted in the internal
 Event Store, the Dispatcher is responsible for running a view Model's
