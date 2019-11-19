@@ -425,12 +425,13 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
     unique representation for every event.
 
 However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
-they cannot be used order divergent heads (or roots) alone. For example, in
-[@fig:merkledag], two replicas (left and right columns) are attempting
-to write (top to bottom) events to the same Merkle-Clock. After the first
-replica writes event A, the second writes event A' and properly links to A.
-At that point, perhaps the two replicas stop receiving events from one
-another. To a third replica (not pictured) that does continue to receive
+they cannot be used order divergent heads (or roots) representing concurrent
+events alone. For example, in [@fig:merkledag], two replicas (left and right
+columns) are attempting to write (top to bottom) events to the same Merkle-Clock.
+After the first replica writes event A, the second writes event A' and 
+properly links to A. At that point, perhaps the two replicas stop receiving
+events from one another.
+To a third replica (not pictured) that does continue to receive
 events, there would now be two independent heads, 1 and 1'. For the third
 replica, resolving these two logs of events may be costly (many updates
 happened since the last common node) or impossible (parts of the chain
@@ -1433,9 +1434,7 @@ in this context is that if updates to the ACL are made concurrently by
 separate Peers (with access), they will only affect the data of which a Peer
 is already aware. Similarly, an RWORSet is used such that concurrent edits
 will favor permissions *removal* over addition. While this is designed to
-reduce tampering with the ACL to some degree, it is important to note that
-Threads are designed for networks of collaborating peers, and does not
-specifically guard against bad actors or otherwise malicious peers[^malicious].
+reduce tampering with the ACL to some degree, it does not specifically guard against a malicious peer taking control of the ACL *if they had write access to it in the first place*[^malicious]. In general, Threads are designed for networks of *collaborating* peers, so peers are generally assumed to be using a "compliant" Thread implementation.
 
 [^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACLs.
 
