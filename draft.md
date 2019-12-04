@@ -1537,8 +1537,9 @@ Events in this Log are able to target a particular document.
 
 Delete
 : Members of this role are able to delete Events, which implies
-access to Log Follow Keys. In practice, this means marking an older
-Event as "deleted".
+access to Log Follow Keys. In practice, this means creating a new
+"Tombstone" Event which marks an older Event as "deleted". See
+[@sec:deleting] for additional notes on deleting data.
 
 A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
 local Event Store as part of the flow described in [@sec:internals].
@@ -1574,6 +1575,21 @@ is able to alter the access-control list.
   }
 }
 ~~~
+
+#### Note About Deleting {#sec:deleting}
+
+Deleting data in distributed systems is a complex concept. In practice, it is
+impossible to ensure all Peers in a system will comply with any given Tombstone
+Event. Often, data (i.e., Blocks, Events, etc.) are kept locally, including
+*original and tombstone* Events, to facilitate parsing of the Event Log. This
+means raw data that have been "deleted" are not immediately purged from a Peer's
+storage. However, in strict data compliance situations (e.g., the EU's GDPR), a
+deletion Event *may* additionally generate a Snapshot Event, allowing past data
+to be purged from the local Event and Block stores. Compliant Peers should then
+purge "deleted" data. However, the possibility of non-compliant data caching
+remains. The initial Textile Threads reference implementation will *not*
+automatically purge deleted data from the local store. This compliance
+requirement will initially be left up to application-level developers.
 
 Conclusion
 ==========
