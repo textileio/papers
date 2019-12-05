@@ -743,9 +743,12 @@ example, which requires querying the network (DHT) for updates. Instead,
 updates are requested directly from the (presumably trusted) peers that
 produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
-in an address book, similar to an IPFS Peer address book (see [@lst:KeyBook]). Addresses can also expire by specifying a
+in an address book (AddrBook), similar to an IPFS Peer address book
+(see [@lst:KeyBook]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
+
+Log addresses can also change over time, and these changes are advertised to Peers "out of band" via direct p2p communication. The receiving Peers can then update their local AddrBook to reflect the new address(es) of their Peer.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
