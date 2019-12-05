@@ -673,12 +673,11 @@ updated by a single replica or *identity*. An Event Log is then a
 and *separate* Event Logs can be composed into advanced structures,
 including CRDTs [@enesSingleWriterPrincipleCRDT2017].
 
-This concept is similar to concepts from within the Dat (https://dat.foundation)
+This concept is similar to concepts from within the Dat[^dat]
 community (among others). In particular, the use of multiple single-writer
-logs is akin to the DEP8 Multi-Writer proposal (https://www.datprotocol.com/deps/0008-multiwriter/)
-(see also https://github.com/mafintosh/hyperdb), as
-well as concepts from Hypermerge (https://github.com/automerge/hypermerge) and
-Hypercore (https://github.com/datprotocol/whitepaper/blob/master/dat-paper.pdf).
+logs is akin to the [DEP8 Multi-Writer](https://www.datprotocol.com/deps/0008-multiwriter/) proposal (see also [DEP4 Hyperdb](https://www.datprotocol.com/deps/0004-hyperdb/)), as
+well as concepts from [Hypermerge](https://github.com/automerge/hypermerge) and
+[Hypercore](https://github.com/datprotocol/whitepaper/blob/master/dat-paper.pdf).
 In the case of Hyperdb and Hypermerge, for example, the approach is to create
 a multi-writer system by combining *multiple* single-writer systems and some
 external or "out-of-band" messaging system to coordinate updates. In both
@@ -694,7 +693,7 @@ choose conflict resolution strategies specific to the task at hand. For
 example, if using a downstream Delta-state CRDT, ordering is irrelevant
 and can be ignored completely. Alternatively, an additional clock may be
 required to ensure consistent ordering, such as a vector or Bloom clock
-(see [@sec:LogicalClocks] and **DEP8*). Finally, even manual "merge"-type
+(see [@sec:LogicalClocks] and **DEP8**). Finally, even manual "merge"-type
 strategies are possible if this is the desired conflict resolution
 strategy.
 
@@ -1868,5 +1867,7 @@ type EventHeader interface {
     and writes what they want).
 
 [^25]: <https://reimagined.github.io/resolve/>
+
+[^dat]: https://dat.foundation
 
 # References
