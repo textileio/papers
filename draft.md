@@ -412,8 +412,8 @@ equivalent network where content can be cryptographically addressed and
 fetched), Merkle-Clocks provide a number of benefits for data
 synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 
-1.  Sharing the Merkle-Clock can be done using only the *root* CID. The
-    whole Clock is unambiguously identified by the CID of its root, and
+1.  Sharing the Merkle-Clock can be done using only the *head*[^head] CID. The
+    whole Clock is unambiguously identified by the CID of its head, and
     its full structure can be traversed as needed.
 2.  The immutable nature of a Merkle-DAG allows every replica to perform
     quick comparisons, and fetch only those nodes (leaves) that it is
@@ -425,7 +425,7 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
     unique representation for every event.
 
 However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
-they cannot be used order divergent heads (or roots) representing concurrent
+they cannot be used order divergent heads representing concurrent
 events alone. For example, in [@fig:merkledag], two replicas (left and right
 columns) are attempting to write (top to bottom) events to the same Merkle-Clock.
 After the first replica writes event A, the second writes event A' and 
@@ -926,8 +926,8 @@ bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 
 Log Writers, Readers, and Replicas synchronize the state of their Logs
 by sending and receiving Events. Inspired by Git[^9], a reference to the
-latest Event in a Log is referred to as the *Head* (or sometimes the
-*root*). When a new Event is received, Readers and Replicas simply
+latest Event in a Log is referred to as the *Head*. When a new Event is
+received, Readers and Replicas simply
 advance their Head reference for the given Log. This is similar to how a
 system such as OrbitDB [@markroberthendersonOrbitDBFieldManual2019]
 works, except we are tracking *multiple* Heads (one per Log), rather
@@ -1732,6 +1732,9 @@ type EventHeader interface {
     2.  MongoDB <https://www.mongodb.com/>
 
     3.  RethinkDB <https://rethinkdb.com/>
+
+[^head]: In this context, "head" refers to the most recent event/update, and should
+    not be confused with the "root" CID.
 
 [^1]: Terminology in this section may differ from some other examples of
     ES and CQRS patterns, but reflects the underlying architecture and
