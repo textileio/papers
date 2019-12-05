@@ -39,8 +39,8 @@ header-includes: |
   \author{Farmer}
   \author{Sutula}
   \affiliation{www.textile.io} \email{research@textile.io}
-  \author{?Gozalishivili others?}
-  \affiliation{other?} \email{research@textile.io}
+  \author{Gozalishivili}
+  \affiliation{Mozzila} \email{}
   \author{Hill}
   \affiliation{www.textile.io} \email{contact@textile.io}
   \shortauthors{draft - www.textile.io}
@@ -673,16 +673,28 @@ updated by a single replica or *identity*. An Event Log is then a
 and *separate* Event Logs can be composed into advanced structures,
 including CRDTs [@enesSingleWriterPrincipleCRDT2017].
 
-This presents a novel take on multi-writer systems
+This concept is similar to concepts from within the Dat (https://dat.foundation)
+community (among others). In particular, the use of multiple single-writer
+logs is akin to the DEP8 Multi-Writer proposal (https://www.datprotocol.com/deps/0008-multiwriter/)
+(see also https://github.com/mafintosh/hyperdb), as
+well as concepts from Hypermerge (https://github.com/automerge/hypermerge) and
+Hypercore (https://github.com/datprotocol/whitepaper/blob/master/dat-paper.pdf).
+In the case of Hyperdb and Hypermerge, for example, the approach is to create
+a multi-writer system by combining *multiple* single-writer systems and some
+external or "out-of-band" messaging system to coordinate updates. In both
+cases, writers are able to resolve (or identify) conflicts using CRDTs
+(operation-based in Hyperdb and state-based in Hypermerge).
+
+Threads provides a slightly different take on multi-writer systems
 [@enesSingleWriterPrincipleCRDT2017], such that conflict resolution is
 *deferred* to a point at which a decision is actually required. This
 means that imperfect information may be supplemented along the way
 without causing conflicts in the mean time. It also means that apps can
 choose conflict resolution strategies specific to the task at hand. For
-example, if using a downstream CRDT, ordering is actually irrelevant and
-can be ignored completely. Alternatively, an additional clock may be
+example, if using a downstream Delta-state CRDT, ordering is irrelevant
+and can be ignored completely. Alternatively, an additional clock may be
 required to ensure consistent ordering, such as a vector or Bloom clock
-(see [@sec:LogicalClocks]). Finally, even manual merge-type
+(see [@sec:LogicalClocks] and **DEP8*). Finally, even manual "merge"-type
 strategies are possible if this is the desired conflict resolution
 strategy.
 
