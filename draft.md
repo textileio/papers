@@ -412,8 +412,8 @@ equivalent network where content can be cryptographically addressed and
 fetched), Merkle-Clocks provide a number of benefits for data
 synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 
-1.  Sharing the Merkle-Clock can be done using only the *root* CID. The
-    whole Clock is unambiguously identified by the CID of its root, and
+1.  Sharing the Merkle-Clock can be done using only the *head*[^head] CID. The
+    whole Clock is unambiguously identified by the CID of its head, and
     its full structure can be traversed as needed.
 2.  The immutable nature of a Merkle-DAG allows every replica to perform
     quick comparisons, and fetch only those nodes (leaves) that it is
@@ -425,7 +425,7 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
     unique representation for every event.
 
 However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
-they cannot be used order divergent heads (or roots) representing concurrent
+they cannot be used order divergent heads representing concurrent
 events alone. For example, in [@fig:merkledag], two replicas (left and right
 columns) are attempting to write (top to bottom) events to the same Merkle-Clock.
 After the first replica writes event A, the second writes event A' and 
@@ -658,7 +658,7 @@ ordering mechanism to combine events from all peers. In this case,
 developers can more freely institute their own CRDTs or domain-specific
 conflict resolution strategies. Additionally, it naturally supports
 use-cases where all peers contributing to a dataset may not be
-interested in following or replicating the events of all other peers
+interested in replicating the events of all other peers
 (e.g., in a Pubsub-based system).
 
 ### Single-writer Event Logs
@@ -712,7 +712,7 @@ Related, a Merkle-Clock (see [@sec:merkleclocks]) is simply a Merkle-DAG of *Eve
 // Address book
 [
   /p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab
-  /p2p/12D..dJT6nXY/ipel/12D..bCcW8ab // Follower
+  /p2p/12D..dJT6nXY/ipel/12D..bCcW8ab // Replica
 ]
 ~~~
 
@@ -750,26 +750,27 @@ Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
 networks can be thought of as highly partitioned. To ensure updates are
 available between mostly offline or otherwise disconnected Peers,
-Logs are designed with a built-in replication or *Follower*
-mechanism. Followers are represented as additional addresses, meaning
+Logs are designed with a built-in replication mechanism via *Replicas*.
+Replicas (or Replicators) are represented as additional addresses, meaning
 that a Log address book may contain *multiple* multiaddresses for a
 single Log (see [@lst:Multiaddress]).
 
-Follower
-: Log Writers can designate other IPFS Peers to "follow" a
-Log, potentially replicating and/or republishing Events. A Follower is
-capable of receiving Log updates and traversing linkages via the Follow
+Replica
+: Log Writers can designate other IPFS Peers to "replicate" a
+Log, potentially republishing Events. A Replica is
+capable of receiving Log updates and traversing linkages via the Replica
 Key ([@sec:KeysEncryption]), but is not able to read the Log's
-contents. Followers should be server-based --- i.e., always online and
-behind a public IP address.
+contents.
+<!-- Replicas should be server-based --- i.e., always online and
+behind a public IP address. -->
 
 In practice, Writers are solely responsible for announcing their Log's
 addresses. This ensures a conflict-free address list without additional
-complexity. Some Followers may be in the business of replicating Logs
+complexity. Some Replicas may be in the business of replicating Logs
 ([@sec:Bots]),
 in which case Writers will announce the additional Log address to
 Readers. This allows them to *pull* (or subscribe to push-based) Events
-from the Follower's Log address when the Writer is offline or
+from the Replica's Log address when the Writer is offline or
 unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
@@ -828,11 +829,11 @@ type KeyBook interface {
 	// AddReadKey adds a read key under a log.
 	AddReadKey(thread.ID, *sym.Key) error
 
-	// FollowKey retrieves the follow key of a log.
-	FollowKey(thread.ID) (*sym.Key, error)
+	// ReplicaKey retrieves the follow key of a log.
+	ReplicaKey(thread.ID) (*sym.Key, error)
 
-	// AddFollowKey adds a follow key under a log.
-	AddFollowKey(thread.ID, *sym.Key) error
+	// AddReplicaKey adds a follow key under a log.
+	AddReplicaKey(thread.ID, *sym.Key) error
 
 	// LogsWithKeys returns a list of log IDs for a thread.
 	LogsWithKeys(thread.ID) (peer.IDSlice, error)
@@ -844,7 +845,7 @@ type KeyBook interface {
 
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
-in a manner that enables access control ([@sec:AccessControl]) and the Follower mechanism discussed in
+in a manner that enables access control ([@sec:AccessControl]) and the Replica mechanism discussed in
 the previous section. Much like the Log address book, Log *keys* are
 stored in a key book ([@lst:KeyBook]).
 
@@ -887,12 +888,12 @@ used to encrypt the Content Key in each event.
 
 Finally, the encrypted Event Block, its signature, and the IPLD
 linkage(s) from an Event to its antecedents are encrypted together using
-a Follow Key. Follow Keys allow Logs to be *followed* by Peers on the
+a Replica Key. Replica Keys allow Logs to be *replicated* by Peers on the
 network who do not have access to any content within the event.
-Followers can only see signatures and linkage(s) between Events.
+Replicas can only see signatures and linkage(s) between Events.
 
-Follow Key
-: The Follow Key is a symmetric key created by the Log owner
+Replica Key
+: The Replica Key is a symmetric key created by the Log owner
 and used to encrypt the entire Event payload before adding the Event to
 the Log.
 
@@ -902,7 +903,7 @@ Threads
 The *interface* to Logs is managed as a Thread, which is a
 collection of Logs on a given topic. Threads are an event sourced,
 distributed database, and can be used to maintain a single,
-collaboratively edited, followed, or hosted dataset across multiple
+collaboratively edited, replicated, or hosted dataset across multiple
 Peers. Threads provide the mechanism to combine multiple Logs from
 individual Writers into singular shared states through the use of either
 cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid
@@ -966,10 +967,10 @@ bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
 
 ### Log Synchronization {#sec:LogSync}
 
-Log Writers, Readers, and Followers synchronize the state of their Logs
+Log Writers, Readers, and Replicas synchronize the state of their Logs
 by sending and receiving Events. Inspired by Git[^9], a reference to the
-latest Event in a Log is referred to as the *Head* (or sometimes the
-*root*). When a new Event is received, Readers and Followers simply
+latest Event in a Log is referred to as the *Head*. When a new Event is
+received, Readers and Replicas simply
 advance their Head reference for the given Log. This is similar to how a
 system such as OrbitDB [@markroberthendersonOrbitDBFieldManual2019]
 works, except we are tracking *multiple* Heads (one per Log), rather
@@ -978,10 +979,10 @@ than a single Head.
 Regardless of the network protocol, Events are transported between Peers
 in a standardized *Event Envelope*. A new Thread is created by
 generating a TID and Log. The Log's creator is the Writer, meaning it
-has possession of the Log's Identity, Read, and Follow Keys. All of
+has possession of the Log's Identity, Read, and Replica Keys. All of
 these keys are needed to compose Events. At this point, the Thread only
 exists on the Writer's machine. Whether for collaboration, reading, or
-following, the process of sharing a Thread with other Peers starts by
+replicating, the process of sharing a Thread with other Peers starts by
 authoring a special Event called an *Invite*, which contains a set of
 keys from all of the Thread's Logs, called a *Key Set*.
 
@@ -993,12 +994,12 @@ Invite
 : An Event containing a mapping of Log IDs to Key Sets, which
 can be used to join a Thread. Threads backed by an ACL ([@sec:AccessControl]) will also include the current ACL for
 the Thread in an Invite. This enables Peers to invite others to only
-read or follow a Thread, instead of becoming a new Log Writer. Invites are
+read or replicate a Thread, instead of becoming a new Log Writer. Invites are
 sent directly to invitees, and added to a Log as a "regular" Event.
 
 Key Set
 : A set of keys for a Log. Depending on the context, a Key Set
-may contain the Follow and Read Key, or just the Follow Key. A Key Set
+may contain the Replica and Read Key, or just the Replica Key. A Key Set
 is encrypted with the recipient's public key.
 
 The Invite is authored in the sender's Log. Because the recipient does
@@ -1027,14 +1028,14 @@ participants will be offline or unresponsive:
 1.  New Events are pushed[^10] directly to the Thread's other Log
     Writers.
 
-2.  New Events are pushed directly to the target Log's Follower(s), who
+2.  New Events are pushed directly to the target Log's Replica(s), who
     may not maintain their own Log.
 
 3.  New Events are published over gossip-based Pubsub using TID as a
-    topic, which provides potentially unknown Readers or Followers with
+    topic, which provides potentially unknown Readers or Replicas with
     an opportunity to consume Events in real-time.
 
-Step 2 above allows for *additional* push mechanisms, as followers with
+Step 2 above allows for *additional* push mechanisms, as Replicas with
 public IP addresses become relays:
 
 1.  New Events may be pushed directly to web-based participants over a
@@ -1054,19 +1055,19 @@ There are multiple paths to receiving new Events, that together maximize
 connectivity between Peers who are often offline or unreachable.
 
 1.  Log Writers can receive Events directly from the Writer.
-2.  Events can be pulled from Followers via HTTP, RSS, Atom, etc.
+2.  Events can be pulled from Replicas via HTTP, RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
-        web-based Readers and Followers with a reliable mechanism for
+        web-based Readers and Replicas with a reliable mechanism for
         receiving Log Events ([@fig:Pulling]).
 3.  Writers and readers can receive new Events via a Pub/Sub
     subscription at the TID.
 
-![A pull-based request from a Follower.](figures/Pulling.png){#fig:Pulling height="350px"}
+![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="350px"}
 
 ### Log Replication
 
-The notion of the Follow Key ([@sec:KeysEncryption]) makes duplicating all Log Events
+The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating all Log Events
 trivial. This allows any Peer on the network to be granted the
 responsibility of replicating data from another Peer without having read
 access to the raw Log entries. This type of Log replication can act as a
@@ -1528,15 +1529,15 @@ One of the most important properties of a shared data model is the
 ability to apply access control rules. There are two forms of access
 control possible in Threads, Entity-level ACLs and Thread-level ACLs.
 Thread-level access control lists (ACLs) allow creators to specify who
-can *follow, read, write, and delete* Thread data. Similarly,
+can *replicate, read, write, and delete* Thread data. Similarly,
 Entity-level ACLs provide more granular control to Thread-writers on a
 per-Entity (see def. [4](#def:Entity)) basis. Both types of ACLs are implemented as
 JSON CRDTs (see [@sec:TexCRDT]) wrapped in a custom view Model (see [@sec:interfaces]).
 ACLs implemented as JSON Models provide two advantages over static or
 external ACL rules (although static and external ACLs are also
 possible). First, ACLs are fully mutable, allowing developers to create
-advanced rules for collaboration with any combination of readers,
-writers, and followers. Second, because ACLs are essentially mutable
+advanced rules for collaboration with any combination of Readers,
+Writers, and Replicas. Second, because ACLs are essentially mutable
 JSON documents, they can specify their *own editing rules* (i.e.
 allowing multiple Thread participants to modify the ACL) in a
 self-referencing way.
@@ -1557,31 +1558,32 @@ Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
 individuals or groups are assigned roles which carry specific
 permissions. Roles can be added and removed as needed. Textile ACLs can
-make use of five distinct roles[^24]: *No-access, Follow, Read, Write,
+make use of five distinct roles[^24]: *No-access, Replicate, Read, Write,
 and Delete*.
 
 No-access
 : No access is permitted. This is the default role.
 
-Follow
-: Access to Log Follow Keys is permitted. Members of this role
-are able to verify Events and follow linkages. The Follow role is used
-to designate a "follower" Peer for offline replication and/or backup.
+Replicate
+: Access to Log Replica Keys is permitted. Members of this role
+are able to verify Events and follow linkages. The Replicate role is used
+to designate a "Replica" Peer for offline replication and/or backup.
 
 Read
-: Access to Log Read Keys is permitted in addition to Follow Keys.
+: Access to Log Read Keys is permitted in addition to Replica Keys.
 Members of this role are able to read Log Event payloads.
 
 Write
 : Members of this role are able to author new Events, which also
-implies access to Log Follow and Read Keys. At the Thread-level, this
+implies access to Log Replica and Read Keys. At the Thread-level, this
 means authoring a Log. At the document-level, the Write role means that
 Events in this Log are able to target a particular document.
 
 Delete
 : Members of this role are able to delete Events, which implies
-access to Log Follow Keys. In practice, this means marking an older
-Event as "deleted".
+access to Log Replica Keys. In practice, this means creating a new
+"Tombstone" Event which marks an older Event as "deleted". See
+[@sec:deleting] for additional notes on deleting data.
 
 A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
 local Event Store as part of the flow described in [@sec:internals].
@@ -1594,7 +1596,7 @@ public API for editing ACL definitions.
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
-    "12D..dJT6nXY": ["follow"],
+    "12D..dJT6nXY": ["replicate"],
     "12D..P2c6ifo": ["read"],
   }
 }
@@ -1603,7 +1605,7 @@ public API for editing ACL definitions.
 The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
-follower, and `12D..P2c6ifo` has been given read access. A Thread-level
+Replica, and `12D..P2c6ifo` has been given read access. A Thread-level
 ACL has it's own Entity ACL, which also applies to all other Entity
 ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe`
 is able to alter the access-control list.
@@ -1617,6 +1619,21 @@ is able to alter the access-control list.
   }
 }
 ~~~
+
+#### Note About Deleting {#sec:deleting}
+
+Deleting data in distributed systems is a complex concept. In practice, it is
+impossible to ensure all Peers in a system will comply with any given Tombstone
+Event. Often, data (i.e., Blocks, Events, etc.) are kept locally, including
+*original and tombstone* Events, to facilitate parsing of the Event Log. This
+means raw data that have been "deleted" are not immediately purged from a Peer's
+storage. However, in strict data compliance situations (e.g., the EU's GDPR), a
+deletion Event *may* additionally generate a Snapshot Event, allowing past data
+to be purged from the local Event and Block stores. Compliant Peers should then
+purge "deleted" data. However, the possibility of non-compliant data caching
+remains. The initial Textile Threads reference implementation will *not*
+automatically purge deleted data from the local store. This compliance
+requirement will initially be left up to application-level developers.
 
 Conclusion
 ==========
@@ -1655,7 +1672,7 @@ areas.
 
 ### Enhanced Log Security
 
-The use of a single Read and Follow Key for an entire Log means that,
+The use of a single Read and Replica Key for an entire Log means that,
 should either of these keys be leaked via malicious (or
 other possibly accidental) means, there is no way to prevent a Peer with the
 leaked keys from listening to Events or traversing the Log history.
@@ -1684,7 +1701,7 @@ Threads change the relationship between a user, their data, and the
 services they connect with that data. The nested, or multi-layered,
 encryption combined with powerful ACL capabilities create new
 opportunities to build distributed services, or Bots, in the network of
-IPFS Peers. Based on the Follow Key now available in Threads, Bots can
+IPFS Peers. Based on the Replica Key now available in Threads, Bots can
 relay, replicate, or store data that is synchronized via real-time
 updates in a *trust-less*, partially trusted, or fully-trusted way. Bots
 can additionally enhance the IPFS network by providing a framework to
@@ -1774,6 +1791,9 @@ type EventHeader interface {
     2.  MongoDB <https://www.mongodb.com/>
 
     3.  RethinkDB <https://rethinkdb.com/>
+
+[^head]: In this context, "head" refers to the most recent event/update, and should
+    not be confused with the "root" CID.
 
 [^1]: Terminology in this section may differ from some other examples of
     ES and CQRS patterns, but reflects the underlying architecture and
