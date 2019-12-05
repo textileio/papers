@@ -742,9 +742,12 @@ example, which requires querying the network (DHT) for updates. Instead,
 updates are requested directly from the (presumably trusted) Peers that
 produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
-in an address book, similar to an IPFS Peer address book (see [@lst:KeyBook]). Addresses can also expire by specifying a
+in an address book (AddrBook), similar to an IPFS Peer address book
+(see [@lst:KeyBook]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
+
+Log addresses can also change over time, and these changes are advertised to Peers "out of band" via direct p2p communication. The receiving Peers can then update their local AddrBook to reflect the new address(es) of their Peer.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
@@ -777,7 +780,8 @@ unreachable ([@fig:Pulling]).
 
 ![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
 
-~~~ {#lst:KeyBook .go caption="The AddrBook interface for storing Log addresses and the KeyBook interface for storing Log keys."}
+~~~ {#lst:KeyBook .go caption="The AddrBook interface for storing Log addresses and the KeyBook interface for storing Log/Thread keys."}
+// AddrBook stores log addresses.
 type AddrBook interface {
 	// AddAddr adds an address under a log with a given TTL.
 	AddAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration) error
@@ -802,14 +806,8 @@ type AddrBook interface {
 
 	// ClearAddrs deletes all addresses for a log.
 	ClearAddrs(thread.ID, peer.ID) error
-
-	// LogsWithAddrs returns a list of log IDs for a thread.
-	LogsWithAddrs(thread.ID) (peer.IDSlice, error)
-
-	// ThreadsFromAddrs returns a list of threads referenced in the book.
-	ThreadsFromAddrs() (thread.IDSlice, error)
 }
-// KeyBook stores log keys.
+// KeyBook stores log/thread keys.
 type KeyBook interface {
 	// PubKey retrieves the public key of a log.
 	PubKey(thread.ID, peer.ID) (ic.PubKey, error)
@@ -823,23 +821,17 @@ type KeyBook interface {
 	// AddPrivKey adds a private key under a log.
 	AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
 
-	// ReadKey retrieves the read key of a log.
+	// ReadKey retrieves the read key of a thread.
 	ReadKey(thread.ID) (*sym.Key, error)
 
-	// AddReadKey adds a read key under a log.
+	// AddReadKey adds a read key under a thread.
 	AddReadKey(thread.ID, *sym.Key) error
 
-	// ReplicaKey retrieves the follow key of a log.
-	ReplicaKey(thread.ID) (*sym.Key, error)
+	// FollowKey retrieves the follow key of a thread.
+	FollowKey(thread.ID) (*sym.Key, error)
 
-	// AddReplicaKey adds a follow key under a log.
-	AddReplicaKey(thread.ID, *sym.Key) error
-
-	// LogsWithKeys returns a list of log IDs for a thread.
-	LogsWithKeys(thread.ID) (peer.IDSlice, error)
-
-	// ThreadsFromKeys returns a list of threads referenced in the book.
-	ThreadsFromKeys() (thread.IDSlice, error)
+	// AddFollowKey adds a follow key under a thread.
+	AddFollowKey(thread.ID, *sym.Key) error
 }
 ~~~
 
@@ -880,20 +872,24 @@ necessary to distribute each new key to users by including it in the
 header of the Event Block. Therefore, the Event Block itself is further
 encrypted using a *Read* key. The Read Key is not distributed within the
 Log itself but via a separate (secure) channel to all Peers who require
-access to the content of the Log.
+access to the content of the Log. Read Keys are scoped to a given *Thread*,
+so that the same key is used to encrypt all Event Blocks associated with
+a given Thread.
 
 Read Key
-: The Read Key is a symmetric key created by the Log owner and
-used to encrypt the Content Key in each event.
+: The Read Key is a symmetric key created by the Thread initializer (creator) and
+used to encrypt the Content Key in each event by all Thread participants.
 
 Finally, the encrypted Event Block, its signature, and the IPLD
 linkage(s) from an Event to its antecedents are encrypted together using
-a Replica Key. Replica Keys allow Logs to be *replicated* by Peers on the
+a *Replica* Key. Replica Keys allow Logs to be *replicated* by Peers on the
 network who do not have access to any content within the event.
-Replicas can only see signatures and linkage(s) between Events.
+Replicas can only see signatures and linkage(s) between Events. Again,
+Replica Keys are scoped to the Thread, allowing all Thread participants
+to use the same key for Replica access.
 
 Replica Key
-: The Replica Key is a symmetric key created by the Log owner
+: The Replica Key is a symmetric key created by the Thread initializer (creator)
 and used to encrypt the entire Event payload before adding the Event to
 the Log.
 
