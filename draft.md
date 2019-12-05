@@ -223,7 +223,7 @@ as transformations that are applied to each event in a stream. They
 update the data backing the views, be this in memory or persisted to a
 database. In a distributed setting, it may be necessary for projections
 to define and operate as eventually consistent data structures, to
-ensure all peers operating on the same stream of events have a
+ensure all Peers operating on the same stream of events have a
 consistent representation of the data.
 
 ### Eventual Consistency {#sec:EventualConsistency}
@@ -361,12 +361,12 @@ know it is complete). Additionally, IPFS content-based addresses are
 immutable and universally unique.
 
 ![The cryptographic hash of content is used to make a request to the
-network of IPFS peers. Using the built-in routing mechanisms and a
-distributed hash table (DHT), peers hosting the requested content are
+network of IPFS Peers. Using the built-in routing mechanisms and a
+distributed hash table (DHT), Peers hosting the requested content are
 identified and content is
 returned.](figures/Hash_Request.png){#fig:contentaddressing height="350px"}
 
-While content-based addressing doesn't dictate to a peer *how* to get a
+While content-based addressing doesn't dictate to a Peer *how* to get a
 piece of content, IPFS (via libp2p[^3]) does provide a system for moving
 content across the network. On the IPFS network, a client who wants
 specific content requests the CID from the network of IPFS hosts. The
@@ -514,7 +514,7 @@ Our discussion of Pubsub and libp2p has so far only dealt with
 for hosting *pull-/request-*based data endpoints based on an
 Interplanetary Name System (IPNS). IPNS aims to address the challenge of
 mutable data within IPFS. It relies on a global namespace (shared by all
-participating IPFS peers) based on Public Key Infrastructure (PKI). By
+participating IPFS Peers) based on Public Key Infrastructure (PKI). By
 using IPNS, a content creator generates a new address in the global
 namespace and points that address to an endpoint (e.g. a CID). Using
 their private key, a content creator can update the static route to
@@ -533,12 +533,12 @@ scalable, data synchronization on a decentralized network.
 Data Access & Control
 ---------------------
 
-IPFS is an implementation of PKI, where every node on the network has a
-key-pair. In addition to using the key-pair for secure communication
-between nodes, IPFS also uses the key-pair as the basis for identity.
-Specifically, when a new IPFS node is created, a new key-pair is
-generated, and this public key is used to generate the node's Peer
-IDentity (Peer ID).
+IPFS is an implementation of PKI (public key infrastructure), where every
+Peer on the network has a key-pair.
+In addition to using the key-pair for secure communication
+between Peers, IPFS also uses the key-pair as the basis for identity.
+Specifically, when a new IPFS Peer is created, a new key-pair is
+generated, and this public key is used to generate the Peers's IDentity (Peer ID).
 
 ### Agent-centric Security
 
@@ -553,7 +553,7 @@ decentralized networks, such as Secure Scuttlebutt
 [@securescuttlebuttScuttlebuttProtocolGuide] and Holochain
 [@ericharris-braunHolochainScalableAgentcentric2018], make use of
 agent-centric security. Each of these systems leverage cryptographic
-signatures to validate peer identities and messages.
+signatures to validate Peer identities and messages.
 
 ### Access control
 
@@ -719,15 +719,14 @@ Related, a Merkle-Clock (see [@sec:merkleclocks]) is simply a Merkle-DAG of *Eve
 ### Multi-addressed Event Logs
 
 Together with a cryptographic signature, an Event is written to a log
-with an additional Node (see [@fig:EventLog])
-enabling Log verification by Readers ([@sec:KeysEncryption]). At a minimum, a Node must link to its
-most immediate ancestor. However, links to older ancestors are often
-included as well to improve concurrency during traversal and
-verification [@meyerBamboo2019].
+with an additional Record (see [@fig:EventLog])
+enabling Log verification by Readers ([@sec:KeysEncryption]). At a minimum,
+a Record must link to its most immediate ancestor.
+However, links to older ancestors are often included as well to improve
+concurrency during traversal and verification [@meyerBamboo2019].
 
 As shown in [@sec:EventNode], an Event's actual content (or body), is
-contained in a separate Node. This allows Events to carry any arbitrary
-Node structure, from complex directories to raw bytes.
+contained in a separate Block. This allows Events to carry any arbitrary Block structure, from complex directories to raw bytes.
 
 Much like IPFS Peers, Logs are identified on the network with addresses,
 or more specifically, with multiaddresses [@protocollabsMultiaddr]. Here
@@ -736,11 +735,11 @@ be used when composing Log multiaddresses. To reach a Log via it's IPEL
 multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see
 [@lst:Multiaddress]).
 
-Unlike peer multiaddresses, Log addresses are not stored in the global
+Unlike Peer multiaddresses, Log addresses are not stored in the global
 IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are collected
 from Log Events. This is in contrast to mutable data via IPNS for
 example, which requires querying the network (DHT) for updates. Instead,
-updates are requested directly from the (presumably trusted) peers that
+updates are requested directly from the (presumably trusted) Peers that
 produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
 in an address book, similar to an IPFS Peer address book (see [@lst:KeyBook]). Addresses can also expire by specifying a
@@ -779,23 +778,67 @@ unreachable ([@fig:Pulling]).
 
 ~~~ {#lst:KeyBook .go caption="The AddrBook interface for storing Log addresses and the KeyBook interface for storing Log keys."}
 type AddrBook interface {
-    AddAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration)
-    AddAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration)
-    SetAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration)
-    SetAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration)
-    UpdateAddrs(t thread.ID, id peer.ID, oldTTL time.Duration, newTTL time.Duration)
-    Addrs(thread.ID, peer.ID) []ma.Multiaddr
-    ClearAddrs(thread.ID, peer.ID)
+	// AddAddr adds an address under a log with a given TTL.
+	AddAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration) error
+
+	// AddAddrs adds addresses under a log with a given TTL.
+	AddAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration) error
+
+	// SetAddr sets a log's address with a given TTL.
+	SetAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration) error
+
+	// SetAddrs sets a log's addresses with a given TTL.
+	SetAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration) error
+
+	// UpdateAddrs updates the TTL of a log address.
+	UpdateAddrs(t thread.ID, id peer.ID, oldTTL time.Duration, newTTL time.Duration) error
+
+	// Addrs returns all addresses for a log.
+	Addrs(thread.ID, peer.ID) ([]ma.Multiaddr, error)
+
+	// AddrStream returns a channel that delivers address changes for a log.
+	AddrStream(context.Context, thread.ID, peer.ID) (<-chan ma.Multiaddr, error)
+
+	// ClearAddrs deletes all addresses for a log.
+	ClearAddrs(thread.ID, peer.ID) error
+
+	// LogsWithAddrs returns a list of log IDs for a thread.
+	LogsWithAddrs(thread.ID) (peer.IDSlice, error)
+
+	// ThreadsFromAddrs returns a list of threads referenced in the book.
+	ThreadsFromAddrs() (thread.IDSlice, error)
 }
+// KeyBook stores log keys.
 type KeyBook interface {
-    PubKey(thread.ID, peer.ID) ic.PubKey
-    AddPubKey(thread.ID, peer.ID, ic.PubKey) error
-    PrivKey(thread.ID, peer.ID) ic.PrivKey
-    AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
-    ReadKey(thread.ID, peer.ID) []byte
-    AddReadKey(thread.ID, peer.ID, []byte) error
-    FollowKey(thread.ID, peer.ID) []byte
-    AddFollowKey(thread.ID, peer.ID, []byte) error
+	// PubKey retrieves the public key of a log.
+	PubKey(thread.ID, peer.ID) (ic.PubKey, error)
+
+	// AddPubKey adds a public key under a log.
+	AddPubKey(thread.ID, peer.ID, ic.PubKey) error
+
+	// PrivKey retrieves the private key of a log.
+	PrivKey(thread.ID, peer.ID) (ic.PrivKey, error)
+
+	// AddPrivKey adds a private key under a log.
+	AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
+
+	// ReadKey retrieves the read key of a log.
+	ReadKey(thread.ID) (*sym.Key, error)
+
+	// AddReadKey adds a read key under a log.
+	AddReadKey(thread.ID, *sym.Key) error
+
+	// FollowKey retrieves the follow key of a log.
+	FollowKey(thread.ID) (*sym.Key, error)
+
+	// AddFollowKey adds a follow key under a log.
+	AddFollowKey(thread.ID, *sym.Key) error
+
+	// LogsWithKeys returns a list of log IDs for a thread.
+	LogsWithKeys(thread.ID) (peer.IDSlice, error)
+
+	// ThreadsFromKeys returns a list of threads referenced in the book.
+	ThreadsFromKeys() (thread.IDSlice, error)
 }
 ~~~
 
@@ -809,7 +852,7 @@ Identity Key
 : Every Log requires an asymmetric key-pair that
 determines ownership and identity. The private key is used to sign each
 Event added to the Log, so down-stream processes can verify the Log's
-authenticity. Like IPFS peers, a hash of the public key of the Log is
+authenticity. Like IPFS Peers, a hash of the public key of the Log is
 used as an identifier (Log ID).
 
 The body, or content of an Event, is encrypted by a *Content Key*.
@@ -844,7 +887,7 @@ used to encrypt the Content Key in each event.
 
 Finally, the encrypted Event Block, its signature, and the IPLD
 linkage(s) from an Event to its antecedents are encrypted together using
-a Follow Key. Follow Keys allow Logs to be *followed* by peers on the
+a Follow Key. Follow Keys allow Logs to be *followed* by Peers on the
 network who do not have access to any content within the event.
 Followers can only see signatures and linkage(s) between Events.
 
@@ -1079,7 +1122,7 @@ flexible framework for building complex event-driven application logic.
 ### Events & Creators {#sec:creators}
 
 *Events* are at the heart of Threads --- every update to local and
-shared (i.e., across peers) state happens via Events (see also [@sec:cqrs]).
+shared (i.e., across Peers) state happens via Events (see also [@sec:cqrs]).
 Events are used to describe "changes to an application state"
 [@fowlerEventSourcing] (e.g., a photo was added, an item was added to a
 shopping cart, etc). Related, *Event Creators* are used to send Events
@@ -1138,7 +1181,7 @@ flexibility.
 
 In addition to locally derived Events (i.e., from application logic and
 user interactions), Threads are designed so that Peers may collaborate
-in a given Thread via Events. Events generated by other, network peers
+in a given Thread via Events. Events generated by other, network Peers
 are called *Remote Events*, and they enter the system via a Peer Host.
 The Peer Host is responsible for dealing with incoming Events (be they
 push or pull). These Events are no different from *Local Events*, though
@@ -1250,7 +1293,7 @@ existing Message instance will automatically generate the required
 underlying update Events. For example, [@lst:updates] shows the body text of the previous example
 being updated, and saved (committed) to the Thread. Behind the scenes,
 this event will be added to the User's local Log, and pushed to any
-peers identified in the Thread's ACL document (see [@sec:variants; @sec:TexCRDT]).
+Peers identified in the Thread's ACL document (see [@sec:variants; @sec:TexCRDT]).
 In practice, the Model generates another Event that carries the diff and
 a document identifier.
 
@@ -1523,7 +1566,7 @@ No-access
 Follow
 : Access to Log Follow Keys is permitted. Members of this role
 are able to verify Events and follow linkages. The Follow role is used
-to designate a "follower" peer for offline replication and/or backup.
+to designate a "follower" Peer for offline replication and/or backup.
 
 Read
 : Access to Log Read Keys is permitted in addition to Follow Keys.
@@ -1557,8 +1600,8 @@ public API for editing ACL definitions.
 }
 ~~~
 
-The `default` key states the default role for all network peers. The
-`peers` map is where roles are delegated to specific peers. Here,
+The `default` key states the default role for all network Peers. The
+`peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 follower, and `12D..P2c6ifo` has been given read access. A Thread-level
 ACL has it's own Entity ACL, which also applies to all other Entity
@@ -1641,7 +1684,7 @@ Threads change the relationship between a user, their data, and the
 services they connect with that data. The nested, or multi-layered,
 encryption combined with powerful ACL capabilities create new
 opportunities to build distributed services, or Bots, in the network of
-IPFS peers. Based on the Follow Key now available in Threads, Bots can
+IPFS Peers. Based on the Follow Key now available in Threads, Bots can
 relay, replicate, or store data that is synchronized via real-time
 updates in a *trust-less*, partially trusted, or fully-trusted way. Bots
 can additionally enhance the IPFS network by providing a framework to
@@ -1654,55 +1697,55 @@ decentralized access to Web 2.0.
 Appendix
 ========
 
-## Event node interface {#sec:EventNode}
+## Records, Events, and Blocks {#sec:EventNode}
 
 ~~~ {.go}
-// Node is the most basic component of a log.
-// Note: In practice, this is encrypted with the Follow Key.
-type Node interface {
-    ipld.Node
+// Record is the most basic component of a log.
+type Record interface {
+	format.Node
 
-    // Event is the Log update.
-    Event() Event
+	// BlockID returns the cid of the event block.
+	BlockID() cid.Cid
 
-    // Refs are node linkages.
-    Refs() []cid.Cid
+  // GetBlock loads the event block.
+	GetBlock(context.Context, format.DAGService) (format.Node, error)
 
-    // Sig is a cryptographic signature of Event and Refs
-    // created with the Log's private key.
-    Sig() []byte
+	// PrevID returns the cid of the previous record.
+	PrevID() cid.Cid
+
+	// Sig returns the record signature.
+	Sig() []byte
+
+  // Verify returns a non-nil error if the record signature is valid.
+	Verify(pk ic.PubKey) error
 }
 
-// Event represents the content of an update.
-// Note: In practice, this is encrypted with the Read Key.
+// Event is the Block format used by Textile threads
 type Event interface {
-    ipld.Node
+	format.Node
 
-    // Header provides a means to store a timestamp
-    // and a key needed for decryption.
-    Header() EventHeader
+	// HeaderID returns the cid of the event header.
+	HeaderID() cid.Cid
 
-    // Body contains the content of an update.
-    // In practice, this is encrypted with the Header key
-    // or the recipient's public key.
-    Body() ipld.Node
+	// GetHeader loads and optionally decrypts the event header.
+	GetHeader(context.Context, format.DAGService, crypto.DecryptionKey) (EventHeader, error)
 
-    // Decrypt is a helper function that decrypts Body
-    // with a key in Header.
-    Decrypt() (ipld.Node, error)
+	// BodyID returns the cid of the event body.
+	BodyID() cid.Cid
+
+	// GetBody loads and optionally decrypts the event body.
+	GetBody(context.Context, format.DAGService, crypto.DecryptionKey) (format.Node, error)
 }
 
-// EventHeader contains Event metadata.
+// EventHeader is the format of the event's header object
 type EventHeader interface {
-    ipld.Node
+	format.Node
 
-    // Time is the wall-clock time at which the Event
-    // was created.
-    Time() int
+	// Time returns the wall-clock time at which this event was created.
+	Time() (*time.Time, error)
 
-    // Key is an optional single-use symmetric key
-    // used to encrypt Body.
-    Key() []byte
+	// Key returns a single-use decryption key for the event body.
+	Key() (crypto.DecryptionKey, error)
 }
 ~~~
 
@@ -1792,7 +1835,7 @@ type EventHeader interface {
     peers are able to share events consistently).
 
 [^24]: By default, Threads without access control operate similar to
-    Secure Scuttlebutt (SSB; where every peer consumes what they want
+    Secure Scuttlebutt (SSB; where every Peer consumes what they want
     and writes what they want).
 
 [^25]: <https://reimagined.github.io/resolve/>
