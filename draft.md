@@ -723,7 +723,7 @@ with an additional Record (see [@fig:EventLog])
 enabling Log verification by Readers ([@sec:KeysEncryption]). At a minimum,
 a Record must link to its most immediate ancestor.
 However, links to older ancestors are often included as well to improve
-concurrency during traversal and verification [@meyerBamboo2019].
+concurrency during traversal and verification [@sanjuanMerkleCRDTs2019; @meyerBamboo2019].
 
 As shown in [@sec:EventNode], an Event's actual content (or body), is
 contained in a separate Block. This allows Events to carry any arbitrary Block structure, from complex directories to raw bytes.
@@ -1754,8 +1754,9 @@ type Event interface {
 type EventHeader interface {
 	format.Node
 
-	// Time returns the wall-clock time at which this event was created.
-	Time() (*time.Time, error)
+	// Time returns the wall-clock time and sequence number from when the event was created.
+ 	// These can be used to derive a Hybrid Logical Clock
+	Time() (*time.Time, int32, error)
 
 	// Key returns a single-use decryption key for the event body.
 	Key() (crypto.DecryptionKey, error)
