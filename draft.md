@@ -759,7 +759,7 @@ single Log (see [@lst:Multiaddress]).
 Replica
 : Log Writers can designate other IPFS Peers to "replicate" a
 Log, potentially republishing Events. A Replica is
-capable of receiving Log updates and traversing linkages via the Follow
+capable of receiving Log updates and traversing linkages via the Replica
 Key ([@sec:KeysEncryption]), but is not able to read the Log's
 contents.
 <!-- Replicas should be server-based --- i.e., always online and
@@ -795,8 +795,8 @@ type KeyBook interface {
     AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
     ReadKey(thread.ID, peer.ID) []byte
     AddReadKey(thread.ID, peer.ID, []byte) error
-    FollowKey(thread.ID, peer.ID) []byte
-    AddFollowKey(thread.ID, peer.ID, []byte) error
+    ReplicaKey(thread.ID, peer.ID) []byte
+    AddReplicaKey(thread.ID, peer.ID, []byte) error
 }
 ~~~
 
@@ -845,12 +845,12 @@ used to encrypt the Content Key in each event.
 
 Finally, the encrypted Event Block, its signature, and the IPLD
 linkage(s) from an Event to its antecedents are encrypted together using
-a Follow Key. Follow Keys allow Logs to be *replicated* by peers on the
+a Replica Key. Replica Keys allow Logs to be *replicated* by peers on the
 network who do not have access to any content within the event.
 Replicas can only see signatures and linkage(s) between Events.
 
-Follow Key
-: The Follow Key is a symmetric key created by the Log owner
+Replica Key
+: The Replica Key is a symmetric key created by the Log owner
 and used to encrypt the entire Event payload before adding the Event to
 the Log.
 
@@ -936,7 +936,7 @@ than a single Head.
 Regardless of the network protocol, Events are transported between Peers
 in a standardized *Event Envelope*. A new Thread is created by
 generating a TID and Log. The Log's creator is the Writer, meaning it
-has possession of the Log's Identity, Read, and Follow Keys. All of
+has possession of the Log's Identity, Read, and Replica Keys. All of
 these keys are needed to compose Events. At this point, the Thread only
 exists on the Writer's machine. Whether for collaboration, reading, or
 replicating, the process of sharing a Thread with other Peers starts by
@@ -956,7 +956,7 @@ sent directly to invitees, and added to a Log as a "regular" Event.
 
 Key Set
 : A set of keys for a Log. Depending on the context, a Key Set
-may contain the Follow and Read Key, or just the Follow Key. A Key Set
+may contain the Replica and Read Key, or just the Replica Key. A Key Set
 is encrypted with the recipient's public key.
 
 The Invite is authored in the sender's Log. Because the recipient does
@@ -1024,7 +1024,7 @@ connectivity between Peers who are often offline or unreachable.
 
 ### Log Replication
 
-The notion of the Follow Key ([@sec:KeysEncryption]) makes duplicating all Log Events
+The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating all Log Events
 trivial. This allows any Peer on the network to be granted the
 responsibility of replicating data from another Peer without having read
 access to the raw Log entries. This type of Log replication can act as a
@@ -1515,30 +1515,30 @@ Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
 individuals or groups are assigned roles which carry specific
 permissions. Roles can be added and removed as needed. Textile ACLs can
-make use of five distinct roles[^24]: *No-access, Follow, Read, Write,
+make use of five distinct roles[^24]: *No-access, Replicate, Read, Write,
 and Delete*.
 
 No-access
 : No access is permitted. This is the default role.
 
-Follow
-: Access to Log Follow Keys is permitted. Members of this role
-are able to verify Events and follow linkages. The Follow role is used
+Replicate
+: Access to Log Replica Keys is permitted. Members of this role
+are able to verify Events and follow linkages. The Replicate role is used
 to designate a "Replica" peer for offline replication and/or backup.
 
 Read
-: Access to Log Read Keys is permitted in addition to Follow Keys.
+: Access to Log Read Keys is permitted in addition to Replica Keys.
 Members of this role are able to read Log Event payloads.
 
 Write
 : Members of this role are able to author new Events, which also
-implies access to Log Follow and Read Keys. At the Thread-level, this
+implies access to Log Replica and Read Keys. At the Thread-level, this
 means authoring a Log. At the document-level, the Write role means that
 Events in this Log are able to target a particular document.
 
 Delete
 : Members of this role are able to delete Events, which implies
-access to Log Follow Keys. In practice, this means marking an older
+access to Log Replica Keys. In practice, this means marking an older
 Event as "deleted".
 
 A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
@@ -1552,7 +1552,7 @@ public API for editing ACL definitions.
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
-    "12D..dJT6nXY": ["follow"],
+    "12D..dJT6nXY": ["replicate"],
     "12D..P2c6ifo": ["read"],
   }
 }
@@ -1613,7 +1613,7 @@ areas.
 
 ### Enhanced Log Security
 
-The use of a single Read and Follow Key for an entire Log means that,
+The use of a single Read and Replica Key for an entire Log means that,
 should either of these keys be leaked via malicious (or
 other possibly accidental) means, there is no way to prevent a Peer with the
 leaked keys from listening to Events or traversing the Log history.
@@ -1642,7 +1642,7 @@ Threads change the relationship between a user, their data, and the
 services they connect with that data. The nested, or multi-layered,
 encryption combined with powerful ACL capabilities create new
 opportunities to build distributed services, or Bots, in the network of
-IPFS peers. Based on the Follow Key now available in Threads, Bots can
+IPFS peers. Based on the Replica Key now available in Threads, Bots can
 relay, replicate, or store data that is synchronized via real-time
 updates in a *trust-less*, partially trusted, or fully-trusted way. Bots
 can additionally enhance the IPFS network by providing a framework to
@@ -1659,7 +1659,7 @@ Appendix
 
 ~~~ {.go}
 // Node is the most basic component of a log.
-// Note: In practice, this is encrypted with the Follow Key.
+// Note: In practice, this is encrypted with the Replica Key.
 type Node interface {
     ipld.Node
 
