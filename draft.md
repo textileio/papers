@@ -736,18 +736,20 @@ multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see
 [@lst:Multiaddress]).
 
 Unlike Peer multiaddresses, Log addresses are not stored in the global
-IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are collected
-from Log Events. This is in contrast to mutable data via IPNS for
-example, which requires querying the network (DHT) for updates. Instead,
-updates are requested directly from the (presumably trusted) Peers that
-produced them, resulting in a hybrid of content-addressed Events
+IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
+via the push/pull API (see [@sec:LogSync]). This is in contrast to mutable
+data via IPNS for example, which requires querying the network (DHT) for
+updates. Updates are requested directly from the (presumably trusted) Peers
+that produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
 in an address book (AddrBook), similar to an IPFS Peer address book
 (see [@lst:KeyBook]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
-Log addresses can also change over time, and these changes are advertised to Peers "out of band" via direct p2p communication. The receiving Peers can then update their local AddrBook to reflect the new address(es) of their Peer.
+Log addresses can also change over time, and these changes are again advertised
+to Peers via the push/pull API (see [@sec:LogSync]). The receiving Peers can
+then update their local AddrBook to reflect the new address(es) of their Peer.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
@@ -841,12 +843,50 @@ in a manner that enables access control ([@sec:AccessControl]) and the Replica m
 the previous section. Much like the Log address book, Log *keys* are
 stored in a key book ([@lst:KeyBook]).
 
+Every Log requires an asymmetric key-pair that determines ownership and
+identity. The private key is used to sign each Event added to the Log,
+so down-stream processes can verify the Log's authenticity. Like IPFS
+Peers, a hash of the public key of the Log is used as an identifier
+(Log ID). Unlike IPFS Peers, this key is actually *derived* from the
+Peer's private key, rather than used directly.
+
+In practice, this is done using a Hierarchical Deterministic Key (HDK)
+framework, as defined in **BIP32**. Details of how BIP32 implements HDKs
+can be found **here** and **here**. For the purposes of this paper, it
+is sufficient to understand that nested child keys can be derived from
+a single parent key. To protect against the potential data exposure
+from a leaked child key, a hardened key derivation is used at lower
+levels of the hierarchy, as outlined in **BIP44** (and by proxy,
+**BIP43**). The hierarchy is setup as in [@eq:LogPath].
+
+$$
+\text{key} = \texttt{m/purpose'/type'/account'/thread/log}
+$$ {#eq:LogPath}
+
+where each component in the path represents a new level of the key-pair
+hierarchy. Tiers marked with a ' are levels that are "hardened" (see **ref** for details). Using this standard **BIP44** format, `purpose` is generally set to
+`44` (i.e., **BIP44**), and is hardened, with `type` indicating the specific
+application, here being Textile Threads and defaulting to `XX` (but could
+also be other values). This level is also hardened. The `account` level
+can be used to manage different Textile accounts or even identities. By
+default, only the `0` account is used, and this is also hardened to protect
+the user. The last two levels, `thread` (index of the Thread in question),
+and `log` (keys/addresses for Logs under a given Thread index) are left
+unhardened to allow deterministic creation of child addresses from the
+public keys. The hash of the public key from a given `log` key-pair is then
+used to derive the Log ID. From this, Log identities can be deterministically
+derived. The `thread`-level index can simply be derived from the random
+component of the Thread ID (see [@sec:threadIdentity]) or set according to
+the local KeyBook index for a given Thread entry.
+
+Using this framework also opens up the possibility of using **BIP39** mnemonics
+for re-creating the root of a HDK hierarchy, and by association, a Peer's
+(set of) key-pairs. This also means Threads are able to support external identities such as those provided by **Keybase.io, 3Box.io, and others**. The actual path implementation can vary from implementation to implementation, as long as Log siblings can be deterministically derived from the same parent
+level.
+
 Identity Key
-: Every Log requires an asymmetric key-pair that
-determines ownership and identity. The private key is used to sign each
-Event added to the Log, so down-stream processes can verify the Log's
-authenticity. Like IPFS Peers, a hash of the public key of the Log is
-used as an identifier (Log ID).
+: The Identity Key is an asymmetric key-pair that is used to derive the
+Log ID (hash of the public key), and sign Events added to a Log.
 
 The body, or content of an Event, is encrypted by a *Content Key*.
 Content Keys are generated for each piece of content and never reused.
@@ -905,20 +945,20 @@ individual Writers into singular shared states through the use of either
 cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid
 Logical Clock [@kulkarniLogicalPhysicalClocks2014]) or a CRDT ([@sec:CRDTs]).
 
-### Identity
+### Identity {#sec:threadIdentity}
 
 A unique Thread IDentity (TID) is used to group together Logs which
 compose a single dataset and as a topic identifier within Pubsub-based
 synchronization. The components of a TID are given in [@eq:ThreadID].
 
 $$
-\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc1dc03ee8cb5d478e41cc8a4546e}}^\text{Random Number}
+\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc}\dots\texttt{a4546e}}^\text{Random Component}
 $$ {#eq:ThreadID}
 
 TIDs share some similarities with UUIDs
 [@leachUniversallyUniqueIDentifier2005] (version and variant) and
-IPFS-based CIDs and are multibase encoded[^8] for maximum
-forward-compatibility. Base32 encoding is used by default, but any
+IPFS-based CIDs, and are multibase encoded[^8] for maximum
+forward-compatibility. Base-32 encoding is used by default, but any
 multibase-supported string encoding may be used.
 
 Multibase Prefix
@@ -933,8 +973,8 @@ Variant
 : Used to specify thread-level expectations, like
 access-control. 8 bytes max. See [@sec:variants] for more about variants.
 
-Random Number
-: A random number of a user-specified length. 16 bytes or
+Random Component
+: A random set of bytes of a user-specified length. 16 bytes or
 more (see [@lst:Identity]).
 
 ### Variants {#sec:variants}
