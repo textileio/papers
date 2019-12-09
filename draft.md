@@ -1499,14 +1499,9 @@ Snapshots[^22] are simply the current state of a Store at a given point
 in time. They can be used to rebuild the state of a view Store without
 having to query and re-play all previous Events. When a Snapshot is
 available, a Thread Peer can rebuild the state of a given view
-Store/Model by replaying only Events generated since the latest Snapshot
-using the Model's Reducer function. Multiple Peers processing the same
-Log could create a Snapshot every 1000 Events and be guaranteed to
-create the exact same Snapshot because each Peer's Event counts are
-identical[^23].
-
-In practice, Snapshots are written to their own internal Event Store and
-stored locally. They can potentially be synced ([@sec:LogSync]) to
+Store/Model by replaying only Events generated since the latest 
+Snapshot. Snapshots could be written to their own internal Event Store
+and stored locally. They can potentially be synced ([@sec:LogSync]) to
 other Peers as a form of data backup or to optimize state initialization
 when a new Peer starts participating in a shared Thread (saving disk
 space, bandwidth, and time). They can similarly be used for initializing
@@ -1848,8 +1843,8 @@ type EventHeader interface {
     somewhat confusing, we attempt to use the most common definitions
     here.
 
-[^23]: Assuming any network partitions are only short-lived (i.e., that
-    peers are able to share events consistently).
+<!-- [^23]: Assuming any network partitions are only short-lived (i.e., that
+    peers are able to share events consistently). -->
 
 [^24]: By default, Threads without access control operate similar to
     Secure Scuttlebutt (SSB; where every Peer consumes what they want
