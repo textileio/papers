@@ -843,6 +843,8 @@ in a manner that enables access control ([@sec:AccessControl]) and the Replica m
 the previous section. Much like the Log address book, Log *keys* are
 stored in a key book ([@lst:KeyBook]).
 
+#### Log Identity {#sec:LogIdentity}
+
 Every Log requires an asymmetric key-pair that determines ownership and
 identity. The private key is used to sign each Event added to the Log,
 so down-stream processes can verify the Log's authenticity. Like IPFS
@@ -860,33 +862,25 @@ levels of the hierarchy, as outlined in **BIP44** (and by proxy,
 **BIP43**). The hierarchy is setup as in [@eq:LogPath].
 
 $$
-\text{key} = \texttt{m/purpose'/type'/account'/thread/log}
+\texttt{key} = \texttt{m/purpose'/account'/thread-path'/log}
 $$ {#eq:LogPath}
 
 where each component in the path represents a new level of the key-pair
-hierarchy. Tiers marked with a ' are levels that are "hardened" (see **ref** for details). Using this standard **BIP44** format, `purpose` is generally set to
-`44` (i.e., **BIP44**), and is hardened, with `type` indicating the specific
-application, here being Textile Threads and defaulting to `XX` (but could
-also be other values). This level is also hardened. The `account` level
-can be used to manage different Textile accounts or even identities. By
-default, only the `0` account is used, and this is also hardened to protect
-the user. The last two levels, `thread` (index of the Thread in question),
-and `log` (keys/addresses for Logs under a given Thread index) are left
-unhardened to allow deterministic creation of child addresses from the
-public keys. The hash of the public key from a given `log` key-pair is then
-used to derive the Log ID. From this, Log identities can be deterministically
-derived. The `thread`-level index can simply be derived from the random
-component of the Thread ID (see [@sec:threadIdentity]) or set according to
-the local KeyBook index for a given Thread entry.
+hierarchy. Tiers marked with a ' are levels that are "hardened" (see **ref** for details). Using this variation on the standard **BIP44** format, $\texttt{purpose}$ is set to `7478746` (which is the hex representation of `txtl`, but could also be other values). The $\texttt{account}$ level can be used to manage different Textile accounts or even identities. By default, only the `0` account is used, and this is also hardened to protect the user. The $\texttt{thread-path}$ is actually a series of levels derived from the Thread ID (see [@sec:threadIdentity]). Similarly to [**3Box**](https://github.com/3box/3box/blob/master/3IPs/3ip-3.md), we draw inspiration from **EIP1775** to derive the path. In the case of Threads, the Random Component of the Thread ID is decomposed into $\texttt{n}$ 8-bit levels, each of which is hardened to produce a path such as:
 
-Using this framework also opens up the possibility of using **BIP39** mnemonics
-for re-creating the root of a HDK hierarchy, and by association, a Peer's
-(set of) key-pairs. This also means Threads are able to support external identities such as those provided by **Keybase.io, 3Box.io, and others**. The actual path implementation can vary from implementation to implementation, as long as Log siblings can be deterministically derived from the same parent
-level.
+$$
+\texttt{thread-path} = \texttt{x}_\texttt{0}\texttt{'/x}_\texttt{1}\texttt{'}\dots\texttt{x}_\texttt{n-1}\texttt{'/x}_\texttt{n}
+$$ {#eq:ThreadPath}
+
+where the last level is left unhardened to allow deterministic creation of child addresses from the public keys. In practice, this last level could be set to `0` by default, leaving it open for key rotations. Finally, the $\texttt{log}$ component is used to derive any number of Log key-pairs under a given $\texttt{thread-path}$. The hash of the public key from a given $\texttt{log}$ key-pair is then used to derive the actual Log ID. From this, Log identities can be deterministically derived.
+
+Using this framework also opens up the possibility of using **BIP39** mnemonics for re-creating the root of a HDK hierarchy, and by association, a Peer's (set of) key-pairs. This also means Threads are able to support external identities such as those provided by **Keybase.io, 3Box.io, and others**. The actual path implementation can vary from implementation to implementation, as long as Log siblings can be deterministically derived from the same parent level. The path derivation above should however, provide sufficient randomness to prevent accidental leackage of secrets should an account 'seed' be drawn from elsewhere.
 
 Identity Key
 : The Identity Key is an asymmetric key-pair that is used to derive the
 Log ID (hash of the public key), and sign Events added to a Log.
+
+#### Log Encryption {#sec:LogEncryption}
 
 The body, or content of an Event, is encrypted by a *Content Key*.
 Content Keys are generated for each piece of content and never reused.
