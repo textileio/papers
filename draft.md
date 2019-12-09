@@ -687,7 +687,9 @@ strategies are possible if this is the desired conflict resolution
 strategy.
 
 Writer
-: The single IPFS Peer capable of writing to an Event Log.
+: The single IPFS Peer capable of writing to an Event Log. In
+practice, this is the *owner* of a given asymmetric (PKI)
+key-pair. See [@sec:LogIdentity] for derivation details.
 
 Reader
 : Any Peer capable of reading a Log. Practically speaking, this
