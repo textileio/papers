@@ -1108,13 +1108,39 @@ We adopt a similar flow in Threads (see [@fig:Architecture]). Like any CQRS/ES-b
 are built on *Events*. Events are similar to actions in a Flux-based
 system, and are used to produce *predictable* updates to downstream
 state. Similarly to a DDD-based pattern, to add an Event to the internal
-Threads system, we use *Event Creators*, which dispatch Events to the
-system via a singleton *Dispatcher*. The Dispatcher then stores the
-derived Event in an *Event Store*, and calls a set of registered
-*Reducer* functions that mutate a (set of) downstream view *Stores*
-defined by a corresponding set of view *Models*, all within a single
+Threads system, we use *Models*, which create and send Actions to an EventCodec, which are then dispatched to the rest of the system via an internal *Dispatcher*. The Dispatcher then calls a set of registered
+*Reducer* functions to mutate Model state, all within a single
 *Transaction*. This unidirectional, transaction-based system provides a
 flexible framework for building complex event-driven application logic.
+
+[@Fig:Architecture] depicts the various components that make up an Event Store. New Events travel through the system once a transaction is  committed by a local Actor (user). Conversely, new Events caused by updates to an *external* Peer's Log (associated with the given Thread), go through essentially the same process, but in reverse. In the diagram, arrows don't always indicate synchronous calls, but also channel notifications and other communication strategies that indicate a dependency between components. In this sense, arrows are "conceptual" interactions.
+
+### Models {#sec:views}
+
+As in many CQRS-based systems, Events are dispatched on the write side,
+and are *reacted to* on the read side. The primary interface to the write side is exposed via the Event Store's Models. As shown in [@fig:Architecture], Model(s) are at the center of the Threads Event Store. They are used to send *Actions* from a local application to the rest of the internal Event Store. If built around a specific *domain*, Models provide bounded context that can be roughly compared to an aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
+
+Currently, Models are defined using a [json-schemas.org](json-schemas.org) Schema that *describes the shape* of the underlying entity that it represents. This is also quite similar to a document in a document-based database context. For example, a Model might define a `Person` entity, with a `first` and `last` name, `age`, etc.  Models also provide the public API for creating, deleting, updating, and querying these entities. Lastly, they also provide read/write *Transactions* which have *serializable isolation* within the entire Event Store scope. It is via Transactions that Models introduce Actions into the system.
+
+Transactions
+: Actions describing updates to the system happen within Transactions [@haerderPrinciplesTransactionorientedDatabase1983], in order to ensure consistency of the local Event Store. It is only after a Transaction has been committed that its Actions are sent to the Event Codec in order to be translated into Events.
+
+### Event Codec
+
+This is an internal component not available in the public API. Main responsibility: Transform and apply and encode/decode transaction actions.
+
+EventCodec is an abstraction used to:
+
+Transform actions made in a txn, to an array of store.Event that will be dispatcher to be reduced.
+Encode actions made in a txn to a ipldformat.Node which will serve as the next building block for the appended Record in the local peer log.
+The reverse of last point, when receiving external actions to allow to be dispatched.
+For example, if within a model WriteTxn(), a new instance is created and other was updated, these two action will be sent to the EventCodec to transform them in Events. These Event have a byte payload with the encoded transformation. Currently, the only implementation of EventCodec is a jsonpatcher, which transforms these actions in json-merge/patches, and store them as payloads in events.
+
+These events are also aggregated in a returned ipldformat.Node, which is the compatible/analogous information to be used by Threadservice to add in the peer own log in the thread associated with the Store. Likewise, EventCodec also do the inverse transformation. Given a ipldformat.Node, it transforms its byte payload into actions that will be reduced in the store.
+
+The EventCodec abstraction allows an extensibility point. If instead of a json-patcher we want to encode model changes as full instance snapshots (i.e: instead of generating the json-patch, let generate the full instance data), we could provide another implementation of the EventCodec to use in the Store.
+
+Similarly, more advanced encodings of JSON-Document changes can be implemented as EventCodec such as JSON-Documents-Delta-CRDTs, or a hybrid json-patch with logical clocks.
 
 ### Events & Creators {#sec:creators}
 
@@ -1122,57 +1148,20 @@ flexible framework for building complex event-driven application logic.
 shared (i.e., across Peers) state happens via Events (see also [@sec:cqrs]).
 Events are used to describe "changes to an application state"
 [@fowlerEventSourcing] (e.g., a photo was added, an item was added to a
-shopping cart, etc). Related, *Event Creators* are used to send Events
-from a *local* application to an internal Event Store. If built around a
-specific *domain*, Creators provide bounded context that can be roughly
-compared to an aggregate root in DDD
-[@evansDomaindrivenDesignTackling2004a].
+shopping cart, etc). 
 
 ### Dispatcher {#sec:dispatcher}
 
 In order to persist and dispatch Events to downstream view Models, a
-*Dispatcher* is used. As shown in [@fig:Architecture], the Dispatcher is at the center of the ES
-system. All Events must go through the singleton Dispatcher, whether
+*Dispatcher* is used.  All Events must go through the singleton Dispatcher, whether
 these be from local Event Creators or remote Peers. The Dispatcher is
 responsible for ensuring that incoming Events are persisted to the Event
 Store (the "source of truth" for the system), as well as dispatched to
 downstream view Models by way of a set of Reducer functions.
 
-### Transactions {#sec:transactions}
 
-All Reducer function calls (and "side effects") due to a given Event
-happen within a single *Transaction*
-[@haerderPrinciplesTransactionorientedDatabase1983], in order to ensure
-consistency of both storage (Event Store) and Models. Transactions are
-similar to Redux *Sagas*[^14] in terms of outcome, but with stronger
-consistency guarantees. Once an Event has been persisted in the internal
-Event Store, the Dispatcher is responsible for running a view Model's
-Reducer callback. In order to make this possible, Models must *register*
-their Reducer with the Dispatcher.
 
-### View Models/Stores {#sec:views}
 
-As in many CQRS-based systems, Events are dispatched on the write side,
-and are *reacted to* on the read side. Reactions happen via Reducer
-functions, which cause updates to view Models, which in turn provide
-interfaces for queries and accessing persisted view *Stores* (state).
-View Stores are then responsible for notifying downstream consumers
-(application logic) of changes to their state via a *Broadcaster* (i.e.,
-event emitter). They are similar in some respects to a Redux Store,
-though it is possible to have *multiple* view Models/Stores as in the
-more general Flux pattern.
-
-A view Model is generally defined by custom update logic (i.e., a
-Reducer), a (possibly ORM[^15]-based) view Store for persistence, an
-Event Bus (or Broadcaster) for notifying downstream consumers, and a set
-of query/*Resolver* [@ereminReduxInspiredBackend2019] functions. In
-practice, a view Model may *also* wrap the Event Creator application
-logic that is used to generate upstream Events. This provides an
-intuitive, singular access point to the *local* system, while also
-leaving room for updates via *external* Peer Events. In practice, the
-Store is a lightweight interface that can be implemented by one of many
-database management systems (see [@sec:DBMS]) providing end users/developers the greatest
-flexibility.
 
 ### Remote Events {#sec:external}
 
@@ -1185,7 +1174,7 @@ push or pull). These Events are no different from *Local Events*, though
 in practice the Peer Host is required to validate Remote Events before
 they are dispatched to the internal system.
 
-Thread Interfaces {#sec:interfaces}
+The Store Interface {#sec:interfaces}
 =================
 
 To make Threads as easy to adopt and use as possible, we have
