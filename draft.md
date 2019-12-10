@@ -850,7 +850,7 @@ stored in a key book ([@lst:KeyBook]).
 
 Every Log requires an asymmetric key-pair that determines ownership and
 identity. The private key is used to sign each Event added to the Log,
-so down-stream processes can verify the Log's authenticity. Like IPFS
+so downstream processes can verify the Log's authenticity. Like IPFS
 Peers, a hash of the public key of the Log is used as an identifier
 (Log ID). Unlike IPFS Peers, this key is actually *derived* from the
 Peer's private key, rather than used directly.
@@ -888,11 +888,14 @@ $$ {#eq:ThreadPath}
 
 where the last level is left unhardened to allow deterministic creation of
 child addresses from the public keys. In practice, this last level could be
-set to `0` by default, leaving it open for key rotations. Finally, the
-$\texttt{log}$ component is used to derive any number of Log key-pairs under
-a given $\texttt{thread-path}$. The hash of the public key from a given
-$\texttt{log}$ key-pair is then used to derive the actual Log ID. From this,
-Log identities can be deterministically derived.
+set to `0` by default, leaving it open for deriving *multiple* Logs per
+Thread. It is the key-pair from this last level that is used to derive the actual Log ID.
+
+Finally, the $\texttt{log}$ component in the above path can be used to
+derive any number of writing/signing key-pairs under a given Log.
+From this, Log public keys can be deterministically derived by external
+peers, simplifying validation on remote clients when processing Log
+Events.
 
 Using this framework also opens up the possibility of using **BIP39** mnemonics
 for re-creating the root of a HDK hierarchy, and by association, a Peer's (set of)
