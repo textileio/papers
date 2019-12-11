@@ -736,18 +736,20 @@ multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see
 [@lst:Multiaddress]).
 
 Unlike Peer multiaddresses, Log addresses are not stored in the global
-IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are collected
-from Log Events. This is in contrast to mutable data via IPNS for
-example, which requires querying the network (DHT) for updates. Instead,
-updates are requested directly from the (presumably trusted) Peers that
-produced them, resulting in a hybrid of content-addressed Events
+IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
+via the push/pull API (see [@sec:LogSync]). This is in contrast to mutable
+data via IPNS for example, which requires querying the network (DHT) for
+updates. Updates are requested directly from the (presumably trusted) Peers
+that produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
 in an address book (AddrBook), similar to an IPFS Peer address book
 (see [@lst:KeyBook]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
-Log addresses can also change over time, and these changes are advertised to Peers "out of band" via direct p2p communication. The receiving Peers can then update their local AddrBook to reflect the new address(es) of their Peer.
+Log addresses can also change over time, and these changes are again advertised
+to Peers via the push/pull API (see [@sec:LogSync]). The receiving Peers can
+then update their local AddrBook to reflect the new address(es) of their Peer.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
@@ -837,9 +839,9 @@ type KeyBook interface {
 
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
-in a manner that enables access control ([@sec:AccessControl]) and the Replica mechanism discussed in
-the previous section. Much like the Log address book, Log *keys* are
-stored in a key book ([@lst:KeyBook]).
+in a manner that enables access control ([@sec:AccessControl]) and the
+Replica mechanism discussed in the previous section. Much like the Log
+address book, Log *keys* are stored in a key book ([@lst:KeyBook]).
 
 Identity Key
 : Every Log requires an asymmetric key-pair that
@@ -905,20 +907,20 @@ individual Writers into singular shared states through the use of either
 cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid
 Logical Clock [@kulkarniLogicalPhysicalClocks2014]) or a CRDT ([@sec:CRDTs]).
 
-### Identity
+### Identity {#sec:ThreadIdentity}
 
 A unique Thread IDentity (TID) is used to group together Logs which
 compose a single dataset and as a topic identifier within Pubsub-based
 synchronization. The components of a TID are given in [@eq:ThreadID].
 
 $$
-\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc1dc03ee8cb5d478e41cc8a4546e}}^\text{Random Number}
+\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc}\dots\texttt{a4546e}}^\text{Random Component}
 $$ {#eq:ThreadID}
 
 TIDs share some similarities with UUIDs
 [@leachUniversallyUniqueIDentifier2005] (version and variant) and
-IPFS-based CIDs and are multibase encoded[^8] for maximum
-forward-compatibility. Base32 encoding is used by default, but any
+IPFS-based CIDs, and are multibase encoded[^8] for maximum
+forward-compatibility. Base-32 encoding is used by default, but any
 multibase-supported string encoding may be used.
 
 Multibase Prefix
@@ -933,9 +935,9 @@ Variant
 : Used to specify thread-level expectations, like
 access-control. 8 bytes max. See [@sec:variants] for more about variants.
 
-Random Number
-: A random number of a user-specified length. 16 bytes or
-more (see [@lst:Identity]).
+Random Component
+ : A random set of bytes of a user-specified length. 16 bytes or more
+ (see [@lst:Identity]).
 
 ### Variants {#sec:variants}
 
@@ -1063,14 +1065,14 @@ connectivity between Peers who are often offline or unreachable.
 
 ### Log Replication
 
-The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating all Log Events
-trivial. This allows any Peer on the network to be granted the
-responsibility of replicating data from another Peer without having read
-access to the raw Log entries. This type of Log replication can act as a
-data backup mechanism. It can also be used to build services that react
-to Log Events, potentially pushing data to disparate, non-Textile
-systems, especially if the replication service *is* granted read access
-to the Log Events ([@sec:LogSync]).
+The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating
+all Log Events trivial. This allows any Peer on the network to be
+granted the responsibility of replicating data from another Peer without
+having read access to the raw Log entries. This type of Log replication
+can act as a data backup mechanism. It can also be used to build
+services that react to Log Events, potentially pushing data to
+disparate, non-Textile systems, especially if the replication service
+*is* granted read access to the Log Events ([@sec:LogSync]).
 
 Threads Internals {#sec:internals}
 =================
@@ -1081,13 +1083,13 @@ Events in practice. In this section, we provide a description of a
 Threads-compatible Event Store implementation. The Event Store outlined
 here takes advantage of ideas from several existing CQRS and ES systems
 (e.g., [@ereminReduxInspiredBackend2019]), as well as concepts and
-designs from Flux [@facebookFluxInDepthOverview2019], Redux[^12]
+designs from Flux [@facebookFluxInDepthOverview2019], Redux[^redux]
 [@reduxMotivation] and domain driven design
 [@evansDomaindrivenDesignTackling2004a] (DDD)[^13]. Following this
-discussion of Threads *internals*, in [@sec:interfaces] we
-outline how it can be used to build intuitive developer-facing
-application programing interfaces (APIs) to make adopting and using
-Threads "the right choice" for a wide range of developers.
+discussion of Threads *internals*, in [@sec:interfaces] we outline how
+it can be used to build intuitive developer-facing application
+programing interfaces (APIs) to make adopting and using Threads "the
+right choice" for a wide range of developers.
 
 Overview
 --------
@@ -1101,90 +1103,184 @@ systems (see [@facebookFluxInDepthOverview2019] and/or
 data flows that build downstream views from atomic updates in the form
 of events (or actions).
 
-![Architectural diagram for internal Event Store
-implementation.](figures/Architecture.png){#fig:Architecture height="350px"}
+![Architectural diagram for internal Event Store implementation. Arrows
+indicate synchronous calls, channel notifications, and other
+communication strategies that indicate a dependency between
+components.](figures/Architecture.png){#fig:Architecture height="350px"}
 
-We adopt a similar flow in Threads (see [@fig:Architecture]). Like any CQRS/ES-based system, Threads
-are built on *Events*. Events are similar to actions in a Flux-based
-system, and are used to produce *predictable* updates to downstream
-state. Similarly to a DDD-based pattern, to add an Event to the internal
-Threads system, we use *Models*, which create and send Actions to an EventCodec, which are then dispatched to the rest of the system via an internal *Dispatcher*. The Dispatcher then calls a set of registered
-*Reducer* functions to mutate Model state, all within a single
-*Transaction*. This unidirectional, transaction-based system provides a
-flexible framework for building complex event-driven application logic.
+We adopt a similar flow in Threads (see [@fig:Architecture]). Like any
+CQRS/ES-based system (see also [@sec:cqrs]), Threads are built on
+*Events* ([@fowlerEventSourcing]). Events are used to produce
+*predictable* updates to downstream state. Similarly to a DDD-based
+pattern, to add an Event to the internal Threads system, we use
+*Models*, which create and send *Actions* to an *Event Codec*, which are
+then dispatched to the rest of the system via an internal *Dispatcher*.
+The Dispatcher then calls a set of registered *Reducer* functions to
+mutate Model state, all within a single *Transaction*. This
+unidirectional, transaction-based system provides a flexible framework
+for building complex event-driven application logic.
 
-[@Fig:Architecture] depicts the various components that make up an Event Store. New Events travel through the system once a transaction is  committed by a local Actor (user). Conversely, new Events caused by updates to an *external* Peer's Log (associated with the given Thread), go through essentially the same process, but in reverse. In the diagram, arrows don't always indicate synchronous calls, but also channel notifications and other communication strategies that indicate a dependency between components. In this sense, arrows are "conceptual" interactions.
+[@Fig:Architecture] depicts the various components that make up an Event
+Store. New Events travel through the system once a transaction is
+committed by a local Actor (user). Conversely, new Events caused by
+updates to an *external* Peer's Log (associated with the given Thread),
+go through essentially the same process, but in reverse. The various
+core components are discussed in detail in the following sections.
 
-### Models {#sec:views}
+### Models {#sec:Models}
 
 As in many CQRS-based systems, Events are dispatched on the write side,
-and are *reacted to* on the read side. The primary interface to the write side is exposed via the Event Store's Models. As shown in [@fig:Architecture], Model(s) are at the center of the Threads Event Store. They are used to send *Actions* from a local application to the rest of the internal Event Store. If built around a specific *domain*, Models provide bounded context that can be roughly compared to an aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
+and are *reacted to* on the read side. The primary interface to the
+write side is exposed via the Event Store's Models. As shown in
+[@fig:Architecture], Model(s) are at the center of the Threads Event
+Store. They are used to send *Actions* from a local application to the
+rest of the internal Event Store. If built around a specific *domain*,
+Models provide bounded context that can be roughly compared to an
+aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 
-Currently, Models are defined using a [json-schemas.org](json-schemas.org) Schema that *describes the shape* of the underlying entity that it represents. This is also quite similar to a document in a document-based database context. For example, a Model might define a `Person` entity, with a `first` and `last` name, `age`, etc.  Models also provide the public API for creating, deleting, updating, and querying these entities. Lastly, they also provide read/write *Transactions* which have *serializable isolation* within the entire Event Store scope. It is via Transactions that Models introduce Actions into the system.
+Models : Models are part of an Event Store's public-api. Their main
+responsibilities are to store instances of user-defined schemas, and
+operate on Entities defined by said schema.
 
-Transactions
-: Actions describing updates to the system happen within Transactions [@haerderPrinciplesTransactionorientedDatabase1983], in order to ensure consistency of the local Event Store. It is only after a Transaction has been committed that its Actions are sent to the Event Codec in order to be translated into Events.
+Actions : Every update to local and shared (i.e., across Peers) state
+happens via Actions. Actions are used to describe *changes to an
+application state*  (e.g., a photo was added, an item was added to a
+shopping cart, etc). Models are used to create Actions.
 
-### Event Codec
+Currently, Models are defined using a
+[json-schemas.org](json-schemas.org) Schema that *describes the shape*
+of the underlying entity that it represents. This is also quite similar
+to a document in a document-based database context. For example, a Model
+might define a `Person` entity, with a `first` and `last` name, `age`,
+etc. Models also provide the public API (bounded context) for creating,
+deleting, updating, and querying these entities. Lastly, they also
+provide read/write *Transactions* which have *serializable isolation*
+within the entire Event Store scope. It is via Transactions that Models
+introduce Actions into the system.
 
-This is an internal component not available in the public API. Main responsibility: Transform and apply and encode/decode transaction actions.
+Transactions : Actions describing updates to the system happen within
+Transactions [@haerderPrinciplesTransactionorientedDatabase1983] in
+order to ensure consistency of the local Event Store. It is only after a
+Transaction has been committed that its Actions are sent to the Event
+Codec in order to be translated into Events.
 
-EventCodec is an abstraction used to:
+### Event Codec {#sec:EventCodec}
 
-Transform actions made in a txn, to an array of store.Event that will be dispatcher to be reduced.
-Encode actions made in a txn to a ipldformat.Node which will serve as the next building block for the appended Record in the local peer log.
-The reverse of last point, when receiving external actions to allow to be dispatched.
-For example, if within a model WriteTxn(), a new instance is created and other was updated, these two action will be sent to the EventCodec to transform them in Events. These Event have a byte payload with the encoded transformation. Currently, the only implementation of EventCodec is a jsonpatcher, which transforms these actions in json-merge/patches, and store them as payloads in events.
+Before Actions from the client-side are introduced into the system, they
+are encoded as Events using the Event Codec. Here, the core function is
+to transform (i.e., encode/decode) and apply Transaction Actions. An
+Event Codec is therefore an internal abstraction layer used to:
 
-These events are also aggregated in a returned ipldformat.Node, which is the compatible/analogous information to be used by Threadservice to add in the peer own log in the thread associated with the Store. Likewise, EventCodec also do the inverse transformation. Given a ipldformat.Node, it transforms its byte payload into actions that will be reduced in the store.
+1. Transform Actions made in a Transaction into an (array of) Events
+   that will be dispatched via the Dispatcher to be "reduced".
+2. Encode Actions made in a Transaction in an IPLD Node, which will
+   serve as a building block for an event Record entry in the local
+   Peer's Datastore.
+3. Decode external IPLD Nodes into Events, which can then be dispatched
+   locally.
 
-The EventCodec abstraction allows an extensibility point. If instead of a json-patcher we want to encode model changes as full instance snapshots (i.e: instead of generating the json-patch, let generate the full instance data), we could provide another implementation of the EventCodec to use in the Store.
+For example, if within a Model (write) Transaction, a new Entity is
+created and another one is updated, these two Actions will be sent to
+the Event Codec to transform them into Events. These Events have a
+payload of bytes with the encoded transformation(s). Currently, the
+only implementation of Event Codec is a *JSON Patcher*, which transforms
+Actions into JSON-merge/patch objects **REF**.
 
-Similarly, more advanced encodings of JSON-Document changes can be implemented as EventCodec such as JSON-Documents-Delta-CRDTs, or a hybrid json-patch with logical clocks.
+Once these Events have been aggregated by the Event Codec into an IPLD
+Node, this information is used by Thread Service to actually persist the
+Event Record in the Thread associated with the given Store (i.e., it is
+written to an underlying Datastore). Likewise, the Event Codec can also
+do the inverse transformation: given an IPLD Node, it transforms its
+byte payload into Actions that will be reduced in the Store.
 
-### Events & Creators {#sec:creators}
+The Event Codec abstraction provides a useful extensibility mechanism
+for the Event Store: if instead of a JSON Patcher, a more advanced CRDT
+structure is needed, it would be implemented as an Event Codec. Here,
+operation *or* delta-state CRDTs could be modeled as Event Codecs to
+provide CRDT-like behavior to the downstream reducers. CRDT-based Event
+Codecs could range from simple ... to more complex .... For example,
+JSON document changes could be implemented as a JSON CRDT
+[@kleppmannConflictFreeReplicatedJSON2017], or a hybrid JSON Patch
+**REF** with logical clocks.
 
-*Events* are at the heart of Threads --- every update to local and
-shared (i.e., across Peers) state happens via Events (see also [@sec:cqrs]).
-Events are used to describe "changes to an application state"
-[@fowlerEventSourcing] (e.g., a photo was added, an item was added to a
-shopping cart, etc). 
+### Dispatcher {#sec:Dispatcher}
 
-### Dispatcher {#sec:dispatcher}
+In order to persist and dispatch Events to downstream consumers, a
+*Dispatcher* is used. Every Event generated in the Event Store is sent
+to a Dispatcher when write Transactions are committed. The Dispatcher is
+then responsible for broadcasting these events to all registered
+*Reducers*. For example, if a particular Entity is updated via a Model,
+the corresponding Actions will be encoded as an Event by the Event Codec
+(as mentioned previously). These Events will then be dispatched to the
+Dispatcher, which will:
 
-In order to persist and dispatch Events to downstream view Models, a
-*Dispatcher* is used.  All Events must go through the singleton Dispatcher, whether
-these be from local Event Creators or remote Peers. The Dispatcher is
-responsible for ensuring that incoming Events are persisted to the Event
-Store (the "source of truth" for the system), as well as dispatched to
-downstream view Models by way of a set of Reducer functions.
+1. Store the new Event in persistent storage (*Datastore*). If the Transaction made
+   *multiple* changes, this is done *transactionally*.
+2. Broadcast all *new* Events to all registered Reducers. Reducers will
+   then apply the changes encoded by the Event Codec as the "see fit".
 
+This design implies that real Event Store state changes *can only happen
+when the Dispatcher broadcasts new Events*. A Reducer can't distinguish
+between Events generated locally or externally. External events are the
+results of the Thread Service sending new Events to the Dispatcher,
+which means that new Events where detected in another Peer's Log from
+the same Thread.
 
+Dispatcher
+: A Dispatcher is the *source of truth* regarding known Events for the
+Event Store. All Events must go through the singleton Dispatcher,
+whether these initiated as local or remote Events.
 
+Reducer
+: A Reducer is a party which is interested in knowing about Store
+Events. Currently, the only Reducer is the Store itself.
 
+Datastore
+: A Datastore is the underlying persistence layer for Model Entities and a Dispatcher's raw Event information. In both cases, they are updatated via a Transaction to have transactional guarantees.
 
-### Remote Events {#sec:external}
+### Store Listener {#sec:StoreListener}
 
-In addition to locally derived Events (i.e., from application logic and
-user interactions), Threads are designed so that Peers may collaborate
-in a given Thread via Events. Events generated by other, network Peers
-are called *Remote Events*, and they enter the system via a Peer Host.
-The Peer Host is responsible for dealing with incoming Events (be they
-push or pull). These Events are no different from *Local Events*, though
-in practice the Peer Host is required to validate Remote Events before
-they are dispatched to the internal system.
+This is part of the public-api. Main responsibility: Notify external actors that the Store changed its state, with details about the change: in which model, what action (Create, Save, Delete), and wich EntityID.
+
+Listeners are useful for clients that want to be notified about changes in the Store. Recall that Store state can change by external events, such as receiving external changes from other peers sharing the Store.
+
+The client can configure which kind of events wants to be notified. Can add any number of criterias; if more than one criteria is used they will be interpreted as OR conditions. A criteria contains the following information:
+
+Which model to listen changes
+What action is done (Create, Save, Delete)
+Which EntitiID
+Any of the above three attributes can be set empty. For example, we can listen to all changes of all entities in a model if only the first attribute is set and the other two are left empty/default.
+
+Event Bus
+: The Event Bus is used to deliver IPLD Node encoded changes done in locally commited Transactions. Currently, only a single Thread Adapter is listening to this Bus.
+
+### Thread Adapter {#sec:ThreadAdapter}
+
+This is an internal component not available in the public API. Main responsibility: Responsible to be the two-way communication between Store and Threads.
+
+Every time a new local ipldformat.Node is generated in the Store due to a write transaction commit, the StoreThreadAdapter will notify Threadservice that a new Record should be added to the local peer log.
+
+Similarly, when Threadservice detects new Records in other peer logs, it will dispatch them to SingleThreadAdapter. Then, it will transform it into a Store Events that will be dispatched to Dispatcher and ultimately will be reduced to impact Store state.
+
+As said initially, currently, the Store is only mapped to a single Thread. But is possible to decide a different map, where a Store might be backed by more than one thread or any other schema. This is the component that should be taking this decisions.
+
+### Thread Service {#sec:ThreadService}
+
+This component is part of the public-api so that it can be accessed. Main responsibility: Is the Store interface with Threads layer.
+
+Threadservice is the bidirectional communication interface to the underlying Thread backing the Store. It only interacts with StoreThreadAdapter
 
 The Store Interface {#sec:interfaces}
 =================
 
-To make Threads as easy to adopt and use as possible, we have
-designed a developer facing API on top of the Threads internals that
-simplifies dealing with events and data, while still maintaining the
-power and flexibility of CQRS and ES. Developers should not have to
-learn a whole new set of terms and tools to take advantage of Threads'
-capabilities. These simple, public-facing APIs will be comfortable to
-application developers looking to leverage distributed systems that
-leverage user-siloed data, with minimal configuration and maximum
+To make Threads as easy to adopt and use as possible, we have designed a
+developer facing API on top of the Threads internals that simplifies
+dealing with events and data, while still maintaining the power and
+flexibility of CQRS and ES. Developers should not have to learn a whole
+new set of terms and tools to take advantage of Threads' capabilities.
+This simple, public-facing API will be comfortable to application
+developers looking to leverage distributed systems that leverage
+user-siloed data, with minimal configuration and maximum
 interoperability. Inspired by tools such as MondoDB[^16], Parse[^17],
 and Realm[^18], as well as the idea of bounded context and aggregate
 roots from DDD, we provide simple abstractions for performing
@@ -1196,19 +1292,13 @@ each Thread is defined by a unique ID, and provides facilities for
 access control and permissions, networking, and more. To illustrate how
 these underlying components can be combined to produce a simple API with
 minimal configuration and boilerplate, consider the following example in
-which we provide pseudo-code for a hypothetical Photos app.
+which we provide working Javascript code for a hypothetical Photos app.
 
 Illustrative Example {#sec:example}
 --------------------
 
-To create a useful application, developers start with view `Models`, as
-in [@lst:models]. A Model is essentially the public API for the
-underlying view Models from [@sec:views].
-Building on this, developers might create a new Thread for a user to
-store `Contact` information, as well as their mobile phone's camera roll
-photos, as in [@lst:stores]. This would create a new view Store
-under-to-hood (with corresponding indexes, etc), to be mutated by
-incoming Events.
+To create a useful application, developers start with `Models`. A Model is essentially the public API for the Thread/Event Store (see [@sec:Models]).
+For example a develper might create a new Store, with Models to represent `Contact` information, as well as perhaps a mobile phone's `CameraRoll`. This would create a new Store under-to-hood (with corresponding indexes, etc), to be mutated by Actions generated from the Model.
 
 ~~~ {#lst:models .javascript caption="Create a photo entity and some way to represent a photo's author."}
 Photo = NewModel({
@@ -1586,9 +1676,9 @@ The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 Replica, and `12D..P2c6ifo` has been given read access. A Thread-level
-ACL has it's own Entity ACL, which also applies to all other Entity
-ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe`
-is able to alter the access-control list.
+ACL has it's own Entity ACL, which also applies to all other Entity ACLs
+(see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe` is able to
+alter the access-control list.
 
 ~~~ {#lst:ThreadAcl .json caption="Thread and Entity ACL"}
 {
@@ -1602,15 +1692,16 @@ is able to alter the access-control list.
 
 #### Note About Deleting {#sec:deleting}
 
-Deleting data in distributed systems is a complex concept. In practice, it is
-impossible to ensure all Peers in a system will comply with any given Tombstone
-Event. Often, data (i.e., Blocks, Events, etc.) are kept locally, including
-*original and tombstone* Events, to facilitate parsing of the Event Log. This
-means raw data that have been "deleted" are not immediately purged from a Peer's
-storage. However, in strict data compliance situations (e.g., the EU's GDPR), a
-deletion Event *may* additionally generate a Snapshot Event, allowing past data
-to be purged from the local Event and Block stores. Compliant Peers should then
-purge "deleted" data. However, the possibility of non-compliant data caching
+Deleting data in distributed systems is a complex concept. In practice,
+it is impossible to ensure all Peers in a system will comply with any
+given Tombstone Event. Often, data (i.e., Blocks, Events, etc.) are kept
+locally, including *original and tombstone* Events, to facilitate
+parsing of the Datastore. This means raw data that have been "deleted"
+are not immediately purged from a Peer's storage. However, in strict
+data compliance situations (e.g., the EU's GDPR), a deletion Event *may*
+additionally generate a Snapshot Event, allowing past data to be purged
+from the local Event and Block stores. Compliant Peers should then purge
+"deleted" data. However, the possibility of non-compliant data caching
 remains. The initial Textile Threads reference implementation will *not*
 automatically purge deleted data from the local store. This compliance
 requirement will initially be left up to application-level developers.
@@ -1807,14 +1898,10 @@ type EventHeader interface {
 
 [^11]: <https://ifttt.com>
 
-[^12]: Redux builds on concepts from CQRS and ES itself, and is arguably
+[^redux]: Redux builds on concepts from CQRS and ES itself, and is arguably
     an implementation of the Flux application architecture.
 
 [^13]: <https://dddcommunity.org>
-
-[^14]: <https://redux-saga.js.org/>
-
-[^15]: Object-relational mapping
 
 [^16]: <http://www.mongodb.com>
 
