@@ -870,16 +870,16 @@ Key is needed. This is done using a Hierarchical Deterministic Key (HDK)
 derivation framework, as defined in **BIP32**. Details of how BIP32
 implements HDKs can be found **here** and **here**. For the purposes of
 this paper, it is sufficient to understand that nested child keys can be
-derived from a single parent key. To protect against the potential data exposure from a leaked child key, a *hardened* key derivation is used at
-upper levels of the hierarchy, as outlined in **BIP44** (and by proxy,
-**BIP43**). The hierarchy is setup as in **fig. X**.
+derived from a single parent key. To protect against the potential data exposure from a leaked child key, a *hardened* key derivation should be
+used at the upper levels of the hierarchy, as outlined in **BIP44**
+(and by proxy, **BIP43**). The hierarchy should be setup as in **fig. X**.
 
 INSERT DERIVATION PATH DIAGRAM HERE
 
 The levels of the derivation path in **fig. X** correspond to the components of the path given in [@eq:LogPath]:
 
 $$
-\texttt{m/Purpose'/Account'/}\dots\texttt{Path'/Log/Writer}
+\texttt{m/Purpose'/Account'/}\dots\texttt{Path/Log/Writer}
 $$ {#eq:LogPath}
 
 where each component in the path corresponds to a different level of the
@@ -889,32 +889,47 @@ format, inspired by [**3Box**](https://github.com/3box/3box/blob/master/3IPs/3ip
 is set to `7478746` (which is the hex representation of `txtl`, but could
 also be other values). The $\texttt{Account}$ level can be used to manage
 different Textile accounts or even identities. By default, only the `0`
-account is used, and this is also hardened to protect the user.
+$\texttt{Account}$ is used, and this is should be hardened to protect the
+user. An external identity can be used in place of the $\texttt{Account}$
+level.
 
 The $\dots\texttt{Path}$ component is actually a series of levels derived
 from some source of random bytes. In practice, the *Random Component* 
-(see [@sec:threadIdentity]) of the Thread ID is decomposed into $\texttt{n}
-$ 8-bit levels ($\texttt{l}$), each of which is hardened to produce a path
-such as:
+(see [@sec:threadIdentity]) of the Thread ID is decomposed into
+$\texttt{n}$ 8-bit levels ($\texttt{l}$) to produce a path such as:
 
 $$
-\dots\texttt{Path} = \texttt{l'}_\texttt{0}\texttt{/l'}_\texttt{1}\texttt{/}\dots\texttt{/l'}_\texttt{n}
+\dots\texttt{Path} = \texttt{l}_\texttt{0}\texttt{/l}_\texttt{1}\texttt{/}\dots\texttt{/l}_\texttt{n-1}\texttt{/l}_\texttt{n}
 $$ {#eq:ThreadPath}
 
-Following this, the $\texttt{Log}$ component of the path is left unhardened
-to allow deterministic creation of child public keys. In practice, this
-level can default to `0`, with the option of using other indices to produce
-*multiple* Logs per Thread. It is the public key from this $\texttt{Log}$
-component that is used to derive the actual Log ID (we use the hash of the
-public key). Any number of Writer Key(s) can then be derived under a given
-Log. From this, Log public keys can be deterministically derived by
-external peers, simplifying validation on remote clients when processing
-Log Events.
+All levels in this $\dots\texttt{Path}$ component, as well as the subsequent
+$\texttt{Log}$ level are left *unhardened* to allow deterministic creation
+of child public keys from the "extended"[^extended] public keys. An advantage of this HDK approach is that new child public keys can be created
+exclusively from the child's extended key, such that other peers can derive
+addresses without knowing any private keys. However, extended keys need to
+be handled with care to avoid private key leakage, as such, no private keys
+from the $\dots\texttt{Path}$ component are used, to avoid leaking them to
+external peers.
+
+In practice, the $\texttt{Log}$ level can default to `0`, with the option
+of using other indices to produce *multiple* Logs per Thread. It is the
+(extended) public key from this $\texttt{Log}$ component that is used to
+derive the actual Log ID (we use the hash of the public key). Any number
+of Writer Key(s) can then be derived under a given Log. From this, Log
+public keys can be deterministically derived by external peers, simplifying
+validation on remote clients when processing Log Events.
+
+Putting the above path description together, we arrive at a derivation
+path that may look something like:
+
+$$
+\texttt{m/7478746'/0'/0/1/2/3/}\dots\texttt{/30/31/0/0}
+$$ {#eq:FullPath}
 
 Using the Thread's Random Component to derive the $\dots\texttt{Path}$
 component means that any Thread Peer is able to deterministically derive
 another Peer's Log ID (and public component of their Writer Key) using
-only their Peer ID and the given Thread ID. Using this HDK framework
+only their Seed/Peer ID and the given Thread ID. This HDK framework
 also opens up the possibility of using **BIP39** mnemonics for
 re-creating the root of a HDK hierarchy, and by association, a Peer's
 (set of) key-pairs.
@@ -1870,6 +1885,8 @@ type EventHeader interface {
 
 [^head]: In this context, "head" refers to the most recent event/update, and should
     not be confused with the "root" CID.
+
+[^extended]: Extended public keys are the 256-bit public key and a 256-bit "chain code", see **ref** for details
 
 [^1]: Terminology in this section may differ from some other examples of
     ES and CQRS patterns, but reflects the underlying architecture and
