@@ -842,73 +842,88 @@ type KeyBook interface {
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
 in a manner that enables access control ([@sec:AccessControl]) and the
-Replica mechanism discussed in
-the previous section. Much like the Log address book, Log *keys* are
-stored in a key book ([@lst:KeyBook]).
+Replica mechanism discussed in the previous section. Much like the Log
+address book, Log *keys* are stored in a key book ([@lst:KeyBook]).
 
 #### Log Identity {#sec:LogIdentity}
 
-Every Log requires an asymmetric key-pair that determines ownership and
-identity. The private key is used to sign each Event added to the Log,
-so downstream processes can verify the Log's authenticity. Like IPFS
-Peers, a hash of the public key of the Log is used as an identifier
-(Log ID). Unlike IPFS Peers, this key is actually *derived* from the
-Peer's private key, rather than used directly.
-
-In practice, this is done using a Hierarchical Deterministic Key (HDK)
-framework, as defined in **BIP32**. Details of how BIP32 implements HDKs
-can be found **here** and **here**. For the purposes of this paper, it
-is sufficient to understand that nested child keys can be derived from
-a single parent key. To protect against the potential data exposure
-from a leaked child key, a hardened key derivation is used at lower
-levels of the hierarchy, as outlined in **BIP44** (and by proxy,
-**BIP43**). The hierarchy is setup as in [@eq:LogPath].
-
-$$
-\texttt{key} = \texttt{m/purpose'/account'/thread-path'/log}
-$$ {#eq:LogPath}
-
-where each component in the path represents a new level of the key-pair
-hierarchy. Tiers marked with a ' are levels that are "hardened" (see **ref**
-for details). Using this variation on the standard **BIP44** format,
-$\texttt{purpose}$ is set to `7478746` (which is the hex representation of
-`txtl`, but could also be other values). The $\texttt{account}$ level can be
-used to manage different Textile accounts or even identities. By default, only
-the `0` account is used, and this is also hardened to protect the user. The
-$\texttt{thread-path}$ is actually a series of levels derived from the Thread
-ID (see [@sec:threadIdentity]). Similarly to
-[**3Box**](https://github.com/3box/3box/blob/master/3IPs/3ip-3.md), we
-draw inspiration from **EIP1775** to derive the path. In the case of Threads,
-the Random Component of the Thread ID is decomposed into $\texttt{n}$ 8-bit
-levels, each of which is hardened to produce a path such as:
-
-$$
-\texttt{thread-path} = \texttt{x}_\texttt{0}\texttt{'/x}_\texttt{1}\texttt{'}\dots\texttt{x}_\texttt{n-1}\texttt{'/x}_\texttt{n}
-$$ {#eq:ThreadPath}
-
-where the last level is left unhardened to allow deterministic creation of
-child addresses from the public keys. In practice, this last level could be
-set to `0` by default, leaving it open for deriving *multiple* Logs per
-Thread. It is the key-pair from this last level that is used to derive the actual Log ID.
-
-Finally, the $\texttt{log}$ component in the above path can be used to
-derive any number of writing/signing key-pairs under a given Log.
-From this, Log public keys can be deterministically derived by external
-peers, simplifying validation on remote clients when processing Log
-Events.
-
-Using this framework also opens up the possibility of using **BIP39** mnemonics
-for re-creating the root of a HDK hierarchy, and by association, a Peer's (set of)
-key-pairs. This also means Threads are able to support external identities such as
-those provided by **Keybase.io, 3Box.io, and others**. The actual path
-implementation can vary from implementation to implementation, as long as Log
-siblings can be deterministically derived from the same parent level. The path
-derivation above should however, provide sufficient randomness to prevent accidental
-leackage of secrets should an account 'seed' be drawn from elsewhere.
+Like IPFS Peers, a hash of a public key is used as a Log identifier
+(*Log ID*). Unlike IPFS Peers, this key is actually *derived* from a
+random *Seed* (or source), rather than used directly. In practice, this
+seed is derived from a Peer's private key, but it could also potentially
+come from an external identity such as those provided by **Keybase.io,
+3Box.io, and others**.
 
 Identity Key
 : The Identity Key is an asymmetric key-pair that is used to derive the
-Log ID (hash of the public key), and sign Events added to a Log.
+Log ID (hash of the public key), and subsequent child *Writer Key*(s).
+
+Writer Key
+: The Writer Key is an asymmetric key-pair that is used to sign Events added to a Log. It is derived from its owner's Log Identity Key.
+
+Additionally, each Log requires at least one asymmetric *Writer Key*-pair
+that determines ownership and identity. The Writer Key(s) is/are used to
+sign each Event added to the Log, so downstream consumers can verify
+the Log's authenticity. To make authentication easier for external peers,
+some means of deterministically deriving the public component of a Writer
+Key is needed. This is done using a Hierarchical Deterministic Key (HDK)
+derivation framework, as defined in **BIP32**. Details of how BIP32
+implements HDKs can be found **here** and **here**. For the purposes of
+this paper, it is sufficient to understand that nested child keys can be
+derived from a single parent key. To protect against the potential data exposure from a leaked child key, a *hardened* key derivation is used at
+upper levels of the hierarchy, as outlined in **BIP44** (and by proxy,
+**BIP43**). The hierarchy is setup as in **fig. X**.
+
+INSERT DERIVATION PATH DIAGRAM HERE
+
+The levels of the derivation path in **fig. X** correspond to the components of the path given in [@eq:LogPath]:
+
+$$
+\texttt{m/Purpose'/Account'/}\dots\texttt{Path'/Log/Writer}
+$$ {#eq:LogPath}
+
+where each component in the path corresponds to a different level of the
+key-pair hierarchy. Tiers marked with a ' are levels that are "hardened"
+(see **ref** for details). This is a variation on the standard **BIP44**
+format, inspired by [**3Box**](https://github.com/3box/3box/blob/master/3IPs/3ip-3.md) and **EIP1775**. In the case of Threads, $\texttt{Purpose}$
+is set to `7478746` (which is the hex representation of `txtl`, but could
+also be other values). The $\texttt{Account}$ level can be used to manage
+different Textile accounts or even identities. By default, only the `0`
+account is used, and this is also hardened to protect the user.
+
+The $\dots\texttt{Path}$ component is actually a series of levels derived
+from some source of random bytes. In practice, the *Random Component* 
+(see [@sec:threadIdentity]) of the Thread ID is decomposed into $\texttt{n}
+$ 8-bit levels ($\texttt{l}$), each of which is hardened to produce a path
+such as:
+
+$$
+\dots\texttt{Path} = \texttt{l'}_\texttt{0}\texttt{/l'}_\texttt{1}\texttt{/}\dots\texttt{/l'}_\texttt{n}
+$$ {#eq:ThreadPath}
+
+Following this, the $\texttt{Log}$ component of the path is left unhardened
+to allow deterministic creation of child public keys. In practice, this
+level can default to `0`, with the option of using other indices to produce
+*multiple* Logs per Thread. It is the public key from this $\texttt{Log}$
+component that is used to derive the actual Log ID (we use the hash of the
+public key). Any number of Writer Key(s) can then be derived under a given
+Log. From this, Log public keys can be deterministically derived by
+external peers, simplifying validation on remote clients when processing
+Log Events.
+
+Using the Thread's Random Component to derive the $\dots\texttt{Path}$
+component means that any Thread Peer is able to deterministically derive
+another Peer's Log ID (and public component of their Writer Key) using
+only their Peer ID and the given Thread ID. Using this HDK framework
+also opens up the possibility of using **BIP39** mnemonics for
+re-creating the root of a HDK hierarchy, and by association, a Peer's
+(set of) key-pairs.
+
+The actual path implementation may vary from implementation to 
+implementation, as long as $\texttt{Log}$ siblings can be deterministically
+derived from the same parent level. The path derivation above should
+however, provide sufficient randomness to prevent accidental
+leackage of secrets should an account Seed be drawn from elsewhere.
 
 #### Log Encryption {#sec:LogEncryption}
 
