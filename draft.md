@@ -40,7 +40,7 @@ header-includes: |
   \author{Sutula}
   \affiliation{www.textile.io} \email{research@textile.io}
   \author{Gozalishivili}
-  \affiliation{Mozzila} \email{}
+  \affiliation{Mozilla} \email{}
   \author{Hill}
   \affiliation{www.textile.io} \email{contact@textile.io}
   \shortauthors{draft - www.textile.io}
