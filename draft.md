@@ -1236,39 +1236,76 @@ Reducer
 Events. Currently, the only Reducer is the Store itself.
 
 Datastore
-: A Datastore is the underlying persistence layer for Model Entities and a Dispatcher's raw Event information. In both cases, they are updatated via a Transaction to have transactional guarantees.
+: A Datastore is the underlying persistence layer for Model Entities and
+a Dispatcher's raw Event information. In both cases, they are updatated
+via a Transaction to have transactional guarantees.
 
 ### Store Listener {#sec:StoreListener}
 
-This is part of the public-api. Main responsibility: Notify external actors that the Store changed its state, with details about the change: in which model, what action (Create, Save, Delete), and wich EntityID.
+After an Event (or set of Events) has been dispatched by the Dispatcher,
+it is nessesary to notify various "external" actors that the Store has
+changed its state. Details of the change might include in which model
+the change occured, what Action(s) (`Create`, `Save`, `Delete`, etc)
+were handled, and wich specify Entities (`EntityID`s) were modified.
+These external actors are called *Listeners*, and are useful for clients
+that want to be notified about changes in the Store. Recall that Store
+state can change due to internal *or* external Events, such as receiving
+external changes from other Peers with Logs referenced by the Store.
 
-Listeners are useful for clients that want to be notified about changes in the Store. Recall that Store state can change by external events, such as receiving external changes from other peers sharing the Store.
+Store Listener : A Listener is a "client" or external actor that would
+like to subscribe to Store updates based on a set of update Criteria.
 
-The client can configure which kind of events wants to be notified. Can add any number of criterias; if more than one criteria is used they will be interpreted as OR conditions. A criteria contains the following information:
+Clients can configure the *kind* of Events for which they would like to
+be notified, and can specify any number of options or *Criteria*, each
+of which are interpreted as "OR" conditions. A Criteria contains the
+following information:
 
-Which model to listen changes
-What action is done (Create, Save, Delete)
-Which EntitiID
-Any of the above three attributes can be set empty. For example, we can listen to all changes of all entities in a model if only the first attribute is set and the other two are left empty/default.
+* Which Model to listen to for changes
+* What Action was performed (`Create`, `Save`, `Delete`, etc)
+* Which `EntitiID` was affected
 
-Event Bus
-: The Event Bus is used to deliver IPLD Node encoded changes done in locally commited Transactions. Currently, only a single Thread Adapter is listening to this Bus.
+Any of the above three attributes can also be left empty. For example,
+to Listen to for all changes of all Entities in a Model a Listener might
+specify only the Model Criteria parameter, leaving the other two options
+empty/default.
 
 ### Thread Adapter {#sec:ThreadAdapter}
 
-This is an internal component not available in the public API. Main responsibility: Responsible to be the two-way communication between Store and Threads.
+At the same time that local Listeners are being notified of Store
+Events, Every time a new local IPLD Node is generated in the Store via a
+write Transaction, this Node is sent to a *Thread Adapter* via an *Event
+Bus*. From here the Thread Adapter will notify the local Thread Service
+that a new Record should be added to the local Peer's Log.
 
-Every time a new local ipldformat.Node is generated in the Store due to a write transaction commit, the StoreThreadAdapter will notify Threadservice that a new Record should be added to the local peer log.
+Event Bus : The Event Bus is used to deliver IPLD Node encoded changes
+done in locally commited Transactions. Currently, only a single Thread
+Adapter is listening to this Bus.
 
-Similarly, when Threadservice detects new Records in other peer logs, it will dispatch them to SingleThreadAdapter. Then, it will transform it into a Store Events that will be dispatched to Dispatcher and ultimately will be reduced to impact Store state.
+Thread Adapter : The singleton Thread Adaptor is responsible for all
+two-way communication between the Event Store and Threads.
 
-As said initially, currently, the Store is only mapped to a single Thread. But is possible to decide a different map, where a Store might be backed by more than one thread or any other schema. This is the component that should be taking this decisions.
+Similarly, when the Thread Service detects new Records in *other* Peer
+Logs, it will dispatch them to the Thread Adapter. The Thread Adapter
+will then transform the externally derived IPLS Node into a Store Event
+that is then dispatched to the Dispatcher, and ultimately will be
+Reduced to cause a mutation to the local Store state. In the initial
+implementation of Threads, each Thread is mapped to a single Store,
+however, this is only a practical constraint, and it is possible to
+support alternatively mappings, in which a Store might be backed by more
+than one Thread. As such, the Thread Adapter exists to handle these
+future considerations.
 
 ### Thread Service {#sec:ThreadService}
 
-This component is part of the public-api so that it can be accessed. Main responsibility: Is the Store interface with Threads layer.
+Finally, we come to the Thread Service, which is the primary networking
+interface for the Event Store. The Thread Service is actually part of
+the public developer api, so it can be accessed by external components.
+Its main responsibility is to provide an interface between the Event
+Store and Threads.
 
-Threadservice is the bidirectional communication interface to the underlying Thread backing the Store. It only interacts with StoreThreadAdapter
+Thread Service :The Thread Service is the bidirectional communication
+interface to the underlying Thread backing the Store. It only interacts
+with Sthe Thread Adapter.
 
 The Store Interface {#sec:interfaces}
 =================
@@ -1297,149 +1334,13 @@ which we provide working Javascript code for a hypothetical Photos app.
 Illustrative Example {#sec:example}
 --------------------
 
-To create a useful application, developers start with `Models`. A Model is essentially the public API for the Thread/Event Store (see [@sec:Models]).
-For example a develper might create a new Store, with Models to represent `Contact` information, as well as perhaps a mobile phone's `CameraRoll`. This would create a new Store under-to-hood (with corresponding indexes, etc), to be mutated by Actions generated from the Model.
-
-~~~ {#lst:models .javascript caption="Create a photo entity and some way to represent a photo's author."}
-Photo = NewModel({
-  _id: UUID,
-  thumbnail: Buffer,
-  original: Buffer,
-});
-
-Contact = NewModel({
-  _id: UUID,
-  name: {type: String, index: true},
-  avatar: Photo,
-});
-
-// Photos may be grouped into messages.
-Message = NewModel({
-  _id: UUID,
-  author: Contact,
-  body: String,
-  photos: [Photo],
-})
-~~~
-
-~~~ {#lst:stores .javascript caption="Create address book and camera roll stores."}
-AddressBook = NewDocumentStore("AddressBook")
-// This store should take Contacts.
-AddressBook.AddModel("Contact", Contact)
-// If needed, additional models can be added...
-
-// Create another store for camera roll photos.
-CameraRoll = NewDocumentStore("CameraRoll")
-// This store should take photos.
-CameraRoll.AddModel("Photo", Photo)
-
-// Create another store for a shared album.
-MyDogsAlbum = NewDocumentStore("Dogs")
-MyDogsAlbum.AddModel("Message", Message)
-
-// Messages can also be nested.
-Message.AddModel("Message", Message)
-~~~
-
-The next step is to actually *create* and add a `Message` object to a
-shared album. In [@lst:adding],
-a message instance is created via the custom `Message` class, and then
-added to the shared `Dogs` Thread (which represents an album here).
-Behind the scenes, the Model (which is providing an Event Creator
-interface) is internally responsible for dispatching the Event through
-the local Dispatcher.
-
-~~~ {#lst:adding .javascript caption="Adding data to a shared thread."}
-// Create a message with a photo.
-MyMessage = Message.Create({
-  author: <author_id>,
-  body: "This is Lucas.",
-  photos: [{
-    thumbnail: <buffer>,
-    original: <buffer>
-  }]
-})
-// Now it can be added to Dogs "album".
-MyDogsAlbum.Add(MyMessage)
-~~~
-
-An example Event is given in [@lst:event],
-and is the result of a new Message Event. Now, any updates to an
-existing Message instance will automatically generate the required
-underlying update Events. For example, [@lst:updates] shows the body text of the previous example
-being updated, and saved (committed) to the Thread. Behind the scenes,
-this event will be added to the User's local Log, and pushed to any
-Peers identified in the Thread's ACL document (see [@sec:variants; @sec:TexCRDT]).
-In practice, the Model generates another Event that carries the diff and
-a document identifier.
-
-~~~ {#lst:event .json caption="A new Message Event."}
-{
-  "body": {
-    "data": {
-      "author_id": <author_id>,
-      "body": "This is Lucas.",
-      "photos": [{
-        "thumbnail": <buffer>,
-        "original": <buffer>
-      }]
-    }
-  },
-  "header": {
-    "time": 1569434034737,
-    "key": "215bs...1DXJ"
-  }
-}
-~~~
-
-~~~ {#lst:updates .javascript caption="Message updates are persisted and transmitted automatically."}
-MyMessage.body = "Actually, this is Fido."
-MyMessage.Save()
-
-// New Event with diff and document id
-{
-  "body": {
-    "data": {
-      "doc_id": MyMessage._id,
-      "body": "Actually, this is Fido."
-    }
-  },
-  "header": {
-    "time": 1569434035737,
-    "key": "iJMfqWy...1qfJyc29RS"
-  }
-}
-~~~
-
-All instances and models in Threads have several special methods and
-properties specific to the Threads API, several of which we will explore
-here. [@Lst:others] demonstrates several features common in a
-Threads-based workflow, including queries, creating invites and changing
-permissions and access control (see also [@sec:AccessControl]), as well as subscribing to updates and
-changes at various levels of the Threads API. These subscriptions would
-enable downstream consumers (views, front-end stores, etc.) to receive
-updates as changes to the Thread are made via underlying Events.
-
-~~~ {#lst:others .javascript caption="Additional Threads-based API functionality."}
-// Query for message, select only thumbnail.
-Dogs.FindOne({ "_id": MyMessage._id }, "thumbnail")
-
-// Every (Event increments version tag
-MyMessage.Version()
-
-// All doc changes in Dogs Thread
-Dogs.Subscribe()
-// All changes to all Messages in all Threads
-Message.Subscribe() 
-// Changes specific to this document
-MyMessage.Subscribe() 
-
-// Create invite Event IFF User has permission
-Dogs.Grant(<peer_id>, <role>)
-
-// Alter ACL OR create invite if needed and allowed
-MyMessage.Grant(<peer_id>, <role>)
-~~~
+To create a useful application, developers start with `Models`. A Model
+is essentially the public API for the Thread/Event Store (see
+[@sec:Models]). For example a develper might create a new Store, with
+Models to represent `Contact` information, as well as perhaps a mobile
+phone's `CameraRoll`. This would create a new Store under-to-hood (with
+corresponding indexes, etc), to be mutated by Actions generated from the
+Model.
 
 Modules {#sec:modules}
 -------
@@ -1479,6 +1380,8 @@ many interoperable apps.
 
 Databases {#sec:databases}
 ---------
+
+Here's where we might want to _move_ the example Document Store stuff?
 
 With these interface simplifications, it is not difficult to imagine
 even higher-level APIs in which Threads are exposed via interfaces
