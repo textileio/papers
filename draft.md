@@ -24,7 +24,10 @@ abstract: |
 #   affiliation: Textile
 # - name: Sutula
 #   affiliation: Textile
-# - Others
+# - name: Hagopian
+#   affiliation: Textile
+# - name: Gozalishvili
+#   affiliation: Mozilla
 # - name: Hill
 #   affiliation: Textile
 bibliography: whitepaper.bib
@@ -38,9 +41,10 @@ header-includes: |
   \author{Pick}
   \author{Farmer}
   \author{Sutula}
+  \author{Hagopian}
   \affiliation{www.textile.io} \email{research@textile.io}
-  \author{?Gozalishivili others?}
-  \affiliation{other?} \email{research@textile.io}
+  \author{Gozalishvili}
+  \affiliation{Mozilla} \email{}
   \author{Hill}
   \affiliation{www.textile.io} \email{contact@textile.io}
   \shortauthors{draft - www.textile.io}
