@@ -1145,11 +1145,13 @@ rest of the internal Store. If built around a specific *domain*,
 Models provide bounded context that can be roughly compared to an
 aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 
-Models : Models are part of an Store's public-api. Their main
+Models
+: Models are part of an Event Store's public-api. Their main
 responsibilities are to store instances of user-defined schemas, and
 operate on Entities defined by said schema.
 
-Actions : Every update to local and shared (i.e., across Peers) state
+Actions
+: Every update to local and shared (i.e., across Peers) state
 happens via Actions. Actions are used to describe *changes to an
 application state*  (e.g., a photo was added, an item was added to a
 shopping cart, etc). Models are used to create Actions.
@@ -1166,7 +1168,8 @@ within the entire Store scope. In other words, Transactions can be
 assumed to be the only running operation on the entire Store. It is via
 Transactions that Models introduce Actions into the system.
 
-Transactions : Actions describing updates to the system happen within
+Transactions
+: Actions describing updates to the system happen within
 Transactions [@haerderPrinciplesTransactionorientedDatabase1983] in
 order to ensure consistency of the local Store. It is only after a
 Transaction has been committed that its Actions are sent to the Event
@@ -1187,17 +1190,22 @@ Event Codec is therefore an internal abstraction layer used to:
 3. Decode external IPLD Nodes into Events, which can then be dispatched
    locally.
 
-For example, if within a Model (write) Transaction, a new Entity is
+For example, if within a Model (write) Transaction, a new *Entity* is
 created and another one is updated, these two Actions will be sent to
 the Event Codec to transform them into Events. These Events have a
 payload of bytes with the encoded transformation(s). Currently, the
 only implementation of Event Codec is a *JSON Patcher*, which transforms
 Actions into JSON-merge/patch objects **REF**.
 
+[Entity]{#def:Entity}
+: An Entity is made up of a series of ordered Events referring to a
+specific entity or object. An Entity might have a unique `UUID` which
+can be referenced across Event updates.
+
 Once these Events have been aggregated by the Event Codec into a single
 IPLD Node, this information is used by Thread Service to actually persist
 the Event Record in the Thread associated with the given Store (i.e., it
-is written to an underlying Datastore). Likewise, the Event Codec can 
+is written to an underlying Datastore). Likewise, the Event Codec can
 also do the inverse transformation: given an IPLD Node, it transforms its
 byte payload into Actions that will be reduced in the Store.
 
@@ -1214,14 +1222,18 @@ Node is sent to the Thread Service, where it is added to the local
 Peer's Log.
 
 The Event Codec abstraction provides a useful extensibility mechanism
-for the Store: if instead of a JSON Patcher, a more advanced CRDT
-structure is needed, it would be implemented as an Event Codec. Here,
-operation *or* delta-state CRDTs could be modeled as Event Codecs to
-provide CRDT-like behavior to the downstream reducers. CRDT-based Event
-Codecs could range from simple ... to more complex .... For example,
-JSON document changes could be implemented as a JSON CRDT
-[@kleppmannConflictFreeReplicatedJSON2017], or a hybrid JSON Patch
-**REF** with logical clocks.
+for the Event Store. For instance, eventually consistent, CRDT-based
+structures are particularly useful for managing views of a document in
+a multi-peer collaborative editing environment (like Google Docs or
+similar). To support this type of offline-first use-case (where Peers
+may be making concurrent edits on a shared JSON document), one could
+implement an Event Codec that supports a JSON CRDT datatype
+[@kleppmannConflictFreeReplicatedJSON2017] (or even a hybrid JSON Patch
+with logical clocks). Here updates to a JSON document would be modeled
+as CRDT operations (ops) *or* deltas to provide CRDT-like behavior to
+downstream Reducers. Libraries such as Automerge[^20] provide useful
+examples of reducer functions that make working with JSON CRDTs
+relatively straightforward.
 
 ### Dispatcher {#sec:Dispatcher}
 
@@ -1311,20 +1323,228 @@ each Thread is defined by a unique ID, and provides facilities for
 access control and permissions, networking, and more. To illustrate how
 these underlying components can be combined to produce a simple API with
 minimal configuration and boilerplate, consider the following example in
-which we provide working Javascript code for a hypothetical Photos app.
+which we provide working Javascript code for a hypothetical
+User-management app.
 
 Illustrative Example {#sec:example}
 --------------------
 
-To create a useful application, developers start with `Models`. A Model
-is essentially the public API for the Thread/Store (see
-[@sec:Models]). For example a develper might create a new Store, with
-Models to represent `Contact` information, as well as perhaps a mobile
-phone's `CameraRoll`. This would create a new Store under-to-hood (with
-corresponding indexes, etc), to be mutated by Actions generated from the
-Model.
+To create a useful application, developers start with a `Store`.
+Generally, a Store is accessed via a `Client` instance. This could be a
+local, or remote Threads provider.
 
-Modules {#sec:modules}
+```typescript
+const client = new Client(...opts)
+```
+
+A default (or empty) `Store` can be created directly from the `Client`.
+This would create a new Thread under-to-hood, with an empty `Store` to
+be populated by Actions generated from a `Model` (next step).
+
+```typescript
+const store = await client.newStore()
+```
+
+To interact with the `Store`, a developer must first create a new
+`Model`. A `Model` is essentially the public API for the Thread/Event
+Store (see [@sec:Models]). For example a develper might create a new
+`Model` to represent `Person` information. `Model`s are defined by their
+`Schema`, which is a JSON Schema object the defines and is used to
+validate Model data. In practice, there will be many pre-defined
+`Schema`s that developers can use to make their applications
+interaperatble with others. See [@sec:Modules] for some initial plans in
+this regard.
+
+```typescript
+
+// This Typescript interface corresponds to the following JSON SChema
+interface Person {
+  ID: string // All Entities have an `ID` by default
+  firstName: string
+  lastName: string
+  age: number
+}
+
+// JSON Schema defining the above Person interface
+const personSchema = {
+  $id: 'https://example.com/person.schema.json',
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'Person',
+  type: 'object',
+  required: ['ID'],
+  properties: {
+    ID: {
+      type: 'string',
+      description: "The entity's id.",
+    },
+    firstName: {
+      type: 'string',
+      description: "The person's first name.",
+    },
+    lastName: {
+      type: 'string',
+      description: "The person's last name.",
+    },
+    age: {
+      description: 'Age in years which must be equal to or greater than zero.',
+      type: 'integer',
+      minimum: 0,
+    },
+  },
+}
+```
+
+With a `Schema` in hand, the developer is able to register it with the
+`Store`, and then generate `Model`s based on said `Schema`. At this
+time, any additional `Schema`s can be registered with the `Store`. With
+all required `Schemas` registered, the `Store` can be started.
+
+```typescript
+// Register a Schema
+await client.registerSchema(store.id, 'Person', personSchema)
+// Start the Store
+await client.start(store.id)
+```
+
+At this point, the developer is looking at an empty `Store`/Thread. To
+add data, the developer can create a new instance of a `Model` (an
+`Entity`), and then modify this Entity and save the changes (via
+Actions). These operations are all done automatically by the Store,
+under-the-hood.
+
+```typescript
+// Initial Person object
+const person: Person = {
+  ID: '',
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 21,
+}
+
+// Generic function to create a Model Entity
+const created = await client.modelCreate<Person>(store.id, 'Person', [person])
+console.log(created.entitiesList) // EntityList
+// [ { firstName: "John", lastName: "Doe", age: 21, ID: <uuid> } ]
+```
+
+Specific entities can be modified (or deleted) via Actions, which are
+created by the `Model` instance (`Entity`):
+
+```typescript
+const updatedPerson = created.entitiesList[0]
+updatedPerson.age = 26
+
+// Modify/mutate existing Entity
+await client.modelSave(store.id, 'Person', [updatedPerson])
+
+// Delete existing Entity
+client.modelDelete(store.id, 'Person', [person.ID])
+
+// Check whether Entity exists
+const has = await client.modelHas(store.id, 'Person', [updatedPerson.ID])
+console.log(has) // false
+```
+
+Like any useful database, the Textile Store interface exposed here also
+provides mechanisms for search, monitoring (subscriptions), and database
+transactions. Each of these features interact with the various
+components of the underlying Event Store. For example, Transactions are
+a core feature of the Event Store (see [@sec:Models] and
+[@sec:Dispatcher]), and subscriptions provide a Store Listener
+[@sec:StoreListener] interface. Transactions work as in most database
+implementations:
+
+```typescript
+const txn = client.writeTransaction(store.id, 'Person')
+await transaction.start()
+const created = await transaction.modelCreate<Person>([{
+  ID: '',
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30,
+}])
+const existingPerson = created.entitiesList.pop()
+const has = await transaction.has([existingPerson.ID])
+console.log(has) // true
+existingPerson.age = 99
+await transaction.modelSave([existingPerson])
+await transaction.modelDelete([existingPerson.ID])
+await transaction.end()
+```
+
+Similarly, subscriptions can be used to monitor updates, right down to
+individual Entities:
+
+```typescript
+const closer = client.listen(store.id, 'Person', existingPerson.ID, reply => {
+  console.log(`Entity modified: ${JSON.stringify(reply.entity)}`)
+  // Entity modified: { ..., age: 30 }
+  // Entity modified: { ..., age: 40 }
+})
+
+existingPerson.age = 30
+await client.modelSave(store.id, 'Person', [existingPerson])
+existingPerson.age = 40
+await client.modelSave(store.id, 'Person', [existingPerson])
+
+// Find or search for a specific Entity
+const found = await client.modelFindByID(store.id, 'Person', existingPerson.ID)
+console.log(found.entity.age) // 40
+```
+
+Lastly, search is performed via queries to the underlying Entities. For
+example, to search for all `Person`s matching a given `age` range, a
+developer can implement the following Query on the Store.
+
+```typescript
+// Select all Persons...
+const query = Query.where('age') // where `age` is...
+  .ge(60) // greater than or equal to 60, ...
+  .and('age') // and `age` is...
+  .lt(66) // less than 66, ...
+  .or(new Where('age').eq(67)) // or where `age` is equal to 67
+const { entitiesList } = await client.modelFind(store.id, 'Person', query)
+console.log(entitiesList.length)
+
+```
+
+Queries can be arbitrarily complex, and when possible, will take
+advantage of indexes and other features of the underlying database
+implementation. Details of the underlying Store database are not part of
+the Threads specification, so clients are welcome to optimize Store
+implementations for specific use-cases and design considerations. For
+instance, see [@sec:Databases] for some possible
+optimizations/alternative interfaces to the Threads Event Store.
+
+Alternative Interfaces {#sec:databases}
+---------
+
+While the above Store interface provides intuitive to a Threads Event
+Store, it is not difficult to imagine alternative, high-level APIs in
+which Threads are exposed via interfaces compatible with *existing*
+datastores or DBMS. Here we draw inspiration from similar projects
+(e.g., OrbitDB [@markroberthendersonOrbitDBFieldManual2019]) which
+have made it much easier for developers familiar with centralized
+database systems to make the move to decentralized systems such as
+Threads. For example, a key-value store built on Threads would "map"
+key-value operations, such as `put`, `get`, and `del` to internal
+Model Actions. The Events derived from said Actions would then be
+used to mutate the Store like any Model Entity, effectively
+encapsulating the entire Event Store in a database structure that
+satisfies a key-value store interface. These additional interfaces
+would also be distributed as Modules, making it easy for developers
+to swap in or substitute existing backend infrastructure.
+
+Similar abstractions will be used to implement additional database types
+and functions. Tables, feeds, counters, and other simple stores can also
+be built on Threads. Each database style would be implemented as a
+standalone software library, allowing application developers to
+pick and choose the solution most useful to the application at hand.
+Similarly, more advanced applications could be implemented using a
+combination of database types, or by examining the source code of these
+*reference* libraries.
+
+Modules {#sec:Modules}
 -------
 
 One of Textile's stated goals is to allow individuals to better capture
@@ -1336,12 +1556,13 @@ developers to be using the same data structure and conventions when
 building their apps. In conjunction with community developers, Textile
 will provide a number of *Modules* designed to wrap a given domain
 (e.g., Photos) into a singular software package to facilitate this. This
-way, developers need only agree on the given data Module in order to
+way, developers need only agree on the given `Schema` in order to
 provide seamless inter-application experiences. For example, any
 developer looking to provide a view on top of a user's Photos (perhaps
-their phone's camera roll) may utilize the Photos Module (which may be
-designed as in the example above). They may also extend this Module, to
-provide additional functionality.
+their phone's camera roll) may utilize a `Photos` Module. Similarly, a
+`Person` module might be designed as in the example from the previous
+section. Developers may also extend a given Module to provide additional
+functionality.
 
 In building on top of an existing Module, developers ensure other
 application developers are also able to interact with the data produced
@@ -1359,88 +1580,6 @@ developers who build on openly available *standard* Modules will provide
 a more useful experience for their users, and will benefit from the
 *network effects* [@shapiroInformationRulesStrategic1998] produced by
 many interoperable apps.
-
-Databases {#sec:databases}
----------
-
-Here's where we might want to _move_ the example Document Store stuff?
-
-With these interface simplifications, it is not difficult to imagine
-even higher-level APIs in which Threads are exposed via interfaces
-compatible with *existing* datastores or DBMS. Here we draw inspiration
-from similar projects (e.g., OrbitDB
-[@markroberthendersonOrbitDBFieldManual2019]) which have made it much
-easier for developers familiar with centralized database systems to make
-the move to decentralized systems such as Threads. For example, a
-key-value store built on Threads would "map" key-value operations, such
-as `Put`, `Get`, and `Del` to an internal (i.e., private) Model as in
-the previous section, with similarly defined methods. The generated
-Events would then mutate the internal map-like view Model effectively
-encapsulating the entire Store in a database structure that
-satisfies a given interface (see [@lst:KVStore] for example). These too would be distributed as
-Modules, making it easy for developers to swap in or substitute existing
-backend infrastructure.
-
-~~~ {#lst:KVStore .go caption="A proposed key-value store interface"}
-type TextileKVStore interface {
-  Put(key string, value Node) error
-  Get(key string) (Node, error)
-  Del(key string) error
-}
-~~~
-
-Other database abstractions include a no-sql style document store for
-storing and indexing arbitrary structs and/or JSON documents. The
-interface for such as store, again built using a "wrapped" view Model,
-might look like [@lst:DocStore], where `Indexable` could be satisfied by any
-structure with a `Key` field and `Query` might be taken from the
-`go-datastore` interface library[^19] or similar.
-
-~~~ {#lst:DocStore .go caption="A proposed document store interface"}
-type TextileDocStore interface {
-  Put(doc Inedexable) error
-  Get(key string) (Indexable, error)
-  Del(key string) error
-  Query(query Query) ([]Indexable, error)
-}
-~~~
-
-Similar abstractions will be used to implement additional database types
-and functions. Tables, feeds, counters, and other simple stores can also
-be built on Threads. Each database style would be implemented as a
-standalone software library, allowing application developers to
-pick and choose the solution most useful to the application at hand.
-Similarly, more advanced applications could be implemented using a
-combination of database types, or by examining the source code of these
-*reference* libraries.
-
-CRDTs {#sec:TexCRDT}
------
-
-Eventually consistent, CRDT-based structures can also be implemented on
-top of Threads' Event-driven architecture. CRDT-based Stores are
-particularly useful for managing views of a document in a multi-peer
-collaborative editing environment (like Google Docs or similar). For
-example to support offline-first, potentially concurrent edits on a
-shared JSON document, one could implement a JSON CRDT datatype
-[@kleppmannConflictFreeReplicatedJSON2017] that merges updates to a JSON
-document in a view Model's Reduder function. Libraries such as
-Automerge[^20] provide useful examples of reducer functions that make
-working with JSON CRDTs relatively straightforward.
-
-A practical example of using CRDTs in Threads is given in [@sec:AccessControl],
-where they are used to represent updates to an ACL document. Textile provides
-a default ACL view Model, with interfaces defined for an *access-controlled*
-Threads implementation. In practice, an Observed Remove Map (ORMap) is used
-to compose a map of keys (PeerIDs) to Remove-Wins Observed-Remove Sets
-(RWORSet) [@almeidaDeltaStateReplicated2018]. The benefit of using an ORMap
-in this context is that if updates to the ACL are made concurrently by
-separate Peers (with access), they will only affect the data of which a Peer
-is already aware. Similarly, an RWORSet is used such that concurrent edits
-will favor permissions *removal* over addition. While this is designed to
-reduce tampering with the ACL to some degree, it does not specifically guard against a malicious peer taking control of the ACL *if they had write access to it in the first place*[^malicious]. In general, Threads are designed for networks of *collaborating* peers, so peers are generally assumed to be using a "compliant" Thread implementation.
-
-[^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACLs.
 
 Thread Extensions
 -----------------
@@ -1486,28 +1625,7 @@ control possible in Threads, Entity-level ACLs and Thread-level ACLs.
 Thread-level access control lists (ACLs) allow creators to specify who
 can *replicate, read, write, and delete* Thread data. Similarly,
 Entity-level ACLs provide more granular control to Thread-writers on a
-per-Entity (see def. [4](#def:Entity)) basis. Both types of ACLs are implemented as
-JSON CRDTs (see [@sec:TexCRDT]) wrapped in a custom view Model (see [@sec:interfaces]).
-ACLs implemented as JSON Models provide two advantages over static or
-external ACL rules (although static and external ACLs are also
-possible). First, ACLs are fully mutable, allowing developers to create
-advanced rules for collaboration with any combination of Readers,
-Writers, and Replicas. Second, because ACLs are essentially mutable
-JSON documents, they can specify their *own editing rules* (i.e.
-allowing multiple Thread participants to modify the ACL) in a
-self-referencing way.
-
-[Entity]{#def:Entity}
-: An Entity is made up of a series of ordered Events referring
-to a specific entity or object. For example, an ACL document is a
-single entity made up of a sequence of Thread Events that encode updates
-to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see [@lst:EntityId])--> which can be referenced across Event updates.
-
-<!--
-~~~ {#lst:EntityId .bash caption="Entity Id."}
-// UUID
-bafykrq5i25vd64ghamtgus6lue74k
-~~~ -->
+per-Entity (see def. [4](#def:Entity)) basis.
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1540,14 +1658,13 @@ access to Log Replica Keys. In practice, this means creating a new
 "Tombstone" Event which marks an older Event as "deleted". See
 [@sec:deleting] for additional notes on deleting data.
 
-A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
-local Store as part of the flow described in [@sec:internals].
-See also [@sec:interfaces], and in particular [@lst:others] for the
-public API for editing ACL definitions.
+A typical Thread-level ACL can be persisted to a local Event Store as
+part of the flow described in [@sec:internals] (see also
+[@sec:interfaces]). An example is provided here:
 
-~~~ {#lst:AclJson .json caption="ACL map structure."}
+```json
 {
-  "_id": "bafykrq5i25vd64ghamtgus6lue74k",
+  "ID": "bafykrq5i25vd64ghamtgus6lue74k",
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
@@ -1555,25 +1672,56 @@ public API for editing ACL definitions.
     "12D..P2c6ifo": ["read"],
   }
 }
-~~~
+```
 
 The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 Replica, and `12D..P2c6ifo` has been given read access. A Thread-level
 ACL has it's own Entity ACL, which also applies to all other Entity ACLs
-(see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe` is able to
-alter the access-control list.
+(see next example). This means that only `12D..dwaA6Qe` is able to alter
+the access-control list.
 
-~~~ {#lst:ThreadAcl .json caption="Thread and Entity ACL"}
+```json
 {
-  "_id": "bafykrq5i25vd64ghamtgus6lue74k-acl",
+  "ID": "bafykrq5i25vd64ghamtgus6lue74k-acl",
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
   }
 }
-~~~
+```
+
+Both types of ACLs can be implemented as CRDTs (see [@sec:EventCodec]).
+Indeed, Textile will provide a default ACL Event Codec, with interfaces
+defined for an *access-controlled* Threads variant (see
+[@sec:ThreadIdentity]). In practice, an Observed Remove Map (ORMap) can
+be used to compose a map of keys (PeerIDs) to Remove-Wins
+Observed-Remove Sets (RWORSet) [@almeidaDeltaStateReplicated2018]. The
+benefit of using an ORMap in this context is that if updates to the ACL
+are made concurrently by separate Peers (with access), they will only
+affect the data of which a Peer is already aware. Similarly, an RWORSet
+is used such that concurrent edits will favor permissions *removal* over
+addition. While this is designed to reduce tampering with the ACL to
+some degree, it does not specifically guard against a malicious peer
+taking control of the ACL *if they had write access to it in the first
+place*[^malicious].
+
+#### Note About Threats {#sec:deleting}
+
+In general, Threads are designed for networks of *collaborating* peers,
+so peers are generally assumed to be using a "compliant" Thread
+implementation. In other words, Thread Peers are expected to enforce
+their own ACL rules via agent-centric security practices. For example,
+if a Peer A, who has ACL write access, updates the ACL, all Thread
+participants who received said update are expected to then locally
+enforce said ACL. If Thread updates come out of order, it is up to the
+receiving Peers to re-process the updates to take into account new ACL
+updates.
+
+[^malicious]: Though of course, more stringent ACL constraints could be
+built on top of Threads if one so chooses, including links to external
+*smart contract*-based ACLs.
 
 #### Note About Deleting {#sec:deleting}
 
@@ -1672,7 +1820,7 @@ Appendix
 
 ## Records, Events, and Blocks {#sec:EventNode}
 
-~~~ {.go}
+```go
 // Record is the most basic component of a log.
 type Record interface {
 	format.Node
@@ -1721,7 +1869,7 @@ type EventHeader interface {
 	// Key returns a single-use decryption key for the event body.
 	Key() (crypto.DecryptionKey, error)
 }
-~~~
+```
 
 ## Database Management Systems (DBMS) {#sec:DBMS}
 
