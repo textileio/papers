@@ -693,7 +693,8 @@ choose conflict resolution strategies specific to the task at hand. For
 example, if using a downstream Delta-state CRDT, ordering is irrelevant
 and can be ignored completely. Alternatively, an additional clock may be
 required to ensure consistent ordering, such as a vector or Bloom clock
-(see [@sec:LogicalClocks] and **DEP8**). Finally, even manual "merge"-type
+(see [@sec:LogicalClocks] and [**DEP8**](https://www.datprotocol.com/deps/0008-multiwriter/)).
+Finally, even manual "merge"-type
 strategies are possible if this is the desired conflict resolution
 strategy.
 
