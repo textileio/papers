@@ -24,7 +24,10 @@ abstract: |
 #   affiliation: Textile
 # - name: Sutula
 #   affiliation: Textile
-# - Others
+# - name: Hagopian
+#   affiliation: Textile
+# - name: Gozalishvili
+#   affiliation: Mozilla
 # - name: Hill
 #   affiliation: Textile
 bibliography: whitepaper.bib
@@ -38,8 +41,9 @@ header-includes: |
   \author{Pick}
   \author{Farmer}
   \author{Sutula}
+  \author{Hagopian}
   \affiliation{www.textile.io} \email{research@textile.io}
-  \author{Gozalishivili}
+  \author{Gozalishvili}
   \affiliation{Mozilla} \email{}
   \author{Hill}
   \affiliation{www.textile.io} \email{contact@textile.io}
@@ -748,18 +752,20 @@ multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see
 [@lst:Multiaddress]).
 
 Unlike Peer multiaddresses, Log addresses are not stored in the global
-IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are collected
-from Log Events. This is in contrast to mutable data via IPNS for
-example, which requires querying the network (DHT) for updates. Instead,
-updates are requested directly from the (presumably trusted) Peers that
-produced them, resulting in a hybrid of content-addressed Events
+IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
+via the push/pull API (see [@sec:LogSync]). This is in contrast to mutable
+data via IPNS for example, which requires querying the network (DHT) for
+updates. Updates are requested directly from the (presumably trusted) Peers
+that produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
 in an address book (AddrBook), similar to an IPFS Peer address book
 (see [@lst:KeyBook]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
-Log addresses can also change over time, and these changes are advertised to Peers "out of band" via direct p2p communication. The receiving Peers can then update their local AddrBook to reflect the new address(es) of their Peer.
+Log addresses can also change over time, and these changes are again advertised
+to Peers via the push/pull API (see [@sec:LogSync]). The receiving Peers can
+then update their local AddrBook to reflect the new address(es) of the Log.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
 connected computers (Peers). Therefore, datasets distributed across such
@@ -849,9 +855,9 @@ type KeyBook interface {
 
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
-in a manner that enables access control ([@sec:AccessControl]) and the Replica mechanism discussed in
-the previous section. Much like the Log address book, Log *keys* are
-stored in a key book ([@lst:KeyBook]).
+in a manner that enables access control ([@sec:AccessControl]) and the
+Replica mechanism discussed in the previous section. Much like the Log
+AddrBook, Log *keys* are stored in a KeyBook ([@lst:KeyBook]).
 
 Identity Key
 : Every Log requires an asymmetric key-pair that
@@ -917,20 +923,20 @@ individual Writers into singular shared states through the use of either
 cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid
 Logical Clock [@kulkarniLogicalPhysicalClocks2014]) or a CRDT ([@sec:CRDTs]).
 
-### Identity
+### Identity {#sec:ThreadIdentity}
 
 A unique Thread IDentity (TID) is used to group together Logs which
 compose a single dataset and as a topic identifier within Pubsub-based
 synchronization. The components of a TID are given in [@eq:ThreadID].
 
 $$
-\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc1dc03ee8cb5d478e41cc8a4546e}}^\text{Random Number}
+\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc}\dots\texttt{a4546e}}^\text{Random Component}
 $$ {#eq:ThreadID}
 
 TIDs share some similarities with UUIDs
 [@leachUniversallyUniqueIDentifier2005] (version and variant) and
-IPFS-based CIDs and are multibase encoded[^8] for maximum
-forward-compatibility. Base32 encoding is used by default, but any
+IPFS-based CIDs, and are multibase encoded[^8] for maximum
+forward-compatibility. Base-32 encoding is used by default, but any
 multibase-supported string encoding may be used.
 
 Multibase Prefix
@@ -945,9 +951,9 @@ Variant
 : Used to specify thread-level expectations, like
 access-control. 8 bytes max. See [@sec:variants] for more about variants.
 
-Random Number
-: A random number of a user-specified length. 16 bytes or
-more (see [@lst:Identity]).
+Random Component
+ : A random set of bytes of a user-specified length. 16 bytes or more
+ (see [@lst:Identity]).
 
 ### Variants {#sec:variants}
 
@@ -1075,14 +1081,14 @@ connectivity between Peers who are often offline or unreachable.
 
 ### Log Replication
 
-The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating all Log Events
-trivial. This allows any Peer on the network to be granted the
-responsibility of replicating data from another Peer without having read
-access to the raw Log entries. This type of Log replication can act as a
-data backup mechanism. It can also be used to build services that react
-to Log Events, potentially pushing data to disparate, non-Textile
-systems, especially if the replication service *is* granted read access
-to the Log Events ([@sec:LogSync]).
+The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating
+all Log Events trivial. This allows any Peer on the network to be
+granted the responsibility of replicating data from another Peer without
+having read access to the raw Log entries. This type of Log replication
+can act as a data backup mechanism. It can also be used to build
+services that react to Log Events, potentially pushing data to
+disparate, non-Textile systems, especially if the replication service
+*is* granted read access to the Log Events ([@sec:LogSync]).
 
 Threads Internals {#sec:internals}
 =================
@@ -1090,16 +1096,16 @@ Threads Internals {#sec:internals}
 Previous sections have discussed the core features of the Textile
 Threads protocol. However, we have not yet discussed dealing with Log
 Events in practice. In this section, we provide a description of a
-Threads-compatible Event Store implementation. The Event Store outlined
+Threads-compatible Store implementation. The Store outlined
 here takes advantage of ideas from several existing CQRS and ES systems
 (e.g., [@ereminReduxInspiredBackend2019]), as well as concepts and
-designs from Flux [@facebookFluxInDepthOverview2019], Redux[^12]
+designs from Flux [@facebookFluxInDepthOverview2019], Redux[^redux]
 [@reduxMotivation] and domain driven design
 [@evansDomaindrivenDesignTackling2004a] (DDD)[^13]. Following this
-discussion of Threads *internals*, in [@sec:interfaces] we
-outline how it can be used to build intuitive developer-facing
-application programing interfaces (APIs) to make adopting and using
-Threads "the right choice" for a wide range of developers.
+discussion of Threads *internals*, in [@sec:interfaces] we outline how
+it can be used to build intuitive developer-facing application
+programing interfaces (APIs) to make adopting and using Threads "the
+right choice" for a wide range of developers.
 
 Overview
 --------
@@ -1113,101 +1119,211 @@ systems (see [@facebookFluxInDepthOverview2019] and/or
 data flows that build downstream views from atomic updates in the form
 of events (or actions).
 
-![Architectural diagram for internal Event Store
-implementation.](figures/Architecture.png){#fig:Architecture height="350px"}
+![Architectural diagram for internal Store implementation. Arrows
+indicate synchronous calls, channel notifications, and other
+communication strategies that indicate a dependency between
+components.](figures/Architecture.png){#fig:Architecture height="350px"}
 
-We adopt a similar flow in Threads (see [@fig:Architecture]). Like any CQRS/ES-based system, Threads
-are built on *Events*. Events are similar to actions in a Flux-based
-system, and are used to produce *predictable* updates to downstream
-state. Similarly to a DDD-based pattern, to add an Event to the internal
-Threads system, we use *Event Creators*, which dispatch Events to the
-system via a singleton *Dispatcher*. The Dispatcher then stores the
-derived Event in an *Event Store*, and calls a set of registered
-*Reducer* functions that mutate a (set of) downstream view *Stores*
-defined by a corresponding set of view *Models*, all within a single
-*Transaction*. This unidirectional, transaction-based system provides a
-flexible framework for building complex event-driven application logic.
+TODO: Update this Figure to match something like:
+https://github.com/textileio/go-textile-threads/blob/master/eventstore/design.png
 
-### Events & Creators {#sec:creators}
+We adopt a similar flow in Threads (see [@fig:Architecture]). Like any
+CQRS/ES-based system (see also [@sec:cqrs]), Threads are built on
+*Events* ([@fowlerEventSourcing]). Events are used to produce
+*predictable* updates to downstream state. Similarly to a DDD-based
+pattern, to add an Event to the internal Threads system, we use
+*Models*, which create and send *Actions* to an *Event Codec*, which are
+then dispatched to the rest of the system via an internal *Dispatcher*.
+The Dispatcher then calls a set of registered *Reducer* functions to
+mutate Model state, all within a single *Transaction*. This
+unidirectional, transaction-based system provides a flexible framework
+for building complex event-driven application logic.
 
-*Events* are at the heart of Threads --- every update to local and
-shared (i.e., across Peers) state happens via Events (see also [@sec:cqrs]).
-Events are used to describe "changes to an application state"
-[@fowlerEventSourcing] (e.g., a photo was added, an item was added to a
-shopping cart, etc). Related, *Event Creators* are used to send Events
-from a *local* application to an internal Event Store. If built around a
-specific *domain*, Creators provide bounded context that can be roughly
-compared to an aggregate root in DDD
-[@evansDomaindrivenDesignTackling2004a].
+[@Fig:Architecture] depicts the various components that make up an Event
+Store. New Events travel through the system once a transaction is
+committed by a local Actor (user). Conversely, new Events caused by
+updates to an *external* Peer's Log (associated with the given Thread),
+go through essentially the same process, but in reverse. The various
+core components are discussed in detail in the following sections.
 
-### Dispatcher {#sec:dispatcher}
-
-In order to persist and dispatch Events to downstream view Models, a
-*Dispatcher* is used. As shown in [@fig:Architecture], the Dispatcher is at the center of the ES
-system. All Events must go through the singleton Dispatcher, whether
-these be from local Event Creators or remote Peers. The Dispatcher is
-responsible for ensuring that incoming Events are persisted to the Event
-Store (the "source of truth" for the system), as well as dispatched to
-downstream view Models by way of a set of Reducer functions.
-
-### Transactions {#sec:transactions}
-
-All Reducer function calls (and "side effects") due to a given Event
-happen within a single *Transaction*
-[@haerderPrinciplesTransactionorientedDatabase1983], in order to ensure
-consistency of both storage (Event Store) and Models. Transactions are
-similar to Redux *Sagas*[^14] in terms of outcome, but with stronger
-consistency guarantees. Once an Event has been persisted in the internal
-Event Store, the Dispatcher is responsible for running a view Model's
-Reducer callback. In order to make this possible, Models must *register*
-their Reducer with the Dispatcher.
-
-### View Models/Stores {#sec:views}
+### Models {#sec:Models}
 
 As in many CQRS-based systems, Events are dispatched on the write side,
-and are *reacted to* on the read side. Reactions happen via Reducer
-functions, which cause updates to view Models, which in turn provide
-interfaces for queries and accessing persisted view *Stores* (state).
-View Stores are then responsible for notifying downstream consumers
-(application logic) of changes to their state via a *Broadcaster* (i.e.,
-event emitter). They are similar in some respects to a Redux Store,
-though it is possible to have *multiple* view Models/Stores as in the
-more general Flux pattern.
+and are *reacted to* on the read side. The primary interface to the
+write side is exposed via the Store's Models. As shown in
+[@fig:Architecture], Model(s) are at the center of the Threads Event
+Store. They are used to send *Actions* from a local application to the
+rest of the internal Store. If built around a specific *domain*,
+Models provide bounded context that can be roughly compared to an
+aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 
-A view Model is generally defined by custom update logic (i.e., a
-Reducer), a (possibly ORM[^15]-based) view Store for persistence, an
-Event Bus (or Broadcaster) for notifying downstream consumers, and a set
-of query/*Resolver* [@ereminReduxInspiredBackend2019] functions. In
-practice, a view Model may *also* wrap the Event Creator application
-logic that is used to generate upstream Events. This provides an
-intuitive, singular access point to the *local* system, while also
-leaving room for updates via *external* Peer Events. In practice, the
-Store is a lightweight interface that can be implemented by one of many
-database management systems (see [@sec:DBMS]) providing end users/developers the greatest
-flexibility.
+Models
+: Models are part of an Event Store's public-api. Their main
+responsibilities are to store instances of user-defined schemas, and
+operate on Entities defined by said schema.
 
-### Remote Events {#sec:external}
+Actions
+: Every update to local and shared (i.e., across Peers) state
+happens via Actions. Actions are used to describe *changes to an
+application state*  (e.g., a photo was added, an item was added to a
+shopping cart, etc). Models are used to create Actions.
 
-In addition to locally derived Events (i.e., from application logic and
-user interactions), Threads are designed so that Peers may collaborate
-in a given Thread via Events. Events generated by other, network Peers
-are called *Remote Events*, and they enter the system via a Peer Host.
-The Peer Host is responsible for dealing with incoming Events (be they
-push or pull). These Events are no different from *Local Events*, though
-in practice the Peer Host is required to validate Remote Events before
-they are dispatched to the internal system.
+Currently, Models are defined using a
+[json-schemas.org](json-schemas.org) Schema that *describes the shape*
+of the underlying entity that it represents. This is also quite similar
+to a document in a document-based database context. For example, a Model
+might define a `Person` entity, with a `first` and `last` name, `age`,
+etc. Models also provide the public API (bounded context) for creating,
+deleting, updating, and querying these entities. Lastly, they also
+provide read/write *Transactions* which have *serializable isolation*
+within the entire Store scope. In other words, Transactions can be
+assumed to be the only running operation on the entire Store. It is via
+Transactions that Models introduce Actions into the system.
 
-Thread Interfaces {#sec:interfaces}
+Transactions
+: Actions describing updates to the system happen within
+Transactions [@haerderPrinciplesTransactionorientedDatabase1983] in
+order to ensure consistency of the local Store. It is only after a
+Transaction has been committed that its Actions are sent to the Event
+Codec in order to be translated into Events.
+
+### Event Codec {#sec:EventCodec}
+
+Before Actions from the client-side are introduced into the system, they
+are encoded as Events using the Event Codec. Here, the core function is
+to transform (i.e., encode/decode) and apply Transaction Actions. An
+Event Codec is therefore an internal abstraction layer used to:
+
+1. Transform Actions made in a write Transaction into an (array of) Events
+   that will be dispatched via the Dispatcher to be "reduced".
+2. Encode Actions made in a Transaction in an IPLD Node, which will
+   serve as a building block for an event Record entry in the local
+   Peer's Datastore.
+3. Decode external IPLD Nodes into Events, which can then be dispatched
+   locally.
+
+For example, if within a Model (write) Transaction, a new *Entity* is
+created and another one is updated, these two Actions will be sent to
+the Event Codec to transform them into Events. These Events have a
+payload of bytes with the encoded transformation(s). Currently, the
+only implementation of Event Codec is a *JSON Patcher*, which transforms
+Actions into JSON-merge/patch objects **REF**.
+
+[Entity]{#def:Entity}
+: An Entity is made up of a series of ordered Events referring to a
+specific entity or object. An Entity might have a unique `UUID` which
+can be referenced across Event updates.
+
+Once these Events have been aggregated by the Event Codec into a single
+IPLD Node, this information is used by Thread Service to actually persist
+the Event Record in the Thread associated with the given Store (i.e., it
+is written to an underlying Datastore). Likewise, the Event Codec can
+also do the inverse transformation: given an IPLD Node, it transforms its
+byte payload into Actions that will be reduced in the Store.
+
+To summarize, while a Transaction is running and making changes, the
+individual Actions are accumulated. Once the Transaction is committed,
+two things happen:
+
+1. Each Action is transformed to an Event
+2. The list of Actions is transformed to a single IPLD Node
+
+In the above, the list of Events are sent to the Dispatcher (for
+storage, and broadcasting to downstream Reducers), and the single IPLD
+Node is sent to the Thread Service, where it is added to the local
+Peer's Log.
+
+The Event Codec abstraction provides a useful extensibility mechanism
+for the Event Store. For instance, eventually consistent, CRDT-based
+structures are particularly useful for managing views of a document in
+a multi-peer collaborative editing environment (like Google Docs or
+similar). To support this type of offline-first use-case (where Peers
+may be making concurrent edits on a shared JSON document), one could
+implement an Event Codec that supports a JSON CRDT datatype
+[@kleppmannConflictFreeReplicatedJSON2017] (or even a hybrid JSON Patch
+with logical clocks). Here updates to a JSON document would be modeled
+as CRDT operations (ops) *or* deltas to provide CRDT-like behavior to
+downstream Reducers. Libraries such as Automerge[^20] provide useful
+examples of reducer functions that make working with JSON CRDTs
+relatively straightforward.
+
+### Dispatcher {#sec:Dispatcher}
+
+In order to persist and dispatch Events to downstream consumers, a
+*Dispatcher* is used. Every Event generated in the Store is sent
+to a Dispatcher when write Transactions are committed. The Dispatcher is
+then responsible for broadcasting these events to all registered
+*Reducers*. For example, if a particular Entity is updated via a Model,
+the corresponding Action will be encoded as an Event by the Event Codec
+(as mentioned previously). These Events will then be dispatched to the
+Dispatcher, which will:
+
+1. Store the new Event in persistent storage (*Datastore*). If the Transaction made
+   *multiple* changes, this is done *transactionally*.
+2. Broadcast all *new* Events to all registered Reducers. Reducers will
+   then apply the changes encoded by the Event Codec as the "see fit".
+
+This design implies that real Store state changes *can only happen
+when the Dispatcher broadcasts new Events*. A Reducer can't distinguish
+between Events generated locally or externally. External events are the
+results of the Thread Service sending new Events to the Dispatcher,
+which means that new Events where detected in another Peer's Log from
+the same Thread.
+
+Dispatcher
+: A Dispatcher is the *source of truth* regarding known Events for the
+Store. All Events must go through the singleton Dispatcher,
+whether these initiated as local or remote Events.
+
+Reducer
+: A Reducer is a party which is interested in knowing about Store
+Events. Currently, the only Reducer is the Store itself.
+
+Datastore
+: A Datastore is the underlying persistence layer for Model Entities and
+a Dispatcher's raw Event information. In both cases, they are updatated
+via a Transaction to have transactional guarantees.
+
+### Store Listener {#sec:StoreListener}
+
+After an Event (or set of Events) has been dispatched by the Dispatcher,
+it is nessesary to notify various "external" actors that the Store has
+changed its state. Details of the change might include in which model
+the change occured, what Action(s) (`Create`, `Save`, `Delete`, etc)
+were handled, and wich specify Entities (`EntityID`s) were modified.
+These external actors are called *Listeners*, and are useful for clients
+that want to be notified about changes in the Store.
+
+Store Listener
+: A Listener is a "client" or external actor that would
+like to subscribe to Store updates based on a set of conditions.
+
+### Thread Service {#sec:ThreadService}
+
+The Thread Service, which is the primary networking
+interface for Threads. The Thread Service is actually part of the
+public developer API, so it can be accessed by external components. Its
+main responsibility is to provide an interface between the Store and
+Threads. It stores transactions in the local Peer's Log, and when it
+detects new Records in *another* Peer's Logs, it will dispatch them to
+the Dispatcher, allowing the local Store to handle the external Event
+and take appropriate action.
+
+Thread Service
+: The Thread Service is the bidirectional communication
+interface to the underlying Thread backing the Store.
+
+The Store Interface {#sec:interfaces}
 =================
 
-To make Threads as easy to adopt and use as possible, we have
-designed a developer facing API on top of the Threads internals that
-simplifies dealing with events and data, while still maintaining the
-power and flexibility of CQRS and ES. Developers should not have to
-learn a whole new set of terms and tools to take advantage of Threads'
-capabilities. These simple, public-facing APIs will be comfortable to
-application developers looking to leverage distributed systems that
-leverage user-siloed data, with minimal configuration and maximum
+To make Threads as easy to adopt and use as possible, we have designed a
+developer facing API on top of the Threads internals that simplifies
+dealing with events and data, while still maintaining the power and
+flexibility of CQRS and ES. Developers should not have to learn a whole
+new set of terms and tools to take advantage of Threads' capabilities.
+This simple, public-facing API will be comfortable to application
+developers looking to leverage distributed systems that leverage
+user-siloed data, with minimal configuration and maximum
 interoperability. Inspired by tools such as MondoDB[^16], Parse[^17],
 and Realm[^18], as well as the idea of bounded context and aggregate
 roots from DDD, we provide simple abstractions for performing
@@ -1219,162 +1335,228 @@ each Thread is defined by a unique ID, and provides facilities for
 access control and permissions, networking, and more. To illustrate how
 these underlying components can be combined to produce a simple API with
 minimal configuration and boilerplate, consider the following example in
-which we provide pseudo-code for a hypothetical Photos app.
+which we provide working Javascript code for a hypothetical
+User-management app.
 
 Illustrative Example {#sec:example}
 --------------------
 
-To create a useful application, developers start with view `Models`, as
-in [@lst:models]. A Model is essentially the public API for the
-underlying view Models from [@sec:views].
-Building on this, developers might create a new Thread for a user to
-store `Contact` information, as well as their mobile phone's camera roll
-photos, as in [@lst:stores]. This would create a new view Store
-under-to-hood (with corresponding indexes, etc), to be mutated by
-incoming Events.
+To create a useful application, developers start with a `Store`.
+Generally, a Store is accessed via a `Client` instance. This could be a
+local, or remote Threads provider.
 
-~~~ {#lst:models .javascript caption="Create a photo entity and some way to represent a photo's author."}
-Photo = NewModel({
-  _id: UUID,
-  thumbnail: Buffer,
-  original: Buffer,
-});
+```typescript
+const client = new Client(...opts)
+```
 
-Contact = NewModel({
-  _id: UUID,
-  name: {type: String, index: true},
-  avatar: Photo,
-});
+A default (or empty) `Store` can be created directly from the `Client`.
+This would create a new Thread under-to-hood, with an empty `Store` to
+be populated by Actions generated from a `Model` (next step).
 
-// Photos may be grouped into messages.
-Message = NewModel({
-  _id: UUID,
-  author: Contact,
-  body: String,
-  photos: [Photo],
-})
-~~~
+```typescript
+const store = await client.newStore()
+```
 
-~~~ {#lst:stores .javascript caption="Create address book and camera roll stores."}
-AddressBook = NewDocumentStore("AddressBook")
-// This store should take Contacts.
-AddressBook.AddModel("Contact", Contact)
-// If needed, additional models can be added...
+To interact with the `Store`, a developer must first create a new
+`Model`. A `Model` is essentially the public API for the Thread/Event
+Store (see [@sec:Models]). For example a develper might create a new
+`Model` to represent `Person` information. `Model`s are defined by their
+`Schema`, which is a JSON Schema object the defines and is used to
+validate Model data. In practice, there will be many pre-defined
+`Schema`s that developers can use to make their applications
+interaperatble with others. See [@sec:Modules] for some initial plans in
+this regard.
 
-// Create another store for camera roll photos.
-CameraRoll = NewDocumentStore("CameraRoll")
-// This store should take photos.
-CameraRoll.AddModel("Photo", Photo)
+```typescript
 
-// Create another store for a shared album.
-MyDogsAlbum = NewDocumentStore("Dogs")
-MyDogsAlbum.AddModel("Message", Message)
-
-// Messages can also be nested.
-Message.AddModel("Message", Message)
-~~~
-
-The next step is to actually *create* and add a `Message` object to a
-shared album. In [@lst:adding],
-a message instance is created via the custom `Message` class, and then
-added to the shared `Dogs` Thread (which represents an album here).
-Behind the scenes, the Model (which is providing an Event Creator
-interface) is internally responsible for dispatching the Event through
-the local Dispatcher.
-
-~~~ {#lst:adding .javascript caption="Adding data to a shared thread."}
-// Create a message with a photo.
-MyMessage = Message.Create({
-  author: <author_id>,
-  body: "This is Lucas.",
-  photos: [{
-    thumbnail: <buffer>,
-    original: <buffer>
-  }]
-})
-// Now it can be added to Dogs "album".
-MyDogsAlbum.Add(MyMessage)
-~~~
-
-An example Event is given in [@lst:event],
-and is the result of a new Message Event. Now, any updates to an
-existing Message instance will automatically generate the required
-underlying update Events. For example, [@lst:updates] shows the body text of the previous example
-being updated, and saved (committed) to the Thread. Behind the scenes,
-this event will be added to the User's local Log, and pushed to any
-Peers identified in the Thread's ACL document (see [@sec:variants; @sec:TexCRDT]).
-In practice, the Model generates another Event that carries the diff and
-a document identifier.
-
-~~~ {#lst:event .json caption="A new Message Event."}
-{
-  "body": {
-    "data": {
-      "author_id": <author_id>,
-      "body": "This is Lucas.",
-      "photos": [{
-        "thumbnail": <buffer>,
-        "original": <buffer>
-      }]
-    }
-  },
-  "header": {
-    "time": 1569434034737,
-    "key": "215bs...1DXJ"
-  }
+// This Typescript interface corresponds to the following JSON SChema
+interface Person {
+  ID: string // All Entities have an `ID` by default
+  firstName: string
+  lastName: string
+  age: number
 }
-~~~
 
-~~~ {#lst:updates .javascript caption="Message updates are persisted and transmitted automatically."}
-MyMessage.body = "Actually, this is Fido."
-MyMessage.Save()
-
-// New Event with diff and document id
-{
-  "body": {
-    "data": {
-      "doc_id": MyMessage._id,
-      "body": "Actually, this is Fido."
-    }
+// JSON Schema defining the above Person interface
+const personSchema = {
+  $id: 'https://example.com/person.schema.json',
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  title: 'Person',
+  type: 'object',
+  required: ['ID'],
+  properties: {
+    ID: {
+      type: 'string',
+      description: "The entity's id.",
+    },
+    firstName: {
+      type: 'string',
+      description: "The person's first name.",
+    },
+    lastName: {
+      type: 'string',
+      description: "The person's last name.",
+    },
+    age: {
+      description: 'Age in years which must be equal to or greater than zero.',
+      type: 'integer',
+      minimum: 0,
+    },
   },
-  "header": {
-    "time": 1569434035737,
-    "key": "iJMfqWy...1qfJyc29RS"
-  }
 }
-~~~
+```
 
-All instances and models in Threads have several special methods and
-properties specific to the Threads API, several of which we will explore
-here. [@Lst:others] demonstrates several features common in a
-Threads-based workflow, including queries, creating invites and changing
-permissions and access control (see also [@sec:AccessControl]), as well as subscribing to updates and
-changes at various levels of the Threads API. These subscriptions would
-enable downstream consumers (views, front-end stores, etc.) to receive
-updates as changes to the Thread are made via underlying Events.
+With a `Schema` in hand, the developer is able to register it with the
+`Store`, and then generate `Model`s based on said `Schema`. At this
+time, any additional `Schema`s can be registered with the `Store`. With
+all required `Schemas` registered, the `Store` can be started.
 
-~~~ {#lst:others .javascript caption="Additional Threads-based API functionality."}
-// Query for message, select only thumbnail.
-Dogs.FindOne({ "_id": MyMessage._id }, "thumbnail")
+```typescript
+// Register a Schema
+await client.registerSchema(store.id, 'Person', personSchema)
+// Start the Store
+await client.start(store.id)
+```
 
-// Every (Event increments version tag
-MyMessage.Version()
+At this point, the developer is looking at an empty `Store`/Thread. To
+add data, the developer can create a new instance of a `Model` (an
+`Entity`), and then modify this Entity and save the changes (via
+Actions). These operations are all done automatically by the Store,
+under-the-hood.
 
-// All doc changes in Dogs Thread
-Dogs.Subscribe()
-// All changes to all Messages in all Threads
-Message.Subscribe() 
-// Changes specific to this document
-MyMessage.Subscribe() 
+```typescript
+// Initial Person object
+const person: Person = {
+  ID: '',
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 21,
+}
 
-// Create invite Event IFF User has permission
-Dogs.Grant(<peer_id>, <role>)
+// Generic function to create a Model Entity
+const created = await client.modelCreate<Person>(store.id, 'Person', [person])
+console.log(created.entitiesList) // EntityList
+// [ { firstName: "John", lastName: "Doe", age: 21, ID: <uuid> } ]
+```
 
-// Alter ACL OR create invite if needed and allowed
-MyMessage.Grant(<peer_id>, <role>)
-~~~
+Specific entities can be modified (or deleted) via Actions, which are
+created by the `Model` instance (`Entity`):
 
-Modules {#sec:modules}
+```typescript
+const updatedPerson = created.entitiesList[0]
+updatedPerson.age = 26
+
+// Modify/mutate existing Entity
+await client.modelSave(store.id, 'Person', [updatedPerson])
+
+// Delete existing Entity
+client.modelDelete(store.id, 'Person', [person.ID])
+
+// Check whether Entity exists
+const has = await client.modelHas(store.id, 'Person', [updatedPerson.ID])
+console.log(has) // false
+```
+
+Like any useful database, the Textile Store interface exposed here also
+provides mechanisms for search, monitoring (subscriptions), and database
+transactions. Each of these features interact with the various
+components of the underlying Event Store. For example, Transactions are
+a core feature of the Event Store (see [@sec:Models] and
+[@sec:Dispatcher]), and subscriptions provide a Store Listener
+[@sec:StoreListener] interface. Transactions work as in most database
+implementations:
+
+```typescript
+const txn = client.writeTransaction(store.id, 'Person')
+await transaction.start()
+const created = await transaction.modelCreate<Person>([{
+  ID: '',
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30,
+}])
+const existingPerson = created.entitiesList.pop()
+const has = await transaction.has([existingPerson.ID])
+console.log(has) // true
+existingPerson.age = 99
+await transaction.modelSave([existingPerson])
+await transaction.modelDelete([existingPerson.ID])
+await transaction.end()
+```
+
+Similarly, subscriptions can be used to monitor updates, right down to
+individual Entities:
+
+```typescript
+const closer = client.listen(store.id, 'Person', existingPerson.ID, reply => {
+  console.log(`Entity modified: ${JSON.stringify(reply.entity)}`)
+  // Entity modified: { ..., age: 30 }
+  // Entity modified: { ..., age: 40 }
+})
+
+existingPerson.age = 30
+await client.modelSave(store.id, 'Person', [existingPerson])
+existingPerson.age = 40
+await client.modelSave(store.id, 'Person', [existingPerson])
+
+// Find or search for a specific Entity
+const found = await client.modelFindByID(store.id, 'Person', existingPerson.ID)
+console.log(found.entity.age) // 40
+```
+
+Lastly, search is performed via queries to the underlying Entities. For
+example, to search for all `Person`s matching a given `age` range, a
+developer can implement the following Query on the Store.
+
+```typescript
+// Select all Persons...
+const query = Query.where('age') // where `age` is...
+  .ge(60) // greater than or equal to 60, ...
+  .and('age') // and `age` is...
+  .lt(66) // less than 66, ...
+  .or(new Where('age').eq(67)) // or where `age` is equal to 67
+const { entitiesList } = await client.modelFind(store.id, 'Person', query)
+console.log(entitiesList.length)
+
+```
+
+Queries can be arbitrarily complex, and when possible, will take
+advantage of indexes and other features of the underlying database
+implementation. Details of the underlying Store database are not part of
+the Threads specification, so clients are welcome to optimize Store
+implementations for specific use-cases and design considerations. For
+instance, see [@sec:Databases] for some possible
+optimizations/alternative interfaces to the Threads Event Store.
+
+Alternative Interfaces {#sec:databases}
+---------
+
+While the above Store interface provides intuitive to a Threads Event
+Store, it is not difficult to imagine alternative, high-level APIs in
+which Threads are exposed via interfaces compatible with *existing*
+datastores or DBMS. Here we draw inspiration from similar projects
+(e.g., OrbitDB [@markroberthendersonOrbitDBFieldManual2019]) which
+have made it much easier for developers familiar with centralized
+database systems to make the move to decentralized systems such as
+Threads. For example, a key-value store built on Threads would "map"
+key-value operations, such as `put`, `get`, and `del` to internal
+Model Actions. The Events derived from said Actions would then be
+used to mutate the Store like any Model Entity, effectively
+encapsulating the entire Event Store in a database structure that
+satisfies a key-value store interface. These additional interfaces
+would also be distributed as Modules, making it easy for developers
+to swap in or substitute existing backend infrastructure.
+
+Similar abstractions will be used to implement additional database types
+and functions. Tables, feeds, counters, and other simple stores can also
+be built on Threads. Each database style would be implemented as a
+standalone software library, allowing application developers to
+pick and choose the solution most useful to the application at hand.
+Similarly, more advanced applications could be implemented using a
+combination of database types, or by examining the source code of these
+*reference* libraries.
+
+Modules {#sec:Modules}
 -------
 
 One of Textile's stated goals is to allow individuals to better capture
@@ -1386,12 +1568,13 @@ developers to be using the same data structure and conventions when
 building their apps. In conjunction with community developers, Textile
 will provide a number of *Modules* designed to wrap a given domain
 (e.g., Photos) into a singular software package to facilitate this. This
-way, developers need only agree on the given data Module in order to
+way, developers need only agree on the given `Schema` in order to
 provide seamless inter-application experiences. For example, any
 developer looking to provide a view on top of a user's Photos (perhaps
-their phone's camera roll) may utilize the Photos Module (which may be
-designed as in the example above). They may also extend this Module, to
-provide additional functionality.
+their phone's camera roll) may utilize a `Photos` Module. Similarly, a
+`Person` module might be designed as in the example from the previous
+section. Developers may also extend a given Module to provide additional
+functionality.
 
 In building on top of an existing Module, developers ensure other
 application developers are also able to interact with the data produced
@@ -1409,86 +1592,6 @@ developers who build on openly available *standard* Modules will provide
 a more useful experience for their users, and will benefit from the
 *network effects* [@shapiroInformationRulesStrategic1998] produced by
 many interoperable apps.
-
-Databases {#sec:databases}
----------
-
-With these interface simplifications, it is not difficult to imagine
-even higher-level APIs in which Threads are exposed via interfaces
-compatible with *existing* datastores or DBMS. Here we draw inspiration
-from similar projects (e.g., OrbitDB
-[@markroberthendersonOrbitDBFieldManual2019]) which have made it much
-easier for developers familiar with centralized database systems to make
-the move to decentralized systems such as Threads. For example, a
-key-value store built on Threads would "map" key-value operations, such
-as `Put`, `Get`, and `Del` to an internal (i.e., private) Model as in
-the previous section, with similarly defined methods. The generated
-Events would then mutate the internal map-like view Model effectively
-encapsulating the entire Event Store in a database structure that
-satisfies a given interface (see [@lst:KVStore] for example). These too would be distributed as
-Modules, making it easy for developers to swap in or substitute existing
-backend infrastructure.
-
-~~~ {#lst:KVStore .go caption="A proposed key-value store interface"}
-type TextileKVStore interface {
-  Put(key string, value Node) error
-  Get(key string) (Node, error)
-  Del(key string) error
-}
-~~~
-
-Other database abstractions include a no-sql style document store for
-storing and indexing arbitrary structs and/or JSON documents. The
-interface for such as store, again built using a "wrapped" view Model,
-might look like [@lst:DocStore], where `Indexable` could be satisfied by any
-structure with a `Key` field and `Query` might be taken from the
-`go-datastore` interface library[^19] or similar.
-
-~~~ {#lst:DocStore .go caption="A proposed document store interface"}
-type TextileDocStore interface {
-  Put(doc Inedexable) error
-  Get(key string) (Indexable, error)
-  Del(key string) error
-  Query(query Query) ([]Indexable, error)
-}
-~~~
-
-Similar abstractions will be used to implement additional database types
-and functions. Tables, feeds, counters, and other simple stores can also
-be built on Threads. Each database style would be implemented as a
-standalone software library, allowing application developers to
-pick and choose the solution most useful to the application at hand.
-Similarly, more advanced applications could be implemented using a
-combination of database types, or by examining the source code of these
-*reference* libraries.
-
-CRDTs {#sec:TexCRDT}
------
-
-Eventually consistent, CRDT-based structures can also be implemented on
-top of Threads' Event-driven architecture. CRDT-based Stores are
-particularly useful for managing views of a document in a multi-peer
-collaborative editing environment (like Google Docs or similar). For
-example to support offline-first, potentially concurrent edits on a
-shared JSON document, one could implement a JSON CRDT datatype
-[@kleppmannConflictFreeReplicatedJSON2017] that merges updates to a JSON
-document in a view Model's Reduder function. Libraries such as
-Automerge[^20] provide useful examples of reducer functions that make
-working with JSON CRDTs relatively straightforward.
-
-A practical example of using CRDTs in Threads is given in [@sec:AccessControl],
-where they are used to represent updates to an ACL document. Textile provides
-a default ACL view Model, with interfaces defined for an *access-controlled*
-Threads implementation. In practice, an Observed Remove Map (ORMap) is used
-to compose a map of keys (PeerIDs) to Remove-Wins Observed-Remove Sets
-(RWORSet) [@almeidaDeltaStateReplicated2018]. The benefit of using an ORMap
-in this context is that if updates to the ACL are made concurrently by
-separate Peers (with access), they will only affect the data of which a Peer
-is already aware. Similarly, an RWORSet is used such that concurrent edits
-will favor permissions *removal* over addition. While this is designed to
-reduce tampering with the ACL to some degree, it does not specifically guard against a malicious peer taking control of the ACL *if they had write access to it in the first place*[^malicious]. In general, Threads are designed for networks of *collaborating* peers, so peers are generally assumed to be using a "compliant" Thread implementation.
-
-[^malicious]: Though of course, more stringent ACL constraints could be built on top of Threads if one so chooses, including links to external *smart contract*-based ACLs.
 
 Thread Extensions
 -----------------
@@ -1511,21 +1614,16 @@ Snapshots[^22] are simply the current state of a Store at a given point
 in time. They can be used to rebuild the state of a view Store without
 having to query and re-play all previous Events. When a Snapshot is
 available, a Thread Peer can rebuild the state of a given view
-Store/Model by replaying only Events generated since the latest Snapshot
-using the Model's Reducer function. Multiple Peers processing the same
-Log could create a Snapshot every 1000 Events and be guaranteed to
-create the exact same Snapshot because each Peer's Event counts are
-identical[^23].
-
-In practice, Snapshots are written to their own internal Event Store and
-stored locally. They can potentially be synced ([@sec:LogSync]) to
+Store/Model by replaying only Events generated since the latest 
+Snapshot. Snapshots could be written to their own internal Store
+and stored locally. They can potentially be synced ([@sec:LogSync]) to
 other Peers as a form of data backup or to optimize state initialization
 when a new Peer starts participating in a shared Thread (saving disk
 space, bandwidth, and time). They can similarly be used for initializing
 a local view Store during recovery.
 
 Compaction is a *local-only operation* (i.e., other Peers do not need to
-be aware that Compaction was performed) performed on an Event Store to
+be aware that Compaction was performed) performed on an Store to
 free up local disk space. As a result, it can speed up re-hydration of a
 downstream Stores's state by reducing the number of Events that need to
 be processed. Compaction is useful when only the latest Event of a given
@@ -1539,28 +1637,7 @@ control possible in Threads, Entity-level ACLs and Thread-level ACLs.
 Thread-level access control lists (ACLs) allow creators to specify who
 can *replicate, read, write, and delete* Thread data. Similarly,
 Entity-level ACLs provide more granular control to Thread-writers on a
-per-Entity (see def. [4](#def:Entity)) basis. Both types of ACLs are implemented as
-JSON CRDTs (see [@sec:TexCRDT]) wrapped in a custom view Model (see [@sec:interfaces]).
-ACLs implemented as JSON Models provide two advantages over static or
-external ACL rules (although static and external ACLs are also
-possible). First, ACLs are fully mutable, allowing developers to create
-advanced rules for collaboration with any combination of Readers,
-Writers, and Replicas. Second, because ACLs are essentially mutable
-JSON documents, they can specify their *own editing rules* (i.e.
-allowing multiple Thread participants to modify the ACL) in a
-self-referencing way.
-
-[Entity]{#def:Entity}
-: An Entity is made up of a series of ordered Events referring
-to a specific entity or object. For example, an ACL document is a
-single entity made up of a sequence of Thread Events that encode updates
-to a ORMap-based CRDT. An Entity might have a unique `UUID` <!--(see [@lst:EntityId])--> which can be referenced across Event updates.
-
-<!--
-~~~ {#lst:EntityId .bash caption="Entity Id."}
-// UUID
-bafykrq5i25vd64ghamtgus6lue74k
-~~~ -->
+per-Entity (see def. [4](#def:Entity)) basis.
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1593,14 +1670,13 @@ access to Log Replica Keys. In practice, this means creating a new
 "Tombstone" Event which marks an older Event as "deleted". See
 [@sec:deleting] for additional notes on deleting data.
 
-A typical Thread-level ACL (see [@lst:AclJson]) can be persisted to a
-local Event Store as part of the flow described in [@sec:internals].
-See also [@sec:interfaces], and in particular [@lst:others] for the
-public API for editing ACL definitions.
+A typical Thread-level ACL can be persisted to a local Event Store as
+part of the flow described in [@sec:internals] (see also
+[@sec:interfaces]). An example is provided here:
 
-~~~ {#lst:AclJson .json caption="ACL map structure."}
+```json
 {
-  "_id": "bafykrq5i25vd64ghamtgus6lue74k",
+  "ID": "bafykrq5i25vd64ghamtgus6lue74k",
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
@@ -1608,37 +1684,69 @@ public API for editing ACL definitions.
     "12D..P2c6ifo": ["read"],
   }
 }
-~~~
+```
 
 The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
 Replica, and `12D..P2c6ifo` has been given read access. A Thread-level
-ACL has it's own Entity ACL, which also applies to all other Entity
-ACLs (see [@lst:ThreadAcl]). This means that only `12D..dwaA6Qe`
-is able to alter the access-control list.
+ACL has it's own Entity ACL, which also applies to all other Entity ACLs
+(see next example). This means that only `12D..dwaA6Qe` is able to alter
+the access-control list.
 
-~~~ {#lst:ThreadAcl .json caption="Thread and Entity ACL"}
+```json
 {
-  "_id": "bafykrq5i25vd64ghamtgus6lue74k-acl",
+  "ID": "bafykrq5i25vd64ghamtgus6lue74k-acl",
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
   }
 }
-~~~
+```
+
+Both types of ACLs can be implemented as CRDTs (see [@sec:EventCodec]).
+Indeed, Textile will provide a default ACL Event Codec, with interfaces
+defined for an *access-controlled* Threads variant (see
+[@sec:ThreadIdentity]). In practice, an Observed Remove Map (ORMap) can
+be used to compose a map of keys (PeerIDs) to Remove-Wins
+Observed-Remove Sets (RWORSet) [@almeidaDeltaStateReplicated2018]. The
+benefit of using an ORMap in this context is that if updates to the ACL
+are made concurrently by separate Peers (with access), they will only
+affect the data of which a Peer is already aware. Similarly, an RWORSet
+is used such that concurrent edits will favor permissions *removal* over
+addition. While this is designed to reduce tampering with the ACL to
+some degree, it does not specifically guard against a malicious peer
+taking control of the ACL *if they had write access to it in the first
+place*[^malicious].
+
+#### Note About Threats {#sec:deleting}
+
+In general, Threads are designed for networks of *collaborating* peers,
+so peers are generally assumed to be using a "compliant" Thread
+implementation. In other words, Thread Peers are expected to enforce
+their own ACL rules via agent-centric security practices. For example,
+if a Peer A, who has ACL write access, updates the ACL, all Thread
+participants who received said update are expected to then locally
+enforce said ACL. If Thread updates come out of order, it is up to the
+receiving Peers to re-process the updates to take into account new ACL
+updates.
+
+[^malicious]: Though of course, more stringent ACL constraints could be
+built on top of Threads if one so chooses, including links to external
+*smart contract*-based ACLs.
 
 #### Note About Deleting {#sec:deleting}
 
-Deleting data in distributed systems is a complex concept. In practice, it is
-impossible to ensure all Peers in a system will comply with any given Tombstone
-Event. Often, data (i.e., Blocks, Events, etc.) are kept locally, including
-*original and tombstone* Events, to facilitate parsing of the Event Log. This
-means raw data that have been "deleted" are not immediately purged from a Peer's
-storage. However, in strict data compliance situations (e.g., the EU's GDPR), a
-deletion Event *may* additionally generate a Snapshot Event, allowing past data
-to be purged from the local Event and Block stores. Compliant Peers should then
-purge "deleted" data. However, the possibility of non-compliant data caching
+Deleting data in distributed systems is a complex concept. In practice,
+it is impossible to ensure all Peers in a system will comply with any
+given Tombstone Event. Often, data (i.e., Blocks, Events, etc.) are kept
+locally, including *original and tombstone* Events, to facilitate
+parsing of the Datastore. This means raw data that have been "deleted"
+are not immediately purged from a Peer's storage. However, in strict
+data compliance situations (e.g., the EU's GDPR), a deletion Event *may*
+additionally generate a Snapshot Event, allowing past data to be purged
+from the local Event and Block stores. Compliant Peers should then purge
+"deleted" data. However, the possibility of non-compliant data caching
 remains. The initial Textile Threads reference implementation will *not*
 automatically purge deleted data from the local store. This compliance
 requirement will initially be left up to application-level developers.
@@ -1724,7 +1832,7 @@ Appendix
 
 ## Records, Events, and Blocks {#sec:EventNode}
 
-~~~ {.go}
+```go
 // Record is the most basic component of a log.
 type Record interface {
 	format.Node
@@ -1773,7 +1881,7 @@ type EventHeader interface {
 	// Key returns a single-use decryption key for the event body.
 	Key() (crypto.DecryptionKey, error)
 }
-~~~
+```
 
 ## Database Management Systems (DBMS) {#sec:DBMS}
 
@@ -1835,14 +1943,10 @@ type EventHeader interface {
 
 [^11]: <https://ifttt.com>
 
-[^12]: Redux builds on concepts from CQRS and ES itself, and is arguably
+[^redux]: Redux builds on concepts from CQRS and ES itself, and is arguably
     an implementation of the Flux application architecture.
 
 [^13]: <https://dddcommunity.org>
-
-[^14]: <https://redux-saga.js.org/>
-
-[^15]: Object-relational mapping
 
 [^16]: <http://www.mongodb.com>
 
@@ -1860,8 +1964,8 @@ type EventHeader interface {
     somewhat confusing, we attempt to use the most common definitions
     here.
 
-[^23]: Assuming any network partitions are only short-lived (i.e., that
-    peers are able to share events consistently).
+<!-- [^23]: Assuming any network partitions are only short-lived (i.e., that
+    peers are able to share events consistently). -->
 
 [^24]: By default, Threads without access control operate similar to
     Secure Scuttlebutt (SSB; where every Peer consumes what they want
