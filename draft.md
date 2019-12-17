@@ -251,7 +251,7 @@ provable eventual consistency guarantees remains challenging
 [CRDT]{#def:CRDT}
 : A conflict-free replicated data type (CRDT) assures eventual
 consistency through optimistic replication (i.e. all new updates are
-allowed) and eventual merging. CRDT rely on data structures that are
+allowed) and eventual merging. CRDTs rely on data structures that are
 mathematically guaranteed to resolve concurrent updates the same way
 regardless of the order in which those events were received.
 
@@ -428,7 +428,7 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
     unique representation for every event.
 
 However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
-they cannot be used order divergent heads representing concurrent
+they cannot be used to order divergent heads representing concurrent
 events alone. For example, in [@fig:merkledag], two replicas (left and right
 columns) are attempting to write (top to bottom) events to the same Merkle-Clock.
 After the first replica writes event A, the second writes event A' and 
@@ -442,7 +442,7 @@ may not be available on the network).
 
 In order to reduce the likelihood of divergent heads, all replicas
 should be perfectly connected and be able to fetch all events and
-linkages in the Merkle-Clock. On real-world networks with many often
+linkages in the Merkle-Clock. On real-world networks with many
 replicas that are often offline (mobile and Internet of things (IoT)
 devices, laptops, etc.), these conditions are rarely met, making the use
 of a single Merkle-Clock to synchronize replicas problematic.
@@ -481,7 +481,7 @@ a P2P network.
 
 ### Pubsub
 
-One of the most commonly used P2P distribution layers built on libp2p,
+One of the most commonly used P2P distribution layers built on libp2p
 is its Pubsub (or publish-subscribe) system. Pubsub is a standard
 messaging pattern where the publishers don't know who, if anyone, will
 subscribe to a given topic. *Publishers* send messages on a given topic
@@ -556,7 +556,7 @@ decentralized networks, such as Secure Scuttlebutt
 [@securescuttlebuttScuttlebuttProtocolGuide] and Holochain
 [@ericharris-braunHolochainScalableAgentcentric2018], make use of
 agent-centric security. Each of these systems leverage cryptographic
-signatures to validate Peer identities and messages.
+signatures to validate agent identities and messages.
 
 ### Access control
 
@@ -709,12 +709,6 @@ means any Peer with the Log's Read Key ([@sec:KeysEncryption]).
 Event
 : A single node in a Merkle-Clock, stored on IPFS.
 
-For any given Log, Events are authored by a single IPFS Peer, or
-*Writer*. This single-writer setup is a core feature of Logs, and
-provides properties unique to the Threads protocol. For clarity, we can
-similarly define a *Reader* as any other Peer capable of reading a Log.
-Related, a Merkle-Clock (see [@sec:merkleclocks]) is simply a Merkle-DAG of *Events*.
-
 ### Multi-addressed Event Logs
 
 Together with a cryptographic signature, an Event is written to a log
@@ -729,13 +723,13 @@ contained in a separate Block. This allows Events to carry any arbitrary Block s
 
 Much like IPFS Peers, Logs are identified on the network with addresses,
 or more specifically, with multiaddresses [@protocollabsMultiaddr]. Here
-we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to
-be used when composing Log multiaddresses. To reach a Log via it's IPEL
-multiaddress, it must be encapsulated in an IPFS Peer multiaddress.
+we introduce *log* as a new protocol tag to be used when composing Log
+multiaddresses. To reach a Log via its multiaddress, it must be encapsulated
+in an IPFS Peer multiaddress.
 
 Unlike Peer multiaddresses, Log addresses are not stored in the global
 IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
-via the push/pull API (see [@sec:LogSync]). This is in contrast to mutable
+with a push and pull mechanism (see [@sec:LogSync]). This is in contrast to mutable
 data via IPNS for example, which requires querying the network (DHT) for
 updates. Updates are requested directly from the (presumably trusted) Peers
 that produced them, resulting in a hybrid of content-addressed Events
@@ -746,7 +740,7 @@ time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
 Log addresses can also change over time, and these changes are again advertised
-to Peers via the push/pull API (see [@sec:LogSync]). The receiving Peers can
+to Peers via the push and pull mechanism (see [@sec:LogSync]). The receiving Peers can
 then update their local AddrBook to reflect the new address(es) of the Log.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
@@ -873,7 +867,7 @@ encrypted using a *Read* key. The Read Key is not distributed within the
 Log itself but via a separate (secure) channel to all Peers who require
 access to the content of the Log. Read Keys are scoped to a given *Thread*,
 so that the same key is used to encrypt all Event Blocks associated with
-a given Thread.
+a given Thread. This enables Readers to read Logs from new Writers.
 
 Read Key
 : The Read Key is a symmetric key created by the Thread initializer (creator) and
@@ -947,9 +941,13 @@ Raw
 additional assumptions. This is the default variant (see [@lst:Identity](a)).
 
 Access-Controlled
-: This variant declares that consumers should assume
-an access control list is composable from Log Events. The ACL represents
-a permissions rule set that must be applied when reading data ([@sec:AccessControl] and (b) below).
+: This variant declares that consumers should assume that the random
+component of the TID is the CID of an immutable access control list.
+The ACL represents a permissions rule set that must be applied when
+reading data ([@sec:AccessControl] and (b) below). Additionally, each
+ACL carries a reference to it's previous version (if one exists),
+forming a *chain* of versions. Writers may choose to alter the ACL,
+which results in a fork.
 
 ```go
 // (a) Raw identity. V1, 128 bit
@@ -962,61 +960,19 @@ a permissions rule set that must be applied when reading data ([@sec:AccessContr
 ### Log Synchronization {#sec:LogSync}
 
 Log Writers, Readers, and Replicas synchronize the state of their Logs
-by sending and receiving Events. Inspired by Git[^9], a reference to the
-latest Event in a Log is referred to as the *Head*. When a new Event is
-received, Readers and Replicas simply
-advance their Head reference for the given Log. This is similar to how a
-system such as OrbitDB [@markroberthendersonOrbitDBFieldManual2019]
-works, except we are tracking *multiple* Heads (one per Log), rather
-than a single Head.
+by pushing and pulling Log keys and Events. Inspired by Git[^9],
+a reference to the latest Event in a Log is referred to as the *Head*.
+When a new Event is received, Readers and Replicas simply advance their
+Head reference for the given Log. This is similar to how a system such as
+OrbitDB [@markroberthendersonOrbitDBFieldManual2019] works, except we are
+tracking *multiple* Heads (one per Log), rather than a single Head.
 
-Regardless of the network protocol, Events are transported between Peers
-in a standardized *Event Envelope*. A new Thread is created by
-generating a TID and Log. The Log's creator is the Writer, meaning it
-has possession of the Log's Identity, Read, and Replica Keys. All of
-these keys are needed to compose Events. At this point, the Thread only
-exists on the Writer's machine. Whether for collaboration, reading, or
-replicating, the process of sharing a Thread with other Peers starts by
-authoring a special Event called an *Invite*, which contains a set of
-keys from all of the Thread's Logs, called a *Key Set*.
+Thread Peers are able to inform each other of the latest Events and log
+keys via a push and pull mechanism.
 
-Event Envelope
-: An over-the-wire message containing an Event and the
-sender's signature of the Event.
+#### Push
 
-Invite
-: An Event containing a mapping of Log IDs to Key Sets, which
-can be used to join a Thread. Threads backed by an ACL ([@sec:AccessControl]) will also include the current ACL for
-the Thread in an Invite. This enables Peers to invite others to only
-read or replicate a Thread, instead of becoming a new Log Writer. Invites are
-sent directly to invitees, and added to a Log as a "regular" Event.
-
-Key Set
-: A set of keys for a Log. Depending on the context, a Key Set
-may contain the Replica and Read Key, or just the Replica Key. A Key Set
-is encrypted with the recipient's public key.
-
-The Invite is authored in the sender's Log. Because the recipient does
-not yet have this Log's Key Set, the Event is encrypted with the
-recipient's public key. If the recipient accepts the Invite, they will
-author another special Event called a *Join* in a new Log of their own.
-
-Join
-: An Event containing an invitee's new Log ID and Key Set,
-encrypted with the Key Set of the *inviting Peer's Log*.
-
-For a Join to be successful, all Log Writers must receive a copy of the
-new Key Set so they can properly handle future Events in the new Log.
-Instead of encrypting a Join with the public key of each existing
-Writer, we can encrypt a single Join with the Key Set of the inviting
-Peer's Log, which the other Writers also have. Once a Peer has accepted
-an Invite, it will receive new Events from Log Writers. In cases where
-the invitee becomes a collaborator (i.e., a Writer) it is also
-responsible for sending its own Events out to the network.
-
-#### Sending
-
-Sending is performed in multiple phases because, invariably, some Thread
+Pushing Events is performed in multiple phases because, invariably, some Thread
 participants will be offline or unresponsive:
 
 1.  New Events are pushed[^10] directly to the Thread's other Log
@@ -1043,19 +999,16 @@ public IP addresses become relays:
 3.  New Events may trigger web-hooks, which could enable many complex
     (e.g., IFTTT[^11]) workflows.
 
-#### Receiving
+#### Pull
 
-There are multiple paths to receiving new Events, that together maximize
-connectivity between Peers who are often offline or unreachable.
+Pulling Events helps to maximize connectivity between Peers who are
+often offline or unreachable.
 
-1.  Log Writers can receive Events directly from the Writer.
-2.  Events can be pulled from Replicas via HTTP, RSS, Atom, etc.
+1.  Events can be pulled from Replicas via HTTP, RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
         web-based Readers and Replicas with a reliable mechanism for
         receiving Log Events ([@fig:Pulling]).
-3.  Writers and readers can receive new Events via a Pub/Sub
-    subscription at the TID.
 
 ![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="350px"}
 
@@ -1611,12 +1564,12 @@ type is required.
 ### Access Control {#sec:AccessControl}
 
 One of the most important properties of a shared data model is the
-ability to apply access control rules. There are two forms of access
-control possible in Threads, Entity-level ACLs and Thread-level ACLs.
+ability to apply access control rules. There are three forms of access
+control possible in Threads, Entity-level ACLs, Model-level ACLs, and Thread-level ACLs.
 Thread-level access control lists (ACLs) allow creators to specify who
 can *replicate, read, write, and delete* Thread data. Similarly,
-Entity-level ACLs provide more granular control to Thread-writers on a
-per-Entity (see def. [4](#def:Entity)) basis.
+Model and Entity-level ACLs provide more granular control to Thread-writers on a
+per-Model and Entity (see def. [4](#def:Entity)) basis.
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1640,8 +1593,9 @@ Members of this role are able to read Log Event payloads.
 Write
 : Members of this role are able to author new Events, which also
 implies access to Log Replica and Read Keys. At the Thread-level, this
-means authoring a Log. At the document-level, the Write role means that
-Events in this Log are able to target a particular document.
+means authoring a Log. At the Model-level, this means authoring a
+specific Model. At the Entity-level, the Write role means that
+Events in this Log are able to target a particular Entity.
 
 Delete
 : Members of this role are able to delete Events, which implies
@@ -1649,9 +1603,7 @@ access to Log Replica Keys. In practice, this means creating a new
 "Tombstone" Event which marks an older Event as "deleted". See
 [@sec:deleting] for additional notes on deleting data.
 
-A typical Thread-level ACL can be persisted to a local Event Store as
-part of the flow described in [@sec:internals] (see also
-[@sec:interfaces]). An example is provided here:
+Below is a typical Thread-level ACL:
 
 ```json
 {
@@ -1668,35 +1620,7 @@ part of the flow described in [@sec:internals] (see also
 The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
-Replica, and `12D..P2c6ifo` has been given read access. A Thread-level
-ACL has it's own Entity ACL, which also applies to all other Entity ACLs
-(see next example). This means that only `12D..dwaA6Qe` is able to alter
-the access-control list.
-
-```json
-{
-  "ID": "bafykrq5i25vd64ghamtgus6lue74k-acl",
-  "default": "no-access",
-  "peers": {
-    "12D..dwaA6Qe": ["write", "delete"],
-  }
-}
-```
-
-Both types of ACLs can be implemented as CRDTs (see [@sec:EventCodec]).
-Indeed, Textile will provide a default ACL Event Codec, with interfaces
-defined for an *access-controlled* Threads variant (see
-[@sec:ThreadIdentity]). In practice, an Observed Remove Map (ORMap) can
-be used to compose a map of keys (PeerIDs) to Remove-Wins
-Observed-Remove Sets (RWORSet) [@almeidaDeltaStateReplicated2018]. The
-benefit of using an ORMap in this context is that if updates to the ACL
-are made concurrently by separate Peers (with access), they will only
-affect the data of which a Peer is already aware. Similarly, an RWORSet
-is used such that concurrent edits will favor permissions *removal* over
-addition. While this is designed to reduce tampering with the ACL to
-some degree, it does not specifically guard against a malicious peer
-taking control of the ACL *if they had write access to it in the first
-place*[^malicious].
+Replica, and `12D..P2c6ifo` has been given read access.
 
 #### Note About Threats {#sec:Threats}
 
@@ -1710,9 +1634,8 @@ enforce said ACL. If Thread updates come out of order, it is up to the
 receiving Peers to re-process the updates to take into account new ACL
 updates.
 
-[^malicious]: Though of course, more stringent ACL constraints could be
-built on top of Threads if one so chooses, including links to external
-*smart contract*-based ACLs.
+More stringent ACL constraints could be built on top of Threads if one
+so chooses, including links to external *smart contract*-based ACLs.
 
 #### Note About Deleting {#sec:deleting}
 
