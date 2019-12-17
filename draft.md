@@ -122,7 +122,7 @@ access-control, scalable storage, and network communication. Based on
 our findings, we propose a novel architecture for event sourcing (ES)
 with Interplanetary Linked Data (IPLD) --- which we call *Threads* --
 that is designed to store,
-share, and host user-siloed datasets at scale. Our proposed design
+share, and host user-siloed data-sets at scale. Our proposed design
 leverages new and existing protocols to solve major challenges with
 building a secure and distributed network for user data while at the
 same time providing the flexibility and scalability required by today's
@@ -251,14 +251,13 @@ provable eventual consistency guarantees remains challenging
 [CRDT]{#def:CRDT}
 : A conflict-free replicated data type (CRDT) assures eventual
 consistency through optimistic replication (i.e. all new updates are
-allowed) and eventual merging. CRDTs rely on data structures that are
+allowed) and eventual merging. CRDT rely on data structures that are
 mathematically guaranteed to resolve concurrent updates the same way
 regardless of the order in which those events were received.
 
 How a system provides eventual consistency is often decided based on the
 intended use of the system. Two well-documented categories of solutions
-include logs (def. [1](#def:Logs)) and CRDTs (def.
-[2](#def:CRDT)).
+include logs (def. [1](#def:Logs)) and CRDT (def. [2](#def:CRDT)).
 
 A common minimum requirement for log synchronization across multiple
 peers is that the essential order of events is respected and/or can be
@@ -501,7 +500,7 @@ sequences of updates to multiple recipients. Like libp2p, encryption is
 a separate concern and often added in steps prior to data transmission.
 However, also like libp2p, Pubsub doesn't offer any simple solutions for
 transferring encryption keys (beyond public keys), synchronizing
-datasets across peers (i.e. they aren't databases), or enforcing any
+data-sets across peers (i.e. they aren't databases), or enforcing any
 measures for access control (e.g. anyone subscribed to a topic can also
 author updates on that topic). To solve some of these challenges, some
 systems introduce message echoing and other partial solutions. However,
@@ -542,7 +541,7 @@ Peer on the network has a key-pair.
 In addition to using the key-pair for secure communication
 between Peers, IPFS also uses the key-pair as the basis for identity.
 Specifically, when a new IPFS Peer is created, a new key-pair is
-generated, and this public key is used to generate the Peers's IDentity (Peer ID).
+generated, and this public key is used to generate the Peer's IDentity (Peer ID).
 
 ### Agent-centric Security
 
