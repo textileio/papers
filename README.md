@@ -35,6 +35,12 @@ To generate a pretty-bare bones HTML version:
 pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections draft.md -o draft.html --mathjax --standalone 
 ```
 
+To generate a workable LaTeX file:
+
+```bash
+pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections draft.md -o draft.tex --standalone
+```
+
 To generate a default PDF version via LaTeX:
 
 ```bash

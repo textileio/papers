@@ -44,10 +44,10 @@ header-includes: |
   \author{Hagopian}
   \affiliation{www.textile.io} \email{research@textile.io}
   \author{Gozalishvili}
-  \affiliation{Mozilla} \email{}
+  \affiliation{Mozilla.org} \email{}
   \author{Hill}
-  \affiliation{www.textile.io} \email{contact@textile.io}
-  \shortauthors{draft - www.textile.io}
+  \affiliation{Textile.io} \email{}
+  \shortauthors{Draft - Textile Threads}
   \revised{\today}
 
   \makeatletter
@@ -69,7 +69,14 @@ header-includes: |
   \twocolumn
   \end{figure}}
   \makeatother
+
+  \usepackage{lipsum}
+  \usepackage{graphicx}
 ---
+
+<!--
+@note: ensure abstract is created before `\maketitle`
+-->
 
 Introduction
 ============
@@ -287,7 +294,8 @@ achieve eventual consistency. Examples include various logical clocks
 [@kulkarniLogicalPhysicalClocks2014], etc.), which use "counter"-based
 time-stamps to provide partial ordering.
 
-Cryptographically linked events can also represent a clock (see [@sec:merkleclocks]). One such example is called the
+Cryptographically linked events can also represent a clock (see
+[@sec:merkleclocks]). One such example is called the
 Merkle-Clock [@sanjuanMerkleCRDTs2019], which relies on properties of a
 Merkle-DAG to provide strict partial ordering between events.
 Like any logical clock, this approach does have its limitations
@@ -359,7 +367,8 @@ addressing size \[and\] encoding considerations"
 benefits to the network, including tamper resistance (i.e., a given
 piece of content has not been modified en route if its hash matches what
 we were expecting), de-duplication (i.e., the same content
-from different peers will produce the same hash address), and data-corruption (again if a hash matches what we were expecting, we
+from different peers will produce the same hash address), and data-corruption
+(again if a hash matches what we were expecting, we
 know it is complete). Additionally, IPFS content-based addresses are
 immutable and universally unique.
 
@@ -401,9 +410,9 @@ directed acyclic graph[^5]. This allows all hash-linked data structures
 to be treated using a unified data model, analogous to linked data in
 the Semantic Web sense
 [@brendanobrienDeterministicQueryingDistributed2017]. In practice, IPLD
-is represented as objects, each with `Data` and (possibly multiple) `Link` fields, where
-`Data` can be a small blob of unstructured, arbitrary binary data, and
-a `Link` simply 'links' to other IPLD objects.
+is represented as objects, each with `Data` and (possibly multiple) `Link`
+fields, where `Data` can be a small blob of unstructured, arbitrary binary
+data, and a `Link` simply 'links' to other IPLD objects.
 
 ### Merkle-Clocks {#sec:merkleclocks}
 
@@ -666,8 +675,11 @@ interested in replicating the events of all other peers
 
 ### Single-writer Event Logs
 
+<!--
+@note: Ensure width is `\linewidth`
+-->
 ![A single-writer Merkle-Clock (Event
-Log).](figures/Event_Log.png){#fig:EventLog height="350px"}
+Log).](figures/Event_Log.png){#fig:EventLog}
 
 Our solution to dealing with log conflicts (i.e., divergent
 Merkle-Clocks) is to institute a *single-writer rule*: A Log can only be
@@ -755,29 +767,58 @@ single Log. The AddrBook interface for storing Log addresses is given below.
 ```go
 // AddrBook stores log addresses.
 type AddrBook interface {
-	// AddAddr adds an address under a log with a given TTL.
-	AddAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration) error
+  // AddAddr adds address under log with TTL.
+  AddAddr(
+    thread.ID,
+    peer.ID,
+    ma.Multiaddr,
+    time.Duration
+  ) error
 
-	// AddAddrs adds addresses under a log with a given TTL.
-	AddAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration) error
+  // AddAddrs adds addresses under log with TTL.
+  AddAddrs(
+    thread.ID,
+    peer.ID,
+    []ma.Multiaddr,
+    time.Duration
+  ) error
 
-	// SetAddr sets a log's address with a given TTL.
-	SetAddr(thread.ID, peer.ID, ma.Multiaddr, time.Duration) error
+  // SetAddr sets log's address with TTL.
+  SetAddr(
+    thread.ID,
+    peer.ID,
+    ma.Multiaddr,
+    time.Duration
+  ) error
 
-	// SetAddrs sets a log's addresses with a given TTL.
-	SetAddrs(thread.ID, peer.ID, []ma.Multiaddr, time.Duration) error
+  // SetAddrs sets log's addresses with TTL.
+  SetAddrs(
+    thread.ID,
+    peer.ID,
+    []ma.Multiaddr,
+    time.Duration
+  ) error
 
-	// UpdateAddrs updates the TTL of a log address.
-	UpdateAddrs(t thread.ID, id peer.ID, oldTTL time.Duration, newTTL time.Duration) error
+  // UpdateAddrs updates TTL of log address.
+  UpdateAddrs(
+    t thread.ID,
+    id peer.ID,
+    oldTTL time.Duration,
+    newTTL time.Duration
+  ) error
 
-	// Addrs returns all addresses for a log.
-	Addrs(thread.ID, peer.ID) ([]ma.Multiaddr, error)
+  // Addrs returns all addresses for log.
+  Addrs(thread.ID, peer.ID) ([]ma.Multiaddr, error)
 
-	// AddrStream returns a channel that delivers address changes for a log.
-	AddrStream(context.Context, thread.ID, peer.ID) (<-chan ma.Multiaddr, error)
+  // AddrStream returns channel to deliver
+  // address changes for log.
+  AddrStream(
+    context.Context,
+    thread.ID, peer.ID
+  )(<-chan ma.Multiaddr, error)
 
-	// ClearAddrs deletes all addresses for a log.
-	ClearAddrs(thread.ID, peer.ID) error
+  // ClearAddrs deletes all addresses for log.
+  ClearAddrs(thread.ID, peer.ID) error
 }
 ```
 
@@ -797,6 +838,9 @@ unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
 
+<!--
+@note: use `\begin{figure*}` in LaTex
+-->
 ![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
 
 Logs are designed to be shared, composed, and layered into
@@ -808,29 +852,29 @@ AddrBook, Log *keys* are stored in a KeyBook.
 ```go
 // KeyBook stores log/thread keys.
 type KeyBook interface {
-	// PubKey retrieves the public key of a log.
-	PubKey(thread.ID, peer.ID) (ic.PubKey, error)
+  // PubKey retrieves public key of log.
+  PubKey(thread.ID, peer.ID) (ic.PubKey, error)
 
-	// AddPubKey adds a public key under a log.
-	AddPubKey(thread.ID, peer.ID, ic.PubKey) error
+  // AddPubKey adds public key under log.
+  AddPubKey(thread.ID, peer.ID, ic.PubKey) error
 
-	// PrivKey retrieves the private key of a log.
-	PrivKey(thread.ID, peer.ID) (ic.PrivKey, error)
+  // PrivKey retrieves private key of log.
+  PrivKey(thread.ID, peer.ID) (ic.PrivKey, error)
 
-	// AddPrivKey adds a private key under a log.
-	AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
+  // AddPrivKey adds private key under log.
+  AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
 
-	// ReadKey retrieves the read key of a thread.
-	ReadKey(thread.ID) (*sym.Key, error)
+  // ReadKey retrieves read key of thread.
+  ReadKey(thread.ID) (*sym.Key, error)
 
-	// AddReadKey adds a read key under a thread.
-	AddReadKey(thread.ID, *sym.Key) error
+  // AddReadKey adds read key under thread.
+  AddReadKey(thread.ID, *sym.Key) error
 
-	// FollowKey retrieves the follow key of a thread.
-	FollowKey(thread.ID) (*sym.Key, error)
+  // FollowKey retrieves follow key of thread.
+  FollowKey(thread.ID) (*sym.Key, error)
 
-	// AddFollowKey adds a follow key under a thread.
-	AddFollowKey(thread.ID, *sym.Key) error
+  // AddFollowKey adds follow key under thread.
+  AddFollowKey(thread.ID, *sym.Key) error
 }
 ```
 
@@ -905,7 +949,7 @@ compose a single dataset and as a topic identifier within Pubsub-based
 synchronization. The components of a TID are given in [@eq:ThreadID].
 
 $$
-\text{Thread ID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc}\dots\texttt{a4546e}}^\text{Random Component}
+\text{TID} = \underbrace{\texttt{0x62}}_\text{Multibase} \overbrace{\texttt{0x01}}^\text{Version} \underbrace{\texttt{0x55}}_\text{Variant} \overbrace{\texttt{0x539bc}\dots\texttt{a4546e}}^\text{Random Component}
 $$ {#eq:ThreadID}
 
 TIDs share some similarities with UUIDs
@@ -938,7 +982,7 @@ social media feeds, shared documents, blogs, photo albums, etc.
 
 Raw
 : This variant declares that consumers are not expected to make
-additional assumptions. This is the default variant (see [@lst:Identity](a)).
+additional assumptions. This is the default variant (see (a) below).
 
 Access-Controlled
 : This variant declares that consumers should assume that the random
@@ -954,7 +998,7 @@ which results in a fork.
 "bafkxd5bjgi6k4zivuoyxo4ua4mzyy"
 
 // (b) ACL enabled identity. V1, 256 bit.
-"bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya"
+"bafyoiobghzefwl...gmdmgeobw2mimktr5jivsavya"
 ```
 
 ### Log Synchronization {#sec:LogSync}
@@ -1301,15 +1345,15 @@ this regard.
 
 ```typescript
 
-// This Typescript interface corresponds to the following JSON SChema
+// Interface corresponds to JSON Schema
 interface Person {
-  ID: string // All Entities have an `ID` by default
+  ID: string // Entities have `ID` by default
   firstName: string
   lastName: string
   age: number
 }
 
-// JSON Schema defining the above Person interface
+// JSON Schema defining above interface
 const personSchema = {
   $id: 'https://example.com/person.schema.json',
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -1319,18 +1363,18 @@ const personSchema = {
   properties: {
     ID: {
       type: 'string',
-      description: "The entity's id.",
+      description: "Entity ID.",
     },
     firstName: {
       type: 'string',
-      description: "The person's first name.",
+      description: "First name.",
     },
     lastName: {
       type: 'string',
-      description: "The person's last name.",
+      description: "Last name.",
     },
     age: {
-      description: 'Age in years which must be equal to or greater than zero.',
+      description: 'Age in years.',
       type: 'integer',
       minimum: 0,
     },
@@ -1345,7 +1389,9 @@ all required `Schemas` registered, the `Store` can be started.
 
 ```typescript
 // Register a Schema
-await client.registerSchema(store.id, 'Person', personSchema)
+await client.registerSchema(
+  store.id, 'Person', personSchema
+)
 // Start the Store
 await client.start(store.id)
 ```
@@ -1365,10 +1411,17 @@ const person: Person = {
   age: 21,
 }
 
-// Generic function to create a Model Entity
-const created = await client.modelCreate<Person>(store.id, 'Person', [person])
+// Create a Model Entity
+const created = await client.modelCreate(
+  store.id, 'Person', [person]
+)
 console.log(created.entitiesList) // EntityList
-// [ { firstName: "John", lastName: "Doe", age: 21, ID: <uuid> } ]
+// [{
+//   firstName: "John",
+//   lastName: "Doe",
+//   age: 21,
+//   ID: <uuid>
+// }]
 ```
 
 Specific entities can be modified (or deleted) via Actions, which are
@@ -1379,13 +1432,19 @@ const updatedPerson = created.entitiesList[0]
 updatedPerson.age = 26
 
 // Modify/mutate existing Entity
-await client.modelSave(store.id, 'Person', [updatedPerson])
+await client.modelSave(
+  store.id, 'Person', [updatedPerson]
+)
 
 // Delete existing Entity
-client.modelDelete(store.id, 'Person', [person.ID])
+await client.modelDelete(
+  store.id, 'Person', [person.ID]
+)
 
 // Check whether Entity exists
-const has = await client.modelHas(store.id, 'Person', [updatedPerson.ID])
+const has = await client.modelHas(
+  store.id, 'Person', [updatedPerson.ID]
+)
 console.log(has) // false
 ```
 
@@ -1399,20 +1458,22 @@ a core feature of the Event Store (see [@sec:Models] and
 implementations:
 
 ```typescript
-const txn = client.writeTransaction(store.id, 'Person')
+const txn = client.writeTransaction(
+  store.id, 'Person'
+)
 await transaction.start()
-const created = await transaction.modelCreate<Person>([{
+const created = await transaction.modelCreate([{
   ID: '',
   firstName: 'John',
   lastName: 'Doe',
   age: 30,
 }])
-const existingPerson = created.entitiesList.pop()
-const has = await transaction.has([existingPerson.ID])
+const existing = created.entitiesList.pop()
+const has = await transaction.has([existing.ID])
 console.log(has) // true
-existingPerson.age = 99
-await transaction.modelSave([existingPerson])
-await transaction.modelDelete([existingPerson.ID])
+existing.age = 99
+await transaction.modelSave([existing])
+await transaction.modelDelete([existing.ID])
 await transaction.end()
 ```
 
@@ -1420,19 +1481,26 @@ Similarly, subscriptions can be used to monitor updates, right down to
 individual Entities:
 
 ```typescript
-const closer = client.listen(store.id, 'Person', existingPerson.ID, reply => {
-  console.log(`Entity modified: ${JSON.stringify(reply.entity)}`)
+const closer = client.listen(
+  store.id, 'Person', existing.ID, reply => {
+  console.log(JSON.stringify(reply.entity))
   // Entity modified: { ..., age: 30 }
   // Entity modified: { ..., age: 40 }
 })
 
-existingPerson.age = 30
-await client.modelSave(store.id, 'Person', [existingPerson])
-existingPerson.age = 40
-await client.modelSave(store.id, 'Person', [existingPerson])
+existing.age = 30
+await client.modelSave(
+  store.id, 'Person', [existing]
+)
+existing.age = 40
+await client.modelSave(
+  store.id, 'Person', [existing]
+)
 
 // Find or search for a specific Entity
-const found = await client.modelFindByID(store.id, 'Person', existingPerson.ID)
+const found = await client.modelFindByID(
+  store.id, 'Person', existing.ID
+)
 console.log(found.entity.age) // 40
 ```
 
@@ -1442,14 +1510,16 @@ developer can implement the following Query on the Store.
 
 ```typescript
 // Select all Persons...
-const query = Query.where('age') // where `age` is...
-  .ge(60) // greater than or equal to 60, ...
-  .and('age') // and `age` is...
-  .lt(66) // less than 66, ...
-  .or(new Where('age').eq(67)) // or where `age` is equal to 67
-const { entitiesList } = await client.modelFind(store.id, 'Person', query)
+const query = Query.where('age') // where `age`...
+  .ge(60) // is greater than or equal to 60, ...
+  .and('age') // and `age`...
+  .lt(66) // is less than 66, ...
+  // or where `age` is equal to 67
+  .or(new Where('age').eq(67)) 
+const { entitiesList } = await client.modelFind(
+  store.id, 'Person', query
+)
 console.log(entitiesList.length)
-
 ```
 
 Queries can be arbitrarily complex, and when possible, will take
@@ -1735,53 +1805,64 @@ Appendix
 ## Records, Events, and Blocks {#sec:EventNode}
 
 ```go
-// Record is the most basic component of a log.
+// Record is most basic component of log.
 type Record interface {
-	format.Node
+  format.Node
 
-	// BlockID returns the cid of the event block.
-	BlockID() cid.Cid
+  // BlockID returns cid of event block.
+  BlockID() cid.Cid
 
   // GetBlock loads the event block.
-	GetBlock(context.Context, format.DAGService) (format.Node, error)
+  GetBlock(
+    context.Context, format.DAGService
+  ) (format.Node, error)
 
-	// PrevID returns the cid of the previous record.
-	PrevID() cid.Cid
+  // PrevID returns cid of previous record.
+  PrevID() cid.Cid
 
-	// Sig returns the record signature.
-	Sig() []byte
+  // Sig returns record signature.
+  Sig() []byte
 
-  // Verify returns a non-nil error if the record signature is valid.
-	Verify(pk ic.PubKey) error
+  // Verify checks for valid record signature.
+  Verify(pk ic.PubKey) error
 }
 
-// Event is the Block format used by Textile threads
+// Event is the Block format used by Threads.
 type Event interface {
-	format.Node
+  format.Node
 
-	// HeaderID returns the cid of the event header.
-	HeaderID() cid.Cid
+  // HeaderID returns cid of event header.
+  HeaderID() cid.Cid
 
-	// GetHeader loads and optionally decrypts the event header.
-	GetHeader(context.Context, format.DAGService, crypto.DecryptionKey) (EventHeader, error)
+  // GetHeader loads and decrypts event header.
+  GetHeader(
+    context.Context,
+    format.DAGService,
+    crypto.DecryptionKey
+  ) (EventHeader, error)
 
-	// BodyID returns the cid of the event body.
-	BodyID() cid.Cid
+  // BodyID returns cid of event body.
+  BodyID() cid.Cid
 
-	// GetBody loads and optionally decrypts the event body.
-	GetBody(context.Context, format.DAGService, crypto.DecryptionKey) (format.Node, error)
+  // GetBody loads and decrypts event body.
+  GetBody(
+    context.Context,
+    format.DAGService,
+    crypto.DecryptionKey
+  ) (format.Node, error)
 }
 
-// EventHeader is the format of the event's header object
+// EventHeader is format of event's header.
 type EventHeader interface {
-	format.Node
+  format.Node
 
-	// Time returns the wall-clock time and sequence number from when the event was created.
- 	// These can be used to derive a Hybrid Logical Clock
-	Time() (*time.Time, int32, error)
+  // Time returns wall-clock time + sequence id
+  // from when event was created.
+  // Can be used to derive Hybrid Logical Clock
+  Time() (*time.Time, int32, error)
 
-	// Key returns a single-use decryption key for the event body.
-	Key() (crypto.DecryptionKey, error)
+  // Key returns single-use decryption key.
+  Key() (crypto.DecryptionKey, error)
 }
 ```
 
