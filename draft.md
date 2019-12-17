@@ -753,7 +753,7 @@ time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
 Log addresses can also change over time, and these changes are again advertised
-to peers via the push and pull mechanism (see [@sec:LogSync]). The receiving Ppeers can
+to peers via the push and pull mechanism (see [@sec:LogSync]). The receiving peers can
 then update their local AddrBook to reflect the new address(es) of the Log.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
@@ -941,7 +941,7 @@ service Threads {
 
 #### Push
 
-Pushing Events is performed in multiple phases because, invariably,
+Pushing Records is performed in multiple phases because, invariably,
 some Thread participants will be offline or unresponsive:
 
 1.  New Records are pushed[^10] directly to the Thread's other Log
