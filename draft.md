@@ -721,13 +721,6 @@ means any Peer with the Log's Read Key ([@sec:KeysEncryption]).
 Event
 : A single node in a Merkle-Clock, stored on IPFS.
 
-For any given Log, Events are authored by a single IPFS Peer, or
-*Writer*. This single-writer setup is a core feature of Logs, and
-provides properties unique to the Threads protocol. For clarity, we can
-similarly define a *Reader* as any other Peer capable of reading a Log.
-Related, a Merkle-Clock (see [@sec:merkleclocks]) is simply a Merkle-DAG
-of *Events*.
-
 ### Multi-addressed Event Logs
 
 Together with a cryptographic signature, an Event is written to a log
