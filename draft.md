@@ -44,10 +44,10 @@ header-includes: |
   \author{Hagopian}
   \affiliation{www.textile.io} \email{research@textile.io}
   \author{Gozalishvili}
-  \affiliation{Mozilla} \email{}
+  \affiliation{Mozilla.org} \email{}
   \author{Hill}
-  \affiliation{www.textile.io} \email{contact@textile.io}
-  \shortauthors{draft - www.textile.io}
+  \affiliation{Textile.io} \email{}
+  \shortauthors{Draft - Textile Threads}
   \revised{\today}
 
   \makeatletter
@@ -70,9 +70,13 @@ header-includes: |
   \end{figure}}
   \makeatother
 
-  \usepackage{lipsum}% http://ctan.org/pkg/lipsum
-  \usepackage{graphicx}% http://ctan.org/pkg/graphicx
+  \usepackage{lipsum}
+  \usepackage{graphicx}
 ---
+
+<!--
+@note: ensure abstract is created before `\maketitle`
+-->
 
 Introduction
 ============
@@ -671,8 +675,11 @@ interested in replicating the events of all other peers
 
 ### Single-writer Event Logs
 
+<!--
+@note: Ensure width is `\linewidth`
+-->
 ![A single-writer Merkle-Clock (Event
-Log).](figures/Event_Log.png){#fig:EventLog height="350px"}
+Log).](figures/Event_Log.png){#fig:EventLog}
 
 Our solution to dealing with log conflicts (i.e., divergent
 Merkle-Clocks) is to institute a *single-writer rule*: A Log can only be
@@ -838,7 +845,9 @@ unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
 
-<!-- @note: use `\begin{figure*}` in LaTex -->
+<!--
+@note: use `\begin{figure*}` in LaTex
+-->
 ![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
 
 Logs are designed to be shared, composed, and layered into
@@ -1522,7 +1531,7 @@ individual Entities:
 ```typescript
 const closer = client.listen(
   store.id, 'Person', existing.ID, reply => {
-  console.log(`Entity modified: ${JSON.stringify(reply.entity)}`)
+  console.log(JSON.stringify(reply.entity))
   // Entity modified: { ..., age: 30 }
   // Entity modified: { ..., age: 40 }
 })
@@ -1549,11 +1558,12 @@ developer can implement the following Query on the Store.
 
 ```typescript
 // Select all Persons...
-const query = Query.where('age') // where `age` is...
-  .ge(60) // greater than or equal to 60, ...
-  .and('age') // and `age` is...
-  .lt(66) // less than 66, ...
-  .or(new Where('age').eq(67)) // or where `age` is equal to 67
+const query = Query.where('age') // where `age`...
+  .ge(60) // is greater than or equal to 60, ...
+  .and('age') // and `age`...
+  .lt(66) // is less than 66, ...
+  // or where `age` is equal to 67
+  .or(new Where('age').eq(67)) 
 const { entitiesList } = await client.modelFind(
   store.id, 'Person', query
 )
@@ -1926,7 +1936,7 @@ type EventHeader interface {
 
   // Time returns wall-clock time + sequence id
   // from when event was created.
-   // Can be used to derive Hybrid Logical Clock
+  // Can be used to derive Hybrid Logical Clock
   Time() (*time.Time, int32, error)
 
   // Key returns single-use decryption key.
