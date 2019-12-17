@@ -679,9 +679,8 @@ including CRDTs [@enesSingleWriterPrincipleCRDT2017].
 
 This concept is similar to concepts from within the Dat[^dat]
 community (among others). In particular, the use of multiple single-writer
-logs is akin to the [DEP8 Multi-Writer](https://www.datprotocol.com/deps/0008-multiwriter/) proposal (see also [DEP4 Hyperdb](https://www.datprotocol.com/deps/0004-hyperdb/)), as
-well as concepts from [Hypermerge](https://github.com/automerge/hypermerge) and
-[Hypercore](https://github.com/datprotocol/whitepaper/blob/master/dat-paper.pdf).
+logs is akin to the Dat Multi-Writer proposal [@dep0008] (see also Hyperdb
+[@dep0004]), as well as concepts from Hypermerge[^hypermerge] and Hypercore [@dep0002].
 In the case of Hyperdb and Hypermerge, for example, the approach is to create
 a multi-writer system by combining *multiple* single-writer systems and some
 external or "out-of-band" messaging system to coordinate updates. In both
@@ -697,10 +696,9 @@ choose conflict resolution strategies specific to the task at hand. For
 example, if using a downstream Delta-state CRDT, ordering is irrelevant
 and can be ignored completely. Alternatively, an additional clock may be
 required to ensure consistent ordering, such as a vector or Bloom clock
-(see [@sec:LogicalClocks] and [**DEP8**](https://www.datprotocol.com/deps/0008-multiwriter/)).
-Finally, even manual "merge"-type
-strategies are possible if this is the desired conflict resolution
-strategy.
+(see [@sec:LogicalClocks] and [@dep0008]). Finally, even manual
+"merge"-type strategies are possible if this is the desired conflict
+resolution strategy.
 
 Writer
 : The single IPFS Peer capable of writing to an Event Log.
@@ -718,20 +716,6 @@ provides properties unique to the Threads protocol. For clarity, we can
 similarly define a *Reader* as any other Peer capable of reading a Log.
 Related, a Merkle-Clock (see [@sec:merkleclocks]) is simply a Merkle-DAG of *Events*.
 
-~~~ {#lst:Multiaddress .javascript caption="The Log multiaddress"}
-// Log multiaddress
-/ipel/12D3KooWC2zyCVron7AA34N6oKNtaXaZB51feG9rBkr7QbCcW8ab
-
-// Encapsulated multiaddress
-/ip4/127.0.0.1/tcp/1234/p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab
-
-// Address book
-[
-  /p2p/12D..dwaA6Qe/ipel/12D..bCcW8ab
-  /p2p/12D..dJT6nXY/ipel/12D..bCcW8ab // Replica
-]
-~~~
-
 ### Multi-addressed Event Logs
 
 Together with a cryptographic signature, an Event is written to a log
@@ -748,8 +732,7 @@ Much like IPFS Peers, Logs are identified on the network with addresses,
 or more specifically, with multiaddresses [@protocollabsMultiaddr]. Here
 we introduce IPEL, or Interplanetary Event Log, as a new protocol tag to
 be used when composing Log multiaddresses. To reach a Log via it's IPEL
-multiaddress, it must be encapsulated in an IPFS Peer multiaddress (see
-[@lst:Multiaddress]).
+multiaddress, it must be encapsulated in an IPFS Peer multiaddress.
 
 Unlike Peer multiaddresses, Log addresses are not stored in the global
 IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
@@ -759,7 +742,7 @@ updates. Updates are requested directly from the (presumably trusted) Peers
 that produced them, resulting in a hybrid of content-addressed Events
 arranged over a data-feed[^6] like topology. Log addresses are recorded
 in an address book (AddrBook), similar to an IPFS Peer address book
-(see [@lst:KeyBook]). Addresses can also expire by specifying a
+(see [@sec:KeysEncryption]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
@@ -774,31 +757,9 @@ available between mostly offline or otherwise disconnected Peers,
 Logs are designed with a built-in replication mechanism via *Replicas*.
 Replicas (or Replicators) are represented as additional addresses, meaning
 that a Log address book may contain *multiple* multiaddresses for a
-single Log (see [@lst:Multiaddress]).
+single Log. The AddrBook interface for storing Log addresses is given below.
 
-Replica
-: Log Writers can designate other IPFS Peers to "replicate" a
-Log, potentially republishing Events. A Replica is
-capable of receiving Log updates and traversing linkages via the Replica
-Key ([@sec:KeysEncryption]), but is not able to read the Log's
-contents.
-<!-- Replicas should be server-based --- i.e., always online and
-behind a public IP address. -->
-
-In practice, Writers are solely responsible for announcing their Log's
-addresses. This ensures a conflict-free address list without additional
-complexity. Some Replicas may be in the business of replicating Logs
-([@sec:Bots]),
-in which case Writers will announce the additional Log address to
-Readers. This allows them to *pull* (or subscribe to push-based) Events
-from the Replica's Log address when the Writer is offline or
-unreachable ([@fig:Pulling]).
-
-### Keys & Encryption {#sec:KeysEncryption}
-
-![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
-
-~~~ {#lst:KeyBook .go caption="The AddrBook interface for storing Log addresses and the KeyBook interface for storing Log/Thread keys."}
+```go
 // AddrBook stores log addresses.
 type AddrBook interface {
 	// AddAddr adds an address under a log with a given TTL.
@@ -825,6 +786,33 @@ type AddrBook interface {
 	// ClearAddrs deletes all addresses for a log.
 	ClearAddrs(thread.ID, peer.ID) error
 }
+```
+
+Replica
+: Log Writers can designate other IPFS Peers to "replicate" a
+Log, potentially republishing Events. A Replica is
+capable of receiving Log updates and traversing linkages via the Replica
+Key ([@sec:KeysEncryption]), but is not able to read the Log's
+contents.
+
+In practice, Writers are solely responsible for announcing their Log's
+addresses. This ensures a conflict-free address list without additional
+complexity. Some Replicas may be in the business of replicating Logs
+([@sec:Bots]), in which case Writers will announce the additional Log
+address to Readers. This allows them to *pull* (or subscribe to push-based) Events from the Replica's Log address when the Writer is offline or
+unreachable ([@fig:Pulling]).
+
+### Keys & Encryption {#sec:KeysEncryption}
+
+![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
+
+Logs are designed to be shared, composed, and layered into
+datasets ([@fig:LogEncryption]). As such, they are encrypted by default
+in a manner that enables access control ([@sec:AccessControl]) and the
+Replica mechanism discussed in the previous section. Much like the Log
+AddrBook, Log *keys* are stored in a KeyBook.
+
+```go
 // KeyBook stores log/thread keys.
 type KeyBook interface {
 	// PubKey retrieves the public key of a log.
@@ -851,13 +839,7 @@ type KeyBook interface {
 	// AddFollowKey adds a follow key under a thread.
 	AddFollowKey(thread.ID, *sym.Key) error
 }
-~~~
-
-Logs are designed to be shared, composed, and layered into
-datasets ([@fig:LogEncryption]). As such, they are encrypted by default
-in a manner that enables access control ([@sec:AccessControl]) and the
-Replica mechanism discussed in the previous section. Much like the Log
-AddrBook, Log *keys* are stored in a KeyBook ([@lst:KeyBook]).
+```
 
 Identity Key
 : Every Log requires an asymmetric key-pair that
@@ -952,8 +934,7 @@ Variant
 access-control. 8 bytes max. See [@sec:variants] for more about variants.
 
 Random Component
- : A random set of bytes of a user-specified length. 16 bytes or more
- (see [@lst:Identity]).
+ : A random set of bytes of a user-specified length. 16 bytes or more.
 
 ### Variants {#sec:variants}
 
@@ -969,15 +950,15 @@ additional assumptions. This is the default variant (see [@lst:Identity](a)).
 Access-Controlled
 : This variant declares that consumers should assume
 an access control list is composable from Log Events. The ACL represents
-a permissions rule set that must be applied when reading data ([@sec:AccessControl] and [@lst:Identity](b)).
+a permissions rule set that must be applied when reading data ([@sec:AccessControl] and (b) below).
 
-~~~ {#lst:Identity .bash caption="Identity variants."}
- # (a) Raw identity. V1, 128 bit
-bafkxd5bjgi6k4zivuoyxo4ua4mzyy
+```go
+// (a) Raw identity. V1, 128 bit
+"bafkxd5bjgi6k4zivuoyxo4ua4mzyy"
 
- # (b) ACL enabled identity. V1, 256 bit.
-bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya
-~~~
+// (b) ACL enabled identity. V1, 256 bit.
+"bafyoiobghzefwlidfrwkqmzz2ka66zgmdmgeobw2mimktr5jivsavya"
+```
 
 ### Log Synchronization {#sec:LogSync}
 
@@ -1159,8 +1140,8 @@ aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 
 Models
 : Models are part of an Event Store's public-api. Their main
-responsibilities are to store instances of user-defined schemas, and
-operate on Entities defined by said schema.
+responsibilities are to store instances of user-defined Schemas, and
+operate on Entities defined by said Schema.
 
 Actions
 : Every update to local and shared (i.e., across Peers) state
@@ -1168,8 +1149,7 @@ happens via Actions. Actions are used to describe *changes to an
 application state*  (e.g., a photo was added, an item was added to a
 shopping cart, etc). Models are used to create Actions.
 
-Currently, Models are defined using a
-[json-schemas.org](json-schemas.org) Schema that *describes the shape*
+Currently, Models are defined using a JSON Schema [@handrews-json-schema-02] that *describes the shape*
 of the underlying entity that it represents. This is also quite similar
 to a document in a document-based database context. For example, a Model
 might define a `Person` entity, with a `first` and `last` name, `age`,
@@ -1207,7 +1187,7 @@ created and another one is updated, these two Actions will be sent to
 the Event Codec to transform them into Events. These Events have a
 payload of bytes with the encoded transformation(s). Currently, the
 only implementation of Event Codec is a *JSON Patcher*, which transforms
-Actions into JSON-merge/patch objects **REF**.
+Actions into JSON-merge/patch objects [@rfc7396;@rfc6902].
 
 [Entity]{#def:Entity}
 : An Entity is made up of a series of ordered Events referring to a
@@ -1240,7 +1220,7 @@ a multi-peer collaborative editing environment (like Google Docs or
 similar). To support this type of offline-first use-case (where Peers
 may be making concurrent edits on a shared JSON document), one could
 implement an Event Codec that supports a JSON CRDT datatype
-[@kleppmannConflictFreeReplicatedJSON2017] (or even a hybrid JSON Patch
+[@kleppmannConflictFreeReplicatedJSON2017] (or even a hybrid JSON Patch [@rfc6902]
 with logical clocks). Here updates to a JSON document would be modeled
 as CRDT operations (ops) *or* deltas to provide CRDT-like behavior to
 downstream Reducers. Libraries such as Automerge[^20] provide useful
@@ -1361,7 +1341,7 @@ To interact with the `Store`, a developer must first create a new
 `Model`. A `Model` is essentially the public API for the Thread/Event
 Store (see [@sec:Models]). For example a develper might create a new
 `Model` to represent `Person` information. `Model`s are defined by their
-`Schema`, which is a JSON Schema object the defines and is used to
+`Schema`, which is a JSON Schema [@handrews-json-schema-02] object the defines and is used to
 validate Model data. In practice, there will be many pre-defined
 `Schema`s that developers can use to make their applications
 interaperatble with others. See [@sec:Modules] for some initial plans in
@@ -1462,8 +1442,8 @@ provides mechanisms for search, monitoring (subscriptions), and database
 transactions. Each of these features interact with the various
 components of the underlying Event Store. For example, Transactions are
 a core feature of the Event Store (see [@sec:Models] and
-[@sec:Dispatcher]), and subscriptions provide a Store Listener
-[@sec:StoreListener] interface. Transactions work as in most database
+[@sec:Dispatcher]), and subscriptions provide a Store Listener (
+[@sec:StoreListener]) interface. Transactions work as in most database
 implementations:
 
 ```typescript
@@ -1528,7 +1508,7 @@ implementations for specific use-cases and design considerations. For
 instance, see [@sec:Databases] for some possible
 optimizations/alternative interfaces to the Threads Event Store.
 
-Alternative Interfaces {#sec:databases}
+Alternative Interfaces {#sec:Databases}
 ---------
 
 While the above Store interface provides intuitive to a Threads Event
@@ -1719,7 +1699,7 @@ some degree, it does not specifically guard against a malicious peer
 taking control of the ACL *if they had write access to it in the first
 place*[^malicious].
 
-#### Note About Threats {#sec:deleting}
+#### Note About Threats {#sec:Threats}
 
 In general, Threads are designed for networks of *collaborating* peers,
 so peers are generally assumed to be using a "compliant" Thread
@@ -1914,9 +1894,7 @@ type EventHeader interface {
 
 [^1]: Terminology in this section may differ from some other examples of
     ES and CQRS patterns, but reflects the underlying architecture and
-    designs that we will elaborate on in Section
-    [3](#sec:ThreadsProtocol){reference-type="ref"
-    reference="sec:ThreadsProtocol"}
+    designs that we will elaborate on in [@sec:ThreadsProtocol]
 
 [^2]: Though non-commutative CRDTs may require a specific ordering of
     events in certain cases [@sanjuanMerkleCRDTs2019]
@@ -1954,8 +1932,6 @@ type EventHeader interface {
 
 [^18]: <https://realm.io>
 
-[^19]: <https://github.com/ipfs/go-datastore>
-
 [^20]: <https://github.com/automerge/automerge>
 
 [^21]: When using an ACID compliant backing store for example.
@@ -1974,5 +1950,7 @@ type EventHeader interface {
 [^25]: <https://reimagined.github.io/resolve/>
 
 [^dat]: https://dat.foundation
+
+[^hypermerge]: https://github.com/automerge/hypermerge
 
 # References
