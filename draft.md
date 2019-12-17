@@ -87,10 +87,10 @@ forget about data management, and enjoy seamless access to their apps
 across multiple devices. This convenience is now expected, but has come
 at the cost of additional consequences for users. One such consequence
 is that many of the same development patterns that bring convenience
-(e.g., single sign-on, minimal encryption, centralized servers and
+(e.g. single sign-on, minimal encryption, centralized servers and
 databases) also enable, or even require data hoarding by apps. While
 collecting large amounts of users' data can create value for the
-companies building apps (e.g., app telemetry, predictive tools, or even
+companies building apps (e.g. app telemetry, predictive tools, or even
 new revenue streams), that value flows mostly in one direction: apps
 collect, process and benefit from a user's private data, but users
 rarely have access to the original data or the new insights that come
@@ -145,26 +145,28 @@ drawbacks to using these approaches in decentralized systems. We provide
 an overview of some important technologies related to the Interplanetary
 File System (IPFS) that make it possible to rethink ES in a
 decentralized network. Finally, we cover challenges to security and
-access control on an open and decentralized network, and discuss how
-they are designed in popular database management (DBMS) systems outside
-the IPFS context.
+access control on an open and decentralized network, and discuss
+possible solutions based on concepts from more traditional database
+management (DBMS) systems.
 
 Data Synchronization
 --------------------
 
 To model realistic systems, apps often need to map data between domain
-models and database tables, where the same data model is used to both
-query and update a database. To solve *synchronization* it is often
-helpful to handle updates on just the database and then provide the
-query and interfaces only later in a DBMS. One powerful approach to
-synchronization is to use a set of append-only logs to model the state
-of an object simply by applying its change sequence in the correct
-order. This concept can be expressed succinctly by the state machine
-approach [@schneiderImplementingFaulttolerantServices1990]: if two
-identical, deterministic processes begin in the same state and get the
-same inputs in the same order, they will produce the same output and end
-in the same state. This is a powerful concept baked into a simple
-structure, and is at the heart of many distributed database systems
+models and database tables. Often the same data model is used to both
+query and update a database. To solve *synchronization* of write and
+read storage, it is helpful to handle updates on just the database
+(write side) and then provide separate query and read interfaces.
+
+One powerful approach to synchronization is to use a set of append-only
+logs to model the state of an object simply by applying its change
+sequence in the correct order. This concept can be expressed succinctly
+by the state machine approach
+[@schneiderImplementingFaulttolerantServices1990]: if two identical,
+deterministic processes begin in the same state and get the same inputs
+in the same order, they will produce the same output and end in the same
+state. This is a powerful concept baked into a simple structure, and is
+at the heart of many distributed database systems
 [@jaykrepsLogWhatEvery2013].
 
 [Logs or Append-only Log]{#def:Logs}
@@ -176,11 +178,11 @@ where changes or updates can only be added to the set and never removed.
 ### CQRS, Event Sourcing, and Logs {#sec:cqrs}
 
 For most apps, it is critical to have reliable mechanisms for publishing
-updates and events (i.e., to support event-driven architectures),
-scalability (optimized write and read operations), forward-compatible
-application updates (e.g., code changes, retroactive events), auditing
+updates and events (i.e. to support event-driven architectures),
+scalability (i.e. optimized write and read operations), forward-compatible
+application updates (e.g. code changes, retroactive events), auditing
 systems, etc. To support such requirements, developers have begun to
-utilize event sourcing and command query responsibility segregation
+utilize ES and command query responsibility segregation
 (CQRS) patterns [@bettsExploringCQRSEvent2013], relying on append-only
 logs to support immutable state histories. Indeed, a number of
 commercial and open source software projects have emerged in recent
@@ -212,8 +214,8 @@ conformity, a single log can model multiple application states
 
 In CQRS and ES, the separation of write operations from read operations
 is a powerful concept. It allows developers to define views into the
-underlying data that are best suited for the use case or user interface
-they are building. Multiple (potentially very different) views can be
+underlying data that are best suited for a given use-case the are
+addressing. Multiple (potentially very different) views can be
 built from the same underlying event log.
 
 View
@@ -225,16 +227,15 @@ materialized views.
 
 Projection
 : An event handler and corresponding reducer/fold function
-used to build and maintain a view from a set of (filtered) events. While
-projections may lead to the generation of new events, their reducer
-should be a pure function.
+used to build and maintain a view from a set of (filtered) events. In
+general, and projection's reducer should be a "pure" function.
 
 Views themselves are enabled by projections[^1], which can be thought of
 as transformations that are applied to each event in a stream. They
-update the data backing the views, be this in memory or persisted to a
+update the data backing the views, be this in-memory or persisted to a
 database. In a distributed setting, it may be necessary for projections
 to define and operate as eventually consistent data structures, to
-ensure all Peers operating on the same stream of events have a
+ensure all peers operating on the same stream of events have a
 consistent representation of the data.
 
 ### Eventual Consistency {#sec:EventualConsistency}
@@ -242,16 +243,16 @@ consistent representation of the data.
 The CAP theorem
 [@brewerRobustDistributedSystems2000; @gilbertBrewerConjectureFeasibility2002a]
 states that a distributed database can guarantee only two of the
-following three promises at the same time: consistency (i.e., that every
-read receives the most recent write or an error), availability (i.e.,
+following three promises at the same time: consistency (i.e. that every
+read receives the most recent write or an error), availability (i.e.
 that every request receives a \[possibly out-of-date\] non-error
-response), and partition tolerance (i.e., that the system continues to
+response), and partition tolerance (i.e. that the system continues to
 operate despite an arbitrary number of messages being dropped \[or
 delayed\] by the network). As such, many distributed systems are now
 designed to provide availability and partition tolerance by trading
 consistency for *eventual* consistency. Eventual consistency allows
 state replicas to diverge temporarily, but eventually arrive back to the
-same state. While an active area of research, designing systems with
+same state. As an active area of research, designing real systems with
 provable eventual consistency guarantees remains challenging
 [@shapiroComprehensiveStudyConvergent2011a; @almeidaDeltaStateReplicated2018].
 
@@ -272,15 +273,15 @@ determined
 [@schwarzDetectingCausalRelationships1994; @katzInterleavingSetTemporal1990].
 For these cases, logical clocks are a useful tool for eventual
 consistency and total ordering [@kulkarniLogicalPhysicalClocks2014].
-However, some scenarios (e.g., temporarily missing events or ambiguous
+However, some scenarios (e.g. temporarily missing events or ambiguous
 order) can force a replica into a state that cannot be later resolved
 without costly recalculation. In specific cases, CRDTs can provide an
 alternative to log-based consensus (see [@sec:CRDTs]).
 
 ### Logical Clocks {#sec:LogicalClocks}
 
-In a distributed system with multiple peers (each with an independent
-clock) creating events, local timestamps can't be used to determine
+In a distributed system with multiple peers creating events, each with
+an independent clock, local timestamps can't be used to determine
 "global" event causality. Machine clocks are never perfectly
 synchronized [@lamportTimeClocksOrdering1978], meaning that one peer's
 concept of "now" is not necessarily the same as another. Machine speed,
@@ -296,10 +297,10 @@ time-stamps to provide partial ordering.
 
 Cryptographically linked events can also represent a clock (see
 [@sec:merkleclocks]). One such example is called the
-Merkle-Clock [@sanjuanMerkleCRDTs2019], which relies on properties of a
-Merkle-DAG to provide strict partial ordering between events.
-Like any logical clock, this approach does have its limitations
-[@sanjuanMerkleCRDTs2019 sec. 4.3]:
+Merkle-clock [@sanjuanMerkleCRDTs2019], which relies on properties of a
+Merkle-DAG (directed acyclic graph) to provide strict partial ordering
+between events. Like any logical clock, this approach does have its
+limitations [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 
 > Merkle-Clocks represent a strict partial order of events. Not all
 > events in the system can be compared and ordered. For example, when
@@ -317,8 +318,8 @@ systems and how they relate to clock-based event ordering. See for
 example [@enesSingleWriterPrincipleCRDT2017; @sanjuanMerkleCRDTs2019]
 for informative reviews of these types of data structures.
 
-Whether a system (e.g., an app) uses a CRDT or a clock-based sequence of
-events is entirely dependent on the use-case and final data model. While
+Whether a system or app uses a CRDT or a clock-based sequence of
+events is entirely dependent on the use-case and final data-model. While
 CRDTs may seem superior (and are currently a popular choice among
 decentralized systems), it is not possible to model every system as a
 CRDT. Additionally, the simplicity of clock-based sequencing often makes
@@ -334,7 +335,7 @@ clients (users) communicating to endpoints (hosts or servers).
 Communication between clients and endpoints usually happens via the
 TCP/IP protocol stack and depends on *location-based addressing*.
 Location-based addressing, where the client makes a request that is
-routed to a specific endpoint based on prior knowledge (e.g., the domain
+routed to a specific endpoint based on prior knowledge (e.g. the domain
 name or IP address), works relatively well for many use-cases. However,
 there are many reasons why addressing content by location is
 problematic, such as duplication of storage, inefficient use of
@@ -364,26 +365,26 @@ multihash, which is a self-describing "protocol for differentiating
 outputs from various well-established cryptographic hash functions,
 addressing size \[and\] encoding considerations"
 [@protocollabsMultihash]. That addressing system confers several
-benefits to the network, including tamper resistance (i.e., a given
+benefits to the network, including tamper resistance (i.e. a given
 piece of content has not been modified en route if its hash matches what
-we were expecting), de-duplication (i.e., the same content
+we were expecting), de-duplication (i.e. the same content
 from different peers will produce the same hash address), and data-corruption
 (again if a hash matches what we were expecting, we
 know it is complete). Additionally, IPFS content-based addresses are
 immutable and universally unique.
 
 ![The cryptographic hash of content is used to make a request to the
-network of IPFS Peers. Using the built-in routing mechanisms and a
-distributed hash table (DHT), Peers hosting the requested content are
+network of IPFS peers. Using the built-in routing mechanisms and a
+distributed hash table (DHT), peers hosting the requested content are
 identified and content is
 returned.](figures/Hash_Request.png){#fig:contentaddressing height="350px"}
 
-While content-based addressing doesn't dictate to a Peer *how* to get a
+While content-based addressing doesn't dictate to a peer *how* to get a
 piece of content, IPFS (via libp2p[^3]) does provide a system for moving
 content across the network. On the IPFS network, a client who wants
 specific content requests the CID from the network of IPFS hosts. The
 client's request is routed to the first host capable of fulfilling the
-request (i.e., the first host that is actively storing the content
+request (i.e. the first host that is actively storing the content
 behind the given CID). The IPFS network can be seen as a distributed
 file system, with many of the benefits that come with this type of
 system design.
@@ -396,23 +397,23 @@ piece of content to define its content-based address (see
 in order to provide standards for accessing content-addressable data (on
 the web or elsewhere), it is necessary to define a common format or
 specification. In IPFS and other systems [e.g.
-@protocollabsFilecoinDecentralizedStorage2017], this common data format is called
-Interplanetary Linked Data (IPLD)[^4]. As the name suggests, IPLD is
-based on principals of linked data
-[@berners-leeLinkedData2009; @bizerLinkedDataStory2011] with the added
-capabilities of a content-based addressing storage network.
+@protocollabsFilecoinDecentralizedStorage2017], this common data format
+is called Interplanetary Linked Data (IPLD)[^4]. As the name suggests,
+IPLD is based on principals of linked data [@berners-leeLinkedData2009;
+@bizerLinkedDataStory2011] with the added capabilities of a
+content-based addressing storage network.
 
 IPLD is used to represent linked data that is spread across different
-"hosts", such that everything (e.g., entities, predicates, data sources)
+"hosts", such that everything (e.g. entities, predicates, data sources)
 [@heathLinkedDataEvolving2011] uses content-based addresses as unique
 identifiers. To form its structure, IPLD implements a Merkle DAG, or
 directed acyclic graph[^5]. This allows all hash-linked data structures
 to be treated using a unified data model, analogous to linked data in
 the Semantic Web sense
 [@brendanobrienDeterministicQueryingDistributed2017]. In practice, IPLD
-is represented as objects, each with `Data` and (possibly multiple) `Link`
-fields, where `Data` can be a small blob of unstructured, arbitrary binary
-data, and a `Link` simply 'links' to other IPLD objects.
+is represented as objects, each with `Data` and (possibly multiple)
+`Link` fields, where `Data` can be a small blob of unstructured,
+arbitrary binary data, and a `Link` simply links to other IPLD objects.
 
 ### Merkle-Clocks {#sec:merkleclocks}
 
@@ -420,8 +421,7 @@ data, and a `Link` simply 'links' to other IPLD objects.
 
 A Merkle-Clock is a Merkle-DAG that represents a sequence of events, or
 a log [@sanjuanMerkleCRDTs2019]. When implemented on IPFS (or an
-equivalent network where content can be cryptographically addressed and
-fetched), Merkle-Clocks provide a number of benefits for data
+equivalent network where content can be cryptographically addressed), Merkle-Clocks provide a number of benefits for data
 synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 
 1.  Sharing the Merkle-Clock can be done using only the *head*[^head] CID. The
@@ -436,13 +436,12 @@ synchronization between replicas [@sanjuanMerkleCRDTs2019 sec. 4.3]:
 4.  Identical nodes are de-duplicated by design: there can only be one
     unique representation for every event.
 
-However, since Merkle-Clocks are logical clocks (see [@sec:LogicalClocks]),
+However, since Merkle-clocks are logical clocks (see [@sec:LogicalClocks]),
 they cannot be used to order divergent heads representing concurrent
 events alone. For example, in [@fig:merkledag], two replicas (left and right
-columns) are attempting to write (top to bottom) events to the same Merkle-Clock.
-After the first replica writes event A, the second writes event A' and 
-properly links to A. At that point, perhaps the two replicas stop receiving
-events from one another.
+columns) are attempting to write (top to bottom) events to the same Merkle-clock. After the first replica writes event A, the second writes event
+A' and properly links to A. At that point, perhaps the two replicas stop
+receiving events from one another.
 To a third replica (not pictured) that does continue to receive
 events, there would now be two independent heads, 1 and 1'. For the third
 replica, resolving these two logs of events may be costly (many updates
@@ -451,10 +450,11 @@ may not be available on the network).
 
 In order to reduce the likelihood of divergent heads, all replicas
 should be perfectly connected and be able to fetch all events and
-linkages in the Merkle-Clock. On real-world networks with many
-replicas that are often offline (mobile and Internet of things (IoT)
+linkages in the Merkle-clock. On real-world networks with many
+replicas that are often offline (mobile and Internet of Things (IoT)
 devices, laptops, etc.), these conditions are rarely met, making the use
-of a single Merkle-Clock to synchronize replicas problematic.
+of a single Merkle-clock (or any logical clock) to synchronize replicas
+problematic.
 
 Networking
 ----------
@@ -463,7 +463,7 @@ So far we have primarily discussed the mechanics of creating or linking
 content in a series of updates. Now we will overview some common
 networking tools for connecting distributed peers who aim to maintain
 replicas of a shared state. This could be any decentralized network of
-interacting entities (e.g., cloud servers, IoT devices, botnets, sensor
+interacting entities (e.g. cloud servers, IoT devices, botnets, sensor
 networks, mobile apps, etc) collectively updating a shared state. IPFS
 contains a collection of protocols and systems to help address the
 networking needs of different use-cases and devices --- be it a phone,
@@ -472,7 +472,7 @@ desktop computer, browser, or Internet-enabled appliance.
 ### Libp2p
 
 The libp2p project provides a robust protocol communication stack. IPFS
-and a growing list of other projects (e.g., Polkadot, Ethereum 2.0,
+and a growing list of other projects (e.g. Polkadot, Ethereum 2.0,
 Substrate, FileCoin, OpenBazzar, Keep, etc) are building on top of
 libp2p. Libp2p solves a number of challenges that are distinct to P2P
 networks. A comprehensive coverage of networking issues in P2P systems
@@ -482,7 +482,7 @@ libp2p helps to address include network address translator
 handshake protocols, and even encryption and transport security ---
 libp2p supports both un-encrypted (e.g. TCP, UDP) and encrypted (e.g.
 TLS, Noise) protocols --- among others. Libp2p uses the concept of a
-multiaddress to address peers on a network, which essentially models
+*multiaddress* to address peers on a network, which essentially models
 network addresses as arbitrary encapsulations of protocols
 [@protocollabsMultiaddr]. In addition to "transport layer" modules,
 libp2p provides several tools for sharing and/or disseminating data over
@@ -494,7 +494,7 @@ One of the most commonly used P2P distribution layers built on libp2p
 is its Pubsub (or publish-subscribe) system. Pubsub is a standard
 messaging pattern where the publishers don't know who, if anyone, will
 subscribe to a given topic. *Publishers* send messages on a given topic
-or category, and *Subscribers* receive only messages on a give topic to
+or category, and *subscribers* receive only messages on a give topic to
 which they are subscribed. Libp2p's Pubsub module can be configured to
 utilize a *floodsub* protocol --- which floods the network with
 messages, and peers are required to ignore messages in which they are
@@ -526,7 +526,7 @@ Our discussion of Pubsub and libp2p has so far only dealt with
 for hosting *pull-/request-*based data endpoints based on an
 Interplanetary Name System (IPNS). IPNS aims to address the challenge of
 mutable data within IPFS. It relies on a global namespace (shared by all
-participating IPFS Peers) based on Public Key Infrastructure (PKI). By
+participating IPFS peers) based on Public Key Infrastructure (PKI). By
 using IPNS, a content creator generates a new address in the global
 namespace and points that address to an endpoint (e.g. a CID). Using
 their private key, a content creator can update the static route to
@@ -545,14 +545,14 @@ scalable, data synchronization on a decentralized network.
 Data Access & Control
 ---------------------
 
-IPFS is an implementation of PKI (public key infrastructure), where every
-Peer on the network has a key-pair.
-In addition to using the key-pair for secure communication
-between Peers, IPFS also uses the key-pair as the basis for identity.
-Specifically, when a new IPFS Peer is created, a new key-pair is
-generated, and this public key is used to generate the Peer's IDentity (Peer ID).
+IPFS is an implementation of PKI, where every peer on the network has a
+key-pair. In addition to using the key-pair for secure communication
+between peers, IPFS also uses the key-pair as the basis for identity.
+Specifically, when a new IPFS peer is created, a new key-pair is
+generated, and this public key is used to generate the peer's identity
+(Peer ID).
 
-### Agent-centric Security
+### Agent-centric Security {#sec:AgentCentric}
 
 Agent-centric security refers to the maintenance of data integrity
 without leveraging a central or blockchain-based consensus. The general
@@ -560,7 +560,7 @@ approach is to let the reader enforce permissions and perform
 validations, not the writer or some central authority. Agent-centric
 security is possible if the reader can reference local-only, tamper-free
 code or if the local system state can be used to determine whether a
-given operation (e.g., delete operation) is permitted. Many
+given operation (e.g. delete operation) is permitted. Many
 decentralized networks, such as Secure Scuttlebutt
 [@securescuttlebuttScuttlebuttProtocolGuide] and Holochain
 [@ericharris-braunHolochainScalableAgentcentric2018], make use of
@@ -600,7 +600,7 @@ complete access, including write capabilities. Ideally, ACLs are mutable
 over time, and permission to modify an ACL should also be recorded in an
 ACL.
 
-Event-driven systems (e.g., event sourcing) often make use of ACLs with
+Event-driven systems (e.g. event sourcing) often make use of ACLs with
 some distinct properties. The ACL of an ES-based system is usually a
 list of access rules built from a series of events. For example, the two
 events, "grant Bob write access" and "revoke read access from Alice"
@@ -610,8 +610,8 @@ access, but Alice does not.
 The Threads Protocol {#sec:ThreadsProtocol}
 ====================
 
-We propose Threads, a protocol and decentralized database that runs on
-IPFS meant to help decouple apps from user-data. Inspired by event
+We propose *Threads*, a protocol and decentralized database that runs
+on IPFS meant to help decouple apps from user-data. Inspired by event
 sourcing and object-based database abstractions, Threads is a protocol
 for creating and synchronizing state across collaborating peers on a
 network. Threads offer a multi-layered encryption and data access
@@ -624,25 +624,30 @@ event-based structure enables client applications to derive advanced
 applications states, including queriable materialized views, and custom
 CRDTs.
 
-In essence, Threads are topic-based collections of single-writer logs.
+A *Thread* is topic-based collection of single-writer logs.
 Taken together, these logs represent the current "state" of an object or
-dataset. The basic units of Threads --- Logs and Events --- provide a
+dataset. The basic units of a Thread --- Logs and Records --- provide a
 framework for developers to create, store, and transmit data in a P2P
 distributed network. By structuring the underlying architecture in
 specific ways, this framework can be deployed to solve many of the
 problems discussed above.
 
-Event Logs
+Threads vs Thread
+: In short, *Threads* (plural) encompases the whole system, including log
+orchestration and data stores built on those logs, whereas a *Thread*
+(sigular) is or more logs grouped together by a topic or ID. 
+
+Record Logs
 ----------
 
 In multi-writer systems, conflicts arise as disparate peers end up
 producing disconnected state changes, or changes that end up out of
 sync. In order to proceed, there must be some way to deal with these
 conflicts. In some cases (e.g, `ipfs-log`
-[@markroberthendersonOrbitDBFieldManual2019]), a Merkle-Clock can be
+[@markroberthendersonOrbitDBFieldManual2019]), a Merkle-clock can be
 used to induce ordering. Like all solutions based on logical clocks, this
 approach cannot achieve a total order of
-events without implementing a data-layer conflict resolution strategy
+updates without implementing a data-layer conflict resolution strategy
 [@sanjuanMerkleCRDTs2019]:
 
 > A total order can be useful ...and could be obtained, for example, by
@@ -659,36 +664,35 @@ in cases with complicated data structures or complicated network
 topologies. A git merge highlights one such example, in which a
 predetermined merge strategy could be used, but is not often the best
 choice in practice. Furthermore, a multi-writer log using a linked data
-format (e.g., a Merkle-DAG) in imperfect networking or storage
+format (e.g. a Merkle-DAG) in imperfect networking or storage
 environments can lead to states where it is prohibitively difficult
-(e.g., due to networking, storage, and/or computational costs) to regain
+(e.g. due to networking, storage, and/or computational costs) to regain
 consistency.
 
 A promising approach to dealing with this is to leverage the benefits of
-both a Merkle-Clock for events from any one peer, and a less constrained
+both a Merkle-clock for events from any one peer, and a less constrained
 ordering mechanism to combine events from all peers. In this case,
 developers can more freely institute their own CRDTs or domain-specific
 conflict resolution strategies. Additionally, it naturally supports
 use-cases where all peers contributing to a dataset may not be
 interested in replicating the events of all other peers
-(e.g., in a Pubsub-based system).
+(e.g. in a Pubsub-based system).
 
-### Single-writer Event Logs
+### Single-writer Logs
 
 <!--
 @note: Ensure width is `\linewidth`
 -->
-![A single-writer Merkle-Clock (Event
-Log).](figures/Event_Log.png){#fig:EventLog}
+![A single-writer Merkle-clock Log.](figures/Event_Log.png){#fig:RecordLog}
 
-Our solution to dealing with log conflicts (i.e., divergent
-Merkle-Clocks) is to institute a *single-writer rule*: A Log can only be
-updated by a single replica or *identity*. An Event Log is then a
-*single-writer Merkle-Clock* that can be totally ordered ([@fig:EventLog]), 
-and *separate* Event Logs can be composed into advanced structures,
+Our solution to dealing with log conflicts (i.e. divergent
+Merkle-clocks) is to institute a *single-writer rule*: A Log can only be
+updated by a single replica or *identity*. A Log is then a
+*single-writer Merkle-clock* that can be totally ordered ([@fig:RecordLog]), 
+and *separate* Logs can be composed into advanced structures,
 including CRDTs [@enesSingleWriterPrincipleCRDT2017].
 
-This concept is similar to concepts from within the Dat[^dat]
+This concept is similar to ideas from within the Dat[^dat]
 community (among others). In particular, the use of multiple single-writer
 logs is akin to the Dat Multi-Writer proposal [@dep0008] (see also Hyperdb
 [@dep0004]), as well as concepts from Hypermerge[^hypermerge] and Hypercore [@dep0002].
@@ -704,127 +708,66 @@ Threads provides a slightly different take on multi-writer systems
 means that imperfect information may be supplemented along the way
 without causing conflicts in the mean time. It also means that apps can
 choose conflict resolution strategies specific to the task at hand. For
-example, if using a downstream Delta-state CRDT, ordering is irrelevant
+example, if using a downstream CRDT, ordering is irrelevant
 and can be ignored completely. Alternatively, an additional clock may be
 required to ensure consistent ordering, such as a vector or Bloom clock
 (see [@sec:LogicalClocks] and [@dep0008]). Finally, even manual
-"merge"-type strategies are possible if this is the desired conflict
+merge-type strategies are possible if this is the desired conflict
 resolution strategy.
 
 Writer
-: The single IPFS Peer capable of writing to an Event Log.
+: The single Peer capable of writing to an Event Log.
 
 Reader
 : Any Peer capable of reading a Log. Practically speaking, this
 means any Peer with the Log's Read Key ([@sec:KeysEncryption]).
 
-Event
-: A single node in a Merkle-Clock, stored on IPFS.
+### Multi-addressed Logs
 
-### Multi-addressed Event Logs
-
-Together with a cryptographic signature, an Event is written to a log
-with an additional Record (see [@fig:EventLog])
+Together with a cryptographic signature, a Record is written to a log
+with an additional Payload (see [@fig:RecordLog])
 enabling Log verification by Readers ([@sec:KeysEncryption]). At a minimum,
 a Record must link to its most immediate ancestor.
 However, links to older ancestors are often included as well to improve
 concurrency during traversal and verification [@sanjuanMerkleCRDTs2019; @meyerBamboo2019].
 
-As shown in [@sec:EventNode], an Event's actual content (or body), is
-contained in a separate Block. This allows Events to carry any arbitrary Block structure, from complex directories to raw bytes.
+As shown in [@sec:EventNode], a Records's actual content (or body), is
+contained in a separate Block. This allows Records to carry any arbitrary Block structure, from complex directories to raw bytes.
 
-Much like IPFS Peers, Logs are identified on the network with addresses,
+Much like IPFS peers, Logs are identified on the network with addresses,
 or more specifically, with multiaddresses [@protocollabsMultiaddr]. Here
 we introduce *log* as a new protocol tag to be used when composing Log
 multiaddresses. To reach a Log via its multiaddress, it must be encapsulated
-in an IPFS Peer multiaddress.
+in an IPFS peer multiaddress.
 
-Unlike Peer multiaddresses, Log addresses are not stored in the global
+Unlike peer multiaddresses, Log addresses are not stored in the global
 IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
 with a push and pull mechanism (see [@sec:LogSync]). This is in contrast to mutable
 data via IPNS for example, which requires querying the network (DHT) for
-updates. Updates are requested directly from the (presumably trusted) Peers
-that produced them, resulting in a hybrid of content-addressed Events
+updates. Updates are requested directly from the (presumably trusted) peers
+that produced them, resulting in a hybrid of content-addressed Records
 arranged over a data-feed[^6] like topology. Log addresses are recorded
-in an address book (AddrBook), similar to an IPFS Peer address book
+in an address book (AddrBook), similar to an IPFS peer address book
 (see [@sec:KeysEncryption]). Addresses can also expire by specifying a
 time-to-live (TTL) value when adding or updating them in the address
 book, which allows for unresponsive addresses to eventually be removed.
 
 Log addresses can also change over time, and these changes are again advertised
-to Peers via the push and pull mechanism (see [@sec:LogSync]). The receiving Peers can
+to peers via the push and pull mechanism (see [@sec:LogSync]). The receiving Ppeers can
 then update their local AddrBook to reflect the new address(es) of the Log.
 
 Modern, real-world networks consist of many mobile or otherwise sparsely
-connected computers (Peers). Therefore, datasets distributed across such
+connected computers (peers). Therefore, datasets distributed across such
 networks can be thought of as highly partitioned. To ensure updates are
-available between mostly offline or otherwise disconnected Peers,
+available between mostly offline or otherwise disconnected peers,
 Logs are designed with a built-in replication mechanism via *Replicas*.
 Replicas (or Replicators) are represented as additional addresses, meaning
 that a Log address book may contain *multiple* multiaddresses for a
-single Log. The AddrBook interface for storing Log addresses is given below.
-
-```go
-// AddrBook stores log addresses.
-type AddrBook interface {
-  // AddAddr adds address under log with TTL.
-  AddAddr(
-    thread.ID,
-    peer.ID,
-    ma.Multiaddr,
-    time.Duration
-  ) error
-
-  // AddAddrs adds addresses under log with TTL.
-  AddAddrs(
-    thread.ID,
-    peer.ID,
-    []ma.Multiaddr,
-    time.Duration
-  ) error
-
-  // SetAddr sets log's address with TTL.
-  SetAddr(
-    thread.ID,
-    peer.ID,
-    ma.Multiaddr,
-    time.Duration
-  ) error
-
-  // SetAddrs sets log's addresses with TTL.
-  SetAddrs(
-    thread.ID,
-    peer.ID,
-    []ma.Multiaddr,
-    time.Duration
-  ) error
-
-  // UpdateAddrs updates TTL of log address.
-  UpdateAddrs(
-    t thread.ID,
-    id peer.ID,
-    oldTTL time.Duration,
-    newTTL time.Duration
-  ) error
-
-  // Addrs returns all addresses for log.
-  Addrs(thread.ID, peer.ID) ([]ma.Multiaddr, error)
-
-  // AddrStream returns channel to deliver
-  // address changes for log.
-  AddrStream(
-    context.Context,
-    thread.ID, peer.ID
-  )(<-chan ma.Multiaddr, error)
-
-  // ClearAddrs deletes all addresses for log.
-  ClearAddrs(thread.ID, peer.ID) error
-}
-```
+single Log.
 
 Replica
 : Log Writers can designate other IPFS Peers to "replicate" a
-Log, potentially republishing Events. A Replica is
+Log, potentially republishing Records. A Replica is
 capable of receiving Log updates and traversing linkages via the Replica
 Key ([@sec:KeysEncryption]), but is not able to read the Log's
 contents.
@@ -833,7 +776,7 @@ In practice, Writers are solely responsible for announcing their Log's
 addresses. This ensures a conflict-free address list without additional
 complexity. Some Replicas may be in the business of replicating Logs
 ([@sec:Bots]), in which case Writers will announce the additional Log
-address to Readers. This allows them to *pull* (or subscribe to push-based) Events from the Replica's Log address when the Writer is offline or
+address to Readers. This allows them to *pull* (or subscribe to push-based) Records from the Replica's Log address when the Writer is offline or
 unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
@@ -841,7 +784,7 @@ unreachable ([@fig:Pulling]).
 <!--
 @note: use `\begin{figure*}` in LaTex
 -->
-![The three layers of Log Event encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
+![The three layers of Log encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
 
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
@@ -849,98 +792,67 @@ in a manner that enables access control ([@sec:AccessControl]) and the
 Replica mechanism discussed in the previous section. Much like the Log
 AddrBook, Log *keys* are stored in a KeyBook.
 
-```go
-// KeyBook stores log/thread keys.
-type KeyBook interface {
-  // PubKey retrieves public key of log.
-  PubKey(thread.ID, peer.ID) (ic.PubKey, error)
-
-  // AddPubKey adds public key under log.
-  AddPubKey(thread.ID, peer.ID, ic.PubKey) error
-
-  // PrivKey retrieves private key of log.
-  PrivKey(thread.ID, peer.ID) (ic.PrivKey, error)
-
-  // AddPrivKey adds private key under log.
-  AddPrivKey(thread.ID, peer.ID, ic.PrivKey) error
-
-  // ReadKey retrieves read key of thread.
-  ReadKey(thread.ID) (*sym.Key, error)
-
-  // AddReadKey adds read key under thread.
-  AddReadKey(thread.ID, *sym.Key) error
-
-  // FollowKey retrieves follow key of thread.
-  FollowKey(thread.ID) (*sym.Key, error)
-
-  // AddFollowKey adds follow key under thread.
-  AddFollowKey(thread.ID, *sym.Key) error
-}
-```
-
 Identity Key
 : Every Log requires an asymmetric key-pair that
 determines ownership and identity. The private key is used to sign each
-Event added to the Log, so down-stream processes can verify the Log's
+Record added to the Log, so down-stream processes can verify the Log's
 authenticity. Like IPFS Peers, a hash of the public key of the Log is
 used as an identifier (Log ID).
 
-The body, or content of an Event, is encrypted by a *Content Key*.
+The body, or content of an Record, is encrypted by a *Content Key*.
 Content Keys are generated for each piece of content and never reused.
-The Content Key is distributed directly in the header of the Event
-Block.
+The Content Key is distributed directly in the header of the Record.
 
 Content Key
 : The Content Key is a variable-format key used to encrypt
-the body (content) of an Event. This key can be symmetric, asymmetric,
+the body (content) of an Record. This key can be symmetric, asymmetric,
 or possibly non-existent in cases where encryption is not needed.
 
 One of two common encryption choices will typically be used for the
-Content Key of an Event:
+Content Key of a Record:
 
-1.  When broadcasting events to many possible recipients, a single-use
+1.  When broadcasting Records to many possible recipients, a single-use
     symmetric key is generated per unique content body.
 
-2.  When sending events to specific recipients, the recipient's public
+2.  When sending Records to specific recipients, the recipient's public
     key can be used to restrict access from all others[^7].
 
 If a single-use symmetric key is used for the Content Key, it is
 necessary to distribute each new key to users by including it in the
-header of the Event Block. Therefore, the Event Block itself is further
+header of the Record. Therefore, the Record itself is further
 encrypted using a *Read* key. The Read Key is not distributed within the
 Log itself but via a separate (secure) channel to all Peers who require
 access to the content of the Log. Read Keys are scoped to a given *Thread*,
-so that the same key is used to encrypt all Event Blocks associated with
+so that the same key is used to encrypt all Records associated with
 a given Thread. This enables Readers to read Logs from new Writers.
 
 Read Key
 : The Read Key is a symmetric key created by the Thread initializer (creator) and
-used to encrypt the Content Key in each event by all Thread participants.
+used to encrypt the Content Key in each Record by all Thread participants.
 
-Finally, the encrypted Event Block, its signature, and the IPLD
-linkage(s) from an Event to its antecedents are encrypted together using
+Finally, the encrypted Record, its signature, and the IPLD
+linkage(s) from a Record to its antecedents are encrypted together using
 a *Replica* Key. Replica Keys allow Logs to be *replicated* by Peers on the
-network who do not have access to any content within the event.
-Replicas can only see signatures and linkage(s) between Events. Again,
+network who do not have access to any content within the Record.
+Replicas can only see signatures and linkage(s) between Records. Again,
 Replica Keys are scoped to the Thread, allowing all Thread participants
 to use the same key for Replica access.
 
 Replica Key
 : The Replica Key is a symmetric key created by the Thread initializer (creator)
-and used to encrypt the entire Event payload before adding the Event to
-the Log.
+and used to encrypt the entire Record before adding its payload to the Log.
 
 Threads
 -------
 
-The *interface* to Logs is managed as a Thread, which is a
-collection of Logs on a given topic. Threads are an event sourced,
-distributed database, and can be used to maintain a single,
-collaboratively edited, replicated, or hosted dataset across multiple
-Peers. Threads provide the mechanism to combine multiple Logs from
-individual Writers into singular shared states through the use of either
-cross-Log sequencing (e.g. using a Bloom Clock, Merkle-Clock, or Hybrid
-Logical Clock [@kulkarniLogicalPhysicalClocks2014]) or a CRDT ([@sec:CRDTs]).
+A Thread is essentially an identifier that links a collection of Logs to
+a given topic. Threads are an event-sourced, distributed database, and
+can be used to maintain a single, collaboratively edited, replicated, or
+hosted dataset across multiple peers. Threads provide the mechanism to
+combine multiple Logs from individual Writers into singular shared states
+through the use of either cross-Log sequencing (e.g. using a Bloom clock,
+Merkle-clock, or hybrid logical clock [@kulkarniLogicalPhysicalClocks2014])
+or a CRDT ([@sec:CRDTs]).
 
 ### Identity {#sec:ThreadIdentity}
 
@@ -959,8 +871,7 @@ forward-compatibility. Base-32 encoding is used by default, but any
 multibase-supported string encoding may be used.
 
 Multibase Prefix
-: The encoding type used by the multibase encoder. 1
-byte.
+: The encoding type used by the multibase encoder. 1 byte.
 
 Version
 : ID format version. 8 bytes max. This allows future version to
@@ -977,7 +888,7 @@ Random Component
 
 Certain TID *variants* may be more appropriate than others in specific
 contexts. For example, Textile provides an *access-controlled* Thread
-variant, which supports various collaborative structures --- e.g.,
+variant, which supports various collaborative structures --- e.g.
 social media feeds, shared documents, blogs, photo albums, etc.
 
 Raw
@@ -989,7 +900,7 @@ Access-Controlled
 component of the TID is the CID of an immutable access control list.
 The ACL represents a permissions rule set that must be applied when
 reading data ([@sec:AccessControl] and (b) below). Additionally, each
-ACL carries a reference to it's previous version (if one exists),
+ACL carries a reference to its previous version (if one exists),
 forming a *chain* of versions. Writers may choose to alter the ACL,
 which results in a fork.
 
@@ -1004,82 +915,92 @@ which results in a fork.
 ### Log Synchronization {#sec:LogSync}
 
 Log Writers, Readers, and Replicas synchronize the state of their Logs
-by pushing and pulling Log keys and Events. Inspired by Git[^9],
-a reference to the latest Event in a Log is referred to as the *Head*.
-When a new Event is received, Readers and Replicas simply advance their
+by pushing and pulling Log keys and Records. Inspired by Git[^9],
+a reference to the latest Record in a Log is referred to as the *Head*.
+When a new Record is received, Readers and Replicas simply advance their
 Head reference for the given Log. This is similar to how a system such as
 OrbitDB [@markroberthendersonOrbitDBFieldManual2019] works, except we are
 tracking *multiple* Heads (one per Log), rather than a single Head.
 
-Thread Peers are able to inform each other of the latest Events and log
-keys via a push and pull mechanism.
+Thread Peers are able to inform each other of the latest Records and Log
+keys via a push and pull mechanism. The following represents the P2P
+network API for Thread orchestration:
+
+```go
+service Threads {
+    // GetLogs from a peer.
+    rpc GetLogs(GetLogsRequest) returns (GetLogsReply) {}
+    // PushLog to a peer.
+    rpc PushLog(PushLogRequest) returns (PushLogReply) {}
+    // GetRecords from a peer.
+    rpc GetRecords(GetRecordsRequest) returns (GetRecordsReply) {}
+    // PushRecord to a peer.
+    rpc PushRecord(PushRecordRequest) returns (PushRecordReply) {}
+}
+```
 
 #### Push
 
-Pushing Events is performed in multiple phases because, invariably, some Thread
-participants will be offline or unresponsive:
+Pushing Events is performed in multiple phases because, invariably,
+some Thread participants will be offline or unresponsive:
 
-1.  New Events are pushed[^10] directly to the Thread's other Log
+1.  New Records are pushed[^10] directly to the Thread's other Log
     Writers.
-
-2.  New Events are pushed directly to the target Log's Replica(s), who
+2.  New Records are pushed directly to the target Log's Replica(s), who
     may not maintain their own Log.
-
-3.  New Events are published over gossip-based Pubsub using TID as a
+3.  New Records are published over gossip-based Pubsub using TID as a
     topic, which provides potentially unknown Readers or Replicas with
-    an opportunity to consume Events in real-time.
+    an opportunity to consume Records in real-time.
 
 Step 2 above allows for *additional* push mechanisms, as Replicas with
 public IP addresses become relays:
 
-1.  New Events may be pushed directly to web-based participants over a
+1.  New Records may be pushed directly to web-based participants over a
     WebSocket.
-
-2.  New Events may be pushed to the Thread's other Log Writers via
+2.  New Records may be pushed to the Thread's other Log Writers via
     federated notification services like Apple Push Notification Service
     (APNS), Google Cloud Messaging (GCM), Firebase Cloud Messaging
     (FCM), and/or Windows Notification Service (WNS).
-
-3.  New Events may trigger web-hooks, which could enable many complex
-    (e.g., IFTTT[^11]) workflows.
+3.  New Records may trigger web-hooks, which could enable many complex
+    (e.g. IFTTT[^11]) workflows.
 
 #### Pull
 
-Pulling Events helps to maximize connectivity between Peers who are
+Pulling Records helps to maximize connectivity between peers who are
 often offline or unreachable.
 
-1.  Events can be pulled from Replicas via HTTP, RSS, Atom, etc.
+1.  Records can be pulled from Replicas via HTTP, RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
         web-based Readers and Replicas with a reliable mechanism for
-        receiving Log Events ([@fig:Pulling]).
+        receiving Log Records ([@fig:Pulling]).
 
 ![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="350px"}
 
 ### Log Replication
 
 The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating
-all Log Events trivial. This allows any Peer on the network to be
+all Log Records trivial. This allows any peer on the network to be
 granted the responsibility of replicating data from another Peer without
-having read access to the raw Log entries. This type of Log replication
+having read access to the raw Log Records. This type of Log replication
 can act as a data backup mechanism. It can also be used to build
-services that react to Log Events, potentially pushing data to
+services that react to Log Records, potentially pushing data to
 disparate, non-Textile systems, especially if the replication service
-*is* granted read access to the Log Events ([@sec:LogSync]).
+*is* granted read access to the Log Records ([@sec:LogSync]).
 
 Threads Internals {#sec:internals}
 =================
 
-Previous sections have discussed the core features of the Textile
-Threads protocol. However, we have not yet discussed dealing with Log
-Events in practice. In this section, we provide a description of a
-Threads-compatible Store implementation. The Store outlined
+Previous sections have discussed the high-level concepts of the Threads
+protocol. However, we have not yet discussed the internals of managing
+Log Records. In this section, we provide a description of the
+Threads reference implementation. The Threads *Store* outlined
 here takes advantage of ideas from several existing CQRS and ES systems
-(e.g., [@ereminReduxInspiredBackend2019]), as well as concepts and
+(e.g. [@ereminReduxInspiredBackend2019]), as well as concepts and
 designs from Flux [@facebookFluxInDepthOverview2019], Redux[^redux]
 [@reduxMotivation] and domain driven design
 [@evansDomaindrivenDesignTackling2004a] (DDD)[^13]. Following this
-discussion of Threads *internals*, in [@sec:interfaces] we outline how
+discussion of the Threads Store, in [@sec:interfaces] we outline how
 it can be used to build intuitive developer-facing application
 programing interfaces (APIs) to make adopting and using Threads "the
 right choice" for a wide range of developers.
@@ -1101,60 +1022,59 @@ indicate synchronous calls, channel notifications, and other
 communication strategies that indicate a dependency between
 components.](figures/Architecture.png){#fig:Architecture height="350px"}
 
-TODO: Update this Figure to match something like:
-https://github.com/textileio/go-textile-threads/blob/master/eventstore/design.png
-
 We adopt a similar flow in Threads (see [@fig:Architecture]). Like any
 CQRS/ES-based system (see also [@sec:cqrs]), Threads are built on
 *Events* ([@fowlerEventSourcing]). Events are used to produce
 *predictable* updates to downstream state. Similarly to a DDD-based
-pattern, to add an Event to the internal Threads system, we use
-*Models*, which create and send *Actions* to an *Event Codec*, which are
-then dispatched to the rest of the system via an internal *Dispatcher*.
-The Dispatcher then calls a set of registered *Reducer* functions to
-mutate Model state, all within a single *Transaction*. This
-unidirectional, transaction-based system provides a flexible framework
-for building complex event-driven application logic.
+pattern, to add an Event to Threads, we use *Collections*, which
+are used to create and send *Actions* to an *Event Codec* (projection
+in CQRS terminology), which are then dispatched to the rest of the
+system via an internal *Dispatcher*. The Dispatcher then calls a set of
+registered *Reducer* functions to mutate the Store's state, all within
+a single *Transaction*. This unidirectional, transaction-based system
+provides a flexible framework for building complex event-driven
+application logic.
 
-[@Fig:Architecture] depicts the various components that make up an Event
-Store. New Events travel through the system once a transaction is
+[@Fig:Architecture] depicts the various components that make up a
+Store. New Events travel through the system once a Transaction is
 committed by a local Actor (user). Conversely, new Events caused by
-updates to an *external* Peer's Log (associated with the given Thread),
+updates in an *external* peer's Log (associated with the given Thread),
 go through essentially the same process, but in reverse. The various
 core components are discussed in detail in the following sections.
 
-### Models {#sec:Models}
+### Collections {#sec:Collections}
 
 As in many CQRS-based systems, Events are dispatched on the write side,
 and are *reacted to* on the read side. The primary interface to the
-write side is exposed via the Store's Models. As shown in
-[@fig:Architecture], Model(s) are at the center of the Threads Event
+write side is exposed via a Store's Collection(s). As shown in
+[@fig:Architecture], Collections are at the center of the Threads
 Store. They are used to send *Actions* from a local application to the
 rest of the internal Store. If built around a specific *domain*,
-Models provide bounded context that can be roughly compared to an
+Collections provide bounded context that can be roughly compared to an
 aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 
-Models
-: Models are part of an Event Store's public-api. Their main
+Collections
+: Collections are part of a Store's public-api. Their main
 responsibilities are to store instances of user-defined Schemas, and
 operate on Entities defined by said Schema.
 
 Actions
-: Every update to local and shared (i.e., across Peers) state
+: Every update to local and shared (i.e. across peers) state
 happens via Actions. Actions are used to describe *changes to an
-application state*  (e.g., a photo was added, an item was added to a
-shopping cart, etc). Models are used to create Actions.
+application state* (e.g. a photo was added, an item was added to a
+shopping cart, etc). Collections are used to create Actions.
 
-Currently, Models are defined using a JSON Schema [@handrews-json-schema-02] that *describes the shape*
-of the underlying entity that it represents. This is also quite similar
-to a document in a document-based database context. For example, a Model
-might define a `Person` entity, with a `first` and `last` name, `age`,
-etc. Models also provide the public API (bounded context) for creating,
-deleting, updating, and querying these entities. Lastly, they also
-provide read/write *Transactions* which have *serializable isolation*
-within the entire Store scope. In other words, Transactions can be
-assumed to be the only running operation on the entire Store. It is via
-Transactions that Models introduce Actions into the system.
+Currently, Collections are defined using a JSON Schema
+[@handrews-json-schema-02] that *describes the shape* of the underlying
+Entity that it represents. This is also quite similar to a document in a
+document-based database context. For example, a Collection might define a
+`Person` Entity, with a `first` and `last` name, `age`, etc. Collections also
+provide the public API (bounded context) for creating, deleting,
+updating, and querying these Entities. Lastly, they also provide
+read/write *Transactions* which have *serializable isolation* within the
+entire Store scope. In other words, Transactions can be assumed to be
+the only running operation on the entire Store. It is via Transactions
+that Collections introduce Actions into the system.
 
 Transactions
 : Actions describing updates to the system happen within
@@ -1167,7 +1087,7 @@ Codec in order to be translated into Events.
 
 Before Actions from the client-side are introduced into the system, they
 are encoded as Events using the Event Codec. Here, the core function is
-to transform (i.e., encode/decode) and apply Transaction Actions. An
+to transform (i.e. encode/decode) and apply Transaction Actions. An
 Event Codec is therefore an internal abstraction layer used to:
 
 1. Transform Actions made in a write Transaction into an (array of) Events
@@ -1178,12 +1098,13 @@ Event Codec is therefore an internal abstraction layer used to:
 3. Decode external IPLD Nodes into Events, which can then be dispatched
    locally.
 
-For example, if within a Model (write) Transaction, a new *Entity* is
-created and another one is updated, these two Actions will be sent to
-the Event Codec to transform them into Events. These Events have a
-payload of bytes with the encoded transformation(s). Currently, the
+For example, if within a Collection's (write) Transaction, a new Entity
+is created and another one is updated, these two Actions will be sent
+to the Event Codec to transform them into Events. These Events have a
+Payload of bytes with the encoded transformation(s). Currently, the
 only implementation of Event Codec is a *JSON Patcher*, which transforms
-Actions into JSON-merge/patch objects [@rfc7396;@rfc6902].
+Actions into JSON-merge/patch objects [@rfc7396;@rfc6902]. The Event
+Codec is essentailly a "projection" in ES + CQRS terminology.
 
 [Entity]{#def:Entity}
 : An Entity is made up of a series of ordered Events referring to a
@@ -1191,29 +1112,29 @@ specific entity or object. An Entity might have a unique `UUID` which
 can be referenced across Event updates.
 
 Once these Events have been aggregated by the Event Codec into a single
-IPLD Node, this information is used by Thread Service to actually persist
-the Event Record in the Thread associated with the given Store (i.e., it
-is written to an underlying Datastore). Likewise, the Event Codec can
-also do the inverse transformation: given an IPLD Node, it transforms its
-byte payload into Actions that will be reduced in the Store.
+IPLD Node, this information is used by the Thread Service to actually
+persist the Event under the Thread associated with the given Store
+(i.e. it is written to an underlying Datastore). Likewise, the Event
+Codec can also do the inverse transformation: given an IPLD Node, it
+transforms its Payload into Actions that will be reduced in the Store.
 
 To summarize, while a Transaction is running and making changes, the
 individual Actions are accumulated. Once the Transaction is committed,
 two things happen:
 
 1. Each Action is transformed to an Event
-2. The list of Actions is transformed to a single IPLD Node
+2. The list of Actions is transformed to a single Payload
 
 In the above, the list of Events are sent to the Dispatcher (for
-storage, and broadcasting to downstream Reducers), and the single IPLD
-Node is sent to the Thread Service, where it is added to the local
+storage, and broadcasting to downstream Reducers), and the Event
+Payload is sent to the Thread Service, where it is added to the local
 Peer's Log.
 
 The Event Codec abstraction provides a useful extensibility mechanism
-for the Event Store. For instance, eventually consistent, CRDT-based
+for the Store. For instance, eventually consistent, CRDT-based
 structures are particularly useful for managing views of a document in
 a multi-peer collaborative editing environment (like Google Docs or
-similar). To support this type of offline-first use-case (where Peers
+similar). To support this type of offline-first use-case (where peers
 may be making concurrent edits on a shared JSON document), one could
 implement an Event Codec that supports a JSON CRDT datatype
 [@kleppmannConflictFreeReplicatedJSON2017] (or even a hybrid JSON Patch [@rfc6902]
@@ -1229,10 +1150,10 @@ In order to persist and dispatch Events to downstream consumers, a
 *Dispatcher* is used. Every Event generated in the Store is sent
 to a Dispatcher when write Transactions are committed. The Dispatcher is
 then responsible for broadcasting these events to all registered
-*Reducers*. For example, if a particular Entity is updated via a Model,
-the corresponding Action will be encoded as an Event by the Event Codec
-(as mentioned previously). These Events will then be dispatched to the
-Dispatcher, which will:
+*Reducers*. For example, if a particular Entity is updated via a
+Collection, the corresponding Action will be encoded as an Event by
+the Event Codec (as mentioned previously). These Events will then be
+dispatched via the Dispatcher, which will:
 
 1. Store the new Event in persistent storage (*Datastore*). If the Transaction made
    *multiple* changes, this is done *transactionally*.
@@ -1243,21 +1164,21 @@ This design implies that real Store state changes *can only happen
 when the Dispatcher broadcasts new Events*. A Reducer can't distinguish
 between Events generated locally or externally. External events are the
 results of the Thread Service sending new Events to the Dispatcher,
-which means that new Events where detected in another Peer's Log from
+which means that new Events where detected in another peer's Log from
 the same Thread.
 
 Dispatcher
-: A Dispatcher is the *source of truth* regarding known Events for the
-Store. All Events must go through the singleton Dispatcher,
-whether these initiated as local or remote Events.
+: All Events must go through the singleton Dispatcher, whether these
+initiated as local or remote Events. The Dispatcher is responsible for
+informating registered Reducers of new Events.
 
 Reducer
 : A Reducer is a party which is interested in knowing about Store
 Events. Currently, the only Reducer is the Store itself.
 
 Datastore
-: A Datastore is the underlying persistence layer for Model Entities and
-a Dispatcher's raw Event information. In both cases, they are updatated
+: A Datastore is the underlying persistence layer for Collections/Entities
+and a Dispatcher's raw Event information. the Datastore is updatated
 via a Transaction to have transactional guarantees.
 
 ### Store Listener {#sec:StoreListener}
@@ -1276,18 +1197,18 @@ like to subscribe to Store updates based on a set of conditions.
 
 ### Thread Service {#sec:ThreadService}
 
-The Thread Service, which is the primary networking
-interface for Threads. The Thread Service is actually part of the
-public developer API, so it can be accessed by external components. Its
-main responsibility is to provide an interface between the Store and
-Threads. It stores transactions in the local Peer's Log, and when it
+The Thread Service, is the primary networking interface for Threads.
+The Thread Service is actually part of the public developer API, so
+it can be accessed by external components. Its main responsibility
+is to provide an interface between the Store and the broader network.
+It stores transactions in the local Peer's Log, and when it
 detects new Records in *another* Peer's Logs, it will dispatch them to
 the Dispatcher, allowing the local Store to handle the external Event
 and take appropriate action.
 
 Thread Service
-: The Thread Service is the bidirectional communication
-interface to the underlying Thread backing the Store.
+: The Thread Service is the bidirectional communication interface for
+Threads.
 
 The Store Interface {#sec:interfaces}
 =================
@@ -1305,7 +1226,7 @@ and Realm[^18], as well as the idea of bounded context and aggregate
 roots from DDD, we provide simple abstractions for performing
 distributed database operations as if they were local.
 
-Indeed, the components of a Thread already provide several features that
+Indeed, the components of Threads already provide several features that
 you would expect when operating on a dataset or table within a database:
 each Thread is defined by a unique ID, and provides facilities for
 access control and permissions, networking, and more. To illustrate how
@@ -1327,24 +1248,24 @@ const client = new Client(...opts)
 
 A default (or empty) `Store` can be created directly from the `Client`.
 This would create a new Thread under-to-hood, with an empty `Store` to
-be populated by Actions generated from a `Model` (next step).
+be populated by Actions generated from a `Collection` (next step).
 
 ```typescript
 const store = await client.newStore()
 ```
 
 To interact with the `Store`, a developer must first create a new
-`Model`. A `Model` is essentially the public API for the Thread/Event
-Store (see [@sec:Models]). For example a develper might create a new
-`Model` to represent `Person` information. `Model`s are defined by their
-`Schema`, which is a JSON Schema [@handrews-json-schema-02] object the defines and is used to
-validate Model data. In practice, there will be many pre-defined
+`Collection`. A `Collection` is essentially the public API for the
+Store (see [@sec:Collections]). For example a develper might create a new
+`Collection` to represent `Person` information. `Collections`s are
+defined by their `Schema`, which is a JSON Schema [@handrews-json-schema-02]
+object the defines and is used to validate `Entities` created within
+the `Collection`. In practice, there will be many pre-defined
 `Schema`s that developers can use to make their applications
 interaperatble with others. See [@sec:Modules] for some initial plans in
 this regard.
 
 ```typescript
-
 // Interface corresponds to JSON Schema
 interface Person {
   ID: string // Entities have `ID` by default
@@ -1383,7 +1304,7 @@ const personSchema = {
 ```
 
 With a `Schema` in hand, the developer is able to register it with the
-`Store`, and then generate `Model`s based on said `Schema`. At this
+`Store`, and then generate `Collection`s based on said `Schema`. At this
 time, any additional `Schema`s can be registered with the `Store`. With
 all required `Schemas` registered, the `Store` can be started.
 
@@ -1397,7 +1318,7 @@ await client.start(store.id)
 ```
 
 At this point, the developer is looking at an empty `Store`/Thread. To
-add data, the developer can create a new instance of a `Model` (an
+add data, the developer can create a new instance of a `Collection` (an
 `Entity`), and then modify this Entity and save the changes (via
 Actions). These operations are all done automatically by the Store,
 under-the-hood.
@@ -1411,8 +1332,8 @@ const person: Person = {
   age: 21,
 }
 
-// Create a Model Entity
-const created = await client.modelCreate(
+// Create a Collection Entity
+const created = await client.collectionCreate(
   store.id, 'Person', [person]
 )
 console.log(created.entitiesList) // EntityList
@@ -1425,24 +1346,24 @@ console.log(created.entitiesList) // EntityList
 ```
 
 Specific entities can be modified (or deleted) via Actions, which are
-created by the `Model` instance (`Entity`):
+created by the `Collection` instance (`Entity`):
 
 ```typescript
 const updatedPerson = created.entitiesList[0]
 updatedPerson.age = 26
 
 // Modify/mutate existing Entity
-await client.modelSave(
+await client.collectionSave(
   store.id, 'Person', [updatedPerson]
 )
 
 // Delete existing Entity
-await client.modelDelete(
+await client.collectionDelete(
   store.id, 'Person', [person.ID]
 )
 
 // Check whether Entity exists
-const has = await client.modelHas(
+const has = await client.collectionlHas(
   store.id, 'Person', [updatedPerson.ID]
 )
 console.log(has) // false
@@ -1452,7 +1373,7 @@ Like any useful database, the Textile Store interface exposed here also
 provides mechanisms for search, monitoring (subscriptions), and database
 transactions. Each of these features interact with the various
 components of the underlying Event Store. For example, Transactions are
-a core feature of the Event Store (see [@sec:Models] and
+a core feature of the Event Store (see [@sec:Collections] and
 [@sec:Dispatcher]), and subscriptions provide a Store Listener (
 [@sec:StoreListener]) interface. Transactions work as in most database
 implementations:
@@ -1462,7 +1383,7 @@ const txn = client.writeTransaction(
   store.id, 'Person'
 )
 await transaction.start()
-const created = await transaction.modelCreate([{
+const created = await transaction.create([{
   ID: '',
   firstName: 'John',
   lastName: 'Doe',
@@ -1472,8 +1393,8 @@ const existing = created.entitiesList.pop()
 const has = await transaction.has([existing.ID])
 console.log(has) // true
 existing.age = 99
-await transaction.modelSave([existing])
-await transaction.modelDelete([existing.ID])
+await transaction.save([existing])
+await transaction.delete([existing.ID])
 await transaction.end()
 ```
 
@@ -1489,16 +1410,16 @@ const closer = client.listen(
 })
 
 existing.age = 30
-await client.modelSave(
+await client.collectionSave(
   store.id, 'Person', [existing]
 )
 existing.age = 40
-await client.modelSave(
+await client.collectionSave(
   store.id, 'Person', [existing]
 )
 
 // Find or search for a specific Entity
-const found = await client.modelFindByID(
+const found = await client.collectionFindByID(
   store.id, 'Person', existing.ID
 )
 console.log(found.entity.age) // 40
@@ -1516,7 +1437,7 @@ const query = Query.where('age') // where `age`...
   .lt(66) // is less than 66, ...
   // or where `age` is equal to 67
   .or(new Where('age').eq(67)) 
-const { entitiesList } = await client.modelFind(
+const { entitiesList } = await client.collectionFind(
   store.id, 'Person', query
 )
 console.log(entitiesList.length)
@@ -1528,26 +1449,27 @@ implementation. Details of the underlying Store database are not part of
 the Threads specification, so clients are welcome to optimize Store
 implementations for specific use-cases and design considerations. For
 instance, see [@sec:Databases] for some possible
-optimizations/alternative interfaces to the Threads Event Store.
+optimizations/alternative interfaces to the Threads Store.
 
 Alternative Interfaces {#sec:Databases}
 ---------
 
-While the above Store interface provides intuitive to a Threads Event
-Store, it is not difficult to imagine alternative, high-level APIs in
-which Threads are exposed via interfaces compatible with *existing*
-datastores or DBMS. Here we draw inspiration from similar projects
-(e.g., OrbitDB [@markroberthendersonOrbitDBFieldManual2019]) which
-have made it much easier for developers familiar with centralized
+While the above Store interface provides a intuitive implementation
+of Threads, it is not difficult to imagine alternative, high-level
+APIs in which Threads are exposed via interfaces compatible with
+*existing* datastores or DBMS. Here we draw inspiration from similar
+projects (e.g. OrbitDB [@markroberthendersonOrbitDBFieldManual2019])
+which have made it much easier for developers familiar with centralized
 database systems to make the move to decentralized systems such as
 Threads. For example, a key-value store built on Threads would "map"
 key-value operations, such as `put`, `get`, and `del` to internal
-Model Actions. The Events derived from said Actions would then be
-used to mutate the Store like any Model Entity, effectively
-encapsulating the entire Event Store in a database structure that
+Actions. The Events derived from said Actions would then be
+used to mutate the Store like any Entity, effectively
+encapsulating the entire Store in a database structure that
 satisfies a key-value store interface. These additional interfaces
-would also be distributed as Modules, making it easy for developers
-to swap in or substitute existing backend infrastructure.
+would also be distributed as Modules (see [@sec:Modules]), making
+it easy for developers to swap in or substitute existing backend
+infrastructure.
 
 Similar abstractions will be used to implement additional database types
 and functions. Tables, feeds, counters, and other simple stores can also
@@ -1569,7 +1491,7 @@ user-siloed data*. In order to meet this goal, it is necessary for
 developers to be using the same data structure and conventions when
 building their apps. In conjunction with community developers, Textile
 will provide a number of *Modules* designed to wrap a given domain
-(e.g., Photos) into a singular software package to facilitate this. This
+(e.g. Photos) into a singular software package to facilitate this. This
 way, developers need only agree on the given `Schema` in order to
 provide seamless inter-application experiences. For example, any
 developer looking to provide a view on top of a user's Photos (perhaps
@@ -1589,7 +1511,7 @@ Music, Video, Storage, etc are all possible, extensible, and available
 to all developers. This is a powerful concept, but it is also flexible.
 For application developers working on very specific or niche apps with
 less need for inter-application usability, Modules are not needed, and
-they can instead focus on custom Models. However, it is likely that
+they can instead focus on custom Collections. However, it is likely that
 developers who build on openly available *standard* Modules will provide
 a more useful experience for their users, and will benefit from the
 *network effects* [@shapiroInformationRulesStrategic1998] produced by
@@ -1624,7 +1546,7 @@ when a new Peer starts participating in a shared Thread (saving disk
 space, bandwidth, and time). They can similarly be used for initializing
 a local view Store during recovery.
 
-Compaction is a *local-only operation* (i.e., other Peers do not need to
+Compaction is a *local-only operation* (i.e. other Peers do not need to
 be aware that Compaction was performed) performed on an Store to
 free up local disk space. As a result, it can speed up re-hydration of a
 downstream Stores's state by reducing the number of Events that need to
@@ -1635,11 +1557,11 @@ type is required.
 
 One of the most important properties of a shared data model is the
 ability to apply access control rules. There are three forms of access
-control possible in Threads, Entity-level ACLs, Model-level ACLs, and Thread-level ACLs.
-Thread-level access control lists (ACLs) allow creators to specify who
-can *replicate, read, write, and delete* Thread data. Similarly,
-Model and Entity-level ACLs provide more granular control to Thread-writers on a
-per-Model and Entity (see def. [4](#def:Entity)) basis.
+control possible in Threads, Entity-level ACLs, Collection-level ACLs,
+and Thread-level ACLs. Thread-level access control lists (ACLs) allow
+creators to specify who can *replicate, read, write, and delete* Thread
+data. Similarly, Collection and Entity-level ACLs provide more granular
+control to Thread-writers on a per-Collection and Entity (see def. [4](#def:Entity)) basis.
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1694,34 +1616,34 @@ Replica, and `12D..P2c6ifo` has been given read access.
 
 #### Note About Threats {#sec:Threats}
 
-In general, Threads are designed for networks of *collaborating* peers,
-so peers are generally assumed to be using a "compliant" Thread
-implementation. In other words, Thread Peers are expected to enforce
-their own ACL rules via agent-centric security practices. For example,
-if a Peer A, who has ACL write access, updates the ACL, all Thread
-participants who received said update are expected to then locally
-enforce said ACL. If Thread updates come out of order, it is up to the
-receiving Peers to re-process the updates to take into account new ACL
-updates.
-
-More stringent ACL constraints could be built on top of Threads if one
-so chooses, including links to external *smart contract*-based ACLs.
+The design of threads is suited to two broad use-cases. The first is for
+datasets and documents where one or a few verified owners have the right
+to update those documents, and others (possibly many) can read those
+updates. The second is for closed networks of collaborating peers, so
+peers are generally assumed to be using a "compliant" Thread
+implementation. In the latter case, each Thread Peer is expected to
+enforce its own ACL rules via agent-centric security practices. For
+example, if a Peer A, who has ACL write access, updates the ACL, all
+Thread participants who received the said update are expected to enforce
+said ACL then locally. If Thread updates come out of order, it is up to
+the receiving Peers to re-process the updates to take into account new
+ACL updates.
 
 #### Note About Deleting {#sec:deleting}
 
 Deleting data in distributed systems is a complex concept. In practice,
 it is impossible to ensure all Peers in a system will comply with any
-given Tombstone Event. Often, data (i.e., Blocks, Events, etc.) are kept
+given Tombstone Event. Often, data (i.e. Blocks, Events, etc.) are kept
 locally, including *original and tombstone* Events, to facilitate
 parsing of the Datastore. This means raw data that have been "deleted"
 are not immediately purged from a Peer's storage. However, in strict
-data compliance situations (e.g., the EU's GDPR), a deletion Event *may*
+data compliance situations (e.g. the EU's GDPR), a deletion Event *may*
 additionally generate a Snapshot Event, allowing past data to be purged
 from the local Event and Block stores. Compliant Peers should then purge
 "deleted" data. However, the possibility of non-compliant data caching
 remains. The initial Textile Threads reference implementation will *not*
 automatically purge deleted data from the local store. This compliance
-requirement will initially be left up to application-level developers.
+requirement will initially be left up to application developers.
 
 Conclusion
 ==========
@@ -1740,7 +1662,7 @@ scalable and robust storage system for end-user data.
 We show that the flexible core structure of single-writer append-only
 logs can be used to compose higher-order structures such as Threads,
 Views, and/or CRDTs. In particular, we show that through the design of
-specific default view Models, we can support important features such as
+specific default Collections, we can support important features such as
 access control lists and common, specialized, or complex data models.
 The Threads protocol described here is flexible enough to derive
 numerous specific database types (e.g. key/value stores, document
@@ -1773,7 +1695,7 @@ and/or incorporating the Double Ratchet Algorithm
 ### Tighter Coupling with Front End Models {#sec:coupling}
 
 Implementing Threads internals (see [@sec:internals])
-using similar patterns to common frontend workflows (e.g., Redux)
+using similar patterns to common frontend workflows (e.g. Redux)
 presents opportunities for tighter coupling between "backend" logic and
 fontend views. This is a major advantage of tools such as reSolve[^25],
 where "system changes can be reflected immediately \[on the frontend\],
@@ -1920,7 +1842,7 @@ type EventHeader interface {
 [^9]: <https://git-scm.com/>
 
 [^10]: Here push means "send to multiaddress(es)", which may designate
-    different protocols, e.g., P2P, HTTP, Bluetooth, etc.
+    different protocols, e.g. P2P, HTTP, Bluetooth, etc.
 
 [^11]: <https://ifttt.com>
 
@@ -1943,7 +1865,7 @@ type EventHeader interface {
     somewhat confusing, we attempt to use the most common definitions
     here.
 
-<!-- [^23]: Assuming any network partitions are only short-lived (i.e., that
+<!-- [^23]: Assuming any network partitions are only short-lived (i.e. that
     peers are able to share events consistently). -->
 
 [^24]: By default, Threads without access control operate similar to
