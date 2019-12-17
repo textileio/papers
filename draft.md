@@ -716,7 +716,7 @@ merge-type strategies are possible if this is the desired conflict
 resolution strategy.
 
 Writer
-: The single Peer capable of writing to an Event Log.
+: The single Peer capable of writing to a Log.
 
 Reader
 : Any Peer capable of reading a Log. Practically speaking, this
