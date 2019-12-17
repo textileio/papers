@@ -113,7 +113,7 @@
     \noindent\strut{\itshape Keywords:\/} \ignorespaces#1\unskip}}
 \def\@keywords{\ClassWarningNoLine{cj}{No keywords}}
 \def\revised#1{%
-  \gdef\@revised{{\itshape revised #1}}} %SDH
+  \gdef\@revised{{\itshape Revised #1}}} %SDH
 \let\@revised\@empty
 \newbox\absbox
 \def\abstract{\lrbox\absbox\minipage{.75\textwidth}%

@@ -42,7 +42,7 @@ header-includes: |
   \author{Farmer}
   \author{Sutula}
   \author{Hagopian}
-  \affiliation{www.textile.io} \email{research@textile.io}
+  \affiliation{Textile.io} \email{}
   \author{Gozalishvili}
   \affiliation{Mozilla.org} \email{}
   \author{Hill}
@@ -928,14 +928,14 @@ network API for Thread orchestration:
 
 ```go
 service Threads {
-    // GetLogs from a peer.
-    rpc GetLogs(GetLogsRequest) returns (GetLogsReply) {}
-    // PushLog to a peer.
-    rpc PushLog(PushLogRequest) returns (PushLogReply) {}
-    // GetRecords from a peer.
-    rpc GetRecords(GetRecordsRequest) returns (GetRecordsReply) {}
-    // PushRecord to a peer.
-    rpc PushRecord(PushRecordRequest) returns (PushRecordReply) {}
+  // GetLogs from a peer.
+  rpc GetLogs(GetLogsRequest) returns (GetLogsReply) {}
+  // PushLog to a peer.
+  rpc PushLog(PushLogRequest) returns (PushLogReply) {}
+  // GetRecords from a peer.
+  rpc GetRecords(GetRecordsRequest) returns (GetRecordsReply) {}
+  // PushRecord to a peer.
+  rpc PushRecord(PushRecordRequest) returns (PushRecordReply) {}
 }
 ```
 
