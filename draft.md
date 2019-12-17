@@ -1017,37 +1017,38 @@ systems (see [@facebookFluxInDepthOverview2019] and/or
 data flows that build downstream views from atomic updates in the form
 of events (or actions).
 
-![Architectural diagram for internal Store implementation. Arrows
-indicate synchronous calls, channel notifications, and other
-communication strategies that indicate a dependency between
-components.](figures/Architecture.png){#fig:Architecture height="350px"}
+<!--
+@note: use `\begin{figure*}` in LaTex
+-->
+![Components diagram for internal Store implementation.](figures/Architecture.png){#fig:Architecture height="350px"}
 
 We adopt a similar flow in Threads (see [@fig:Architecture]). Like any
 CQRS/ES-based system (see also [@sec:cqrs]), Threads are built on
 *Events* ([@fowlerEventSourcing]). Events are used to produce
 *predictable* updates to downstream state. Similarly to a DDD-based
 pattern, to add an Event to Threads, we use *Collections*, which
-are used to create and send *Actions* to an *Event Codec* (projection
-in CQRS terminology), which are then dispatched to the rest of the
-system via an internal *Dispatcher*. The Dispatcher then calls a set of
-registered *Reducer* functions to mutate the Store's state, all within
-a single *Transaction*. This unidirectional, transaction-based system
+are used to create and send *Actions* via an *Event Codec* (projection
+in CQRS terminology), to a *Dispatcher*. The Dispatcher then
+notifies downstream *Reducers* of new Events, which are then used
+to mutate the Store's state; all within a single *Transaction*.
+This unidirectional, transaction-based system
 provides a flexible framework for building complex event-driven
 application logic.
 
 [@Fig:Architecture] depicts the various components that make up a
 Store. New Events travel through the system once a Transaction is
-committed by a local Actor (user). Conversely, new Events caused by
-updates in an *external* peer's Log (associated with the given Thread),
-go through essentially the same process, but in reverse. The various
-core components are discussed in detail in the following sections.
+committed by a local Actor (via the User API). Conversely, new
+Events caused by updates in an *external* peer's Log (associated
+with the given Thread), go through essentially the same process,
+but in reverse. The various core components are discussed in detail
+in the following sections.
 
 ### Collections {#sec:Collections}
 
 As in many CQRS-based systems, Events are dispatched on the write side,
 and are *reacted to* on the read side. The primary interface to the
 write side is exposed via a Store's Collection(s). As shown in
-[@fig:Architecture], Collections are at the center of the Threads
+[@fig:Architecture], Collections are a core component of the Threads
 Store. They are used to send *Actions* from a local application to the
 rest of the internal Store. If built around a specific *domain*,
 Collections provide bounded context that can be roughly compared to an
@@ -1068,8 +1069,8 @@ Currently, Collections are defined using a JSON Schema
 [@handrews-json-schema-02] that *describes the shape* of the underlying
 Entity that it represents. This is also quite similar to a document in a
 document-based database context. For example, a Collection might define a
-`Person` Entity, with a `first` and `last` name, `age`, etc. Collections also
-provide the public API (bounded context) for creating, deleting,
+`Person` Entity, with a `first` and `last` name, `age`, etc. Collections
+also provide the public API (bounded context) for creating, deleting,
 updating, and querying these Entities. Lastly, they also provide
 read/write *Transactions* which have *serializable isolation* within the
 entire Store scope. In other words, Transactions can be assumed to be
@@ -1150,22 +1151,24 @@ In order to persist and dispatch Events to downstream consumers, a
 *Dispatcher* is used. Every Event generated in the Store is sent
 to a Dispatcher when write Transactions are committed. The Dispatcher is
 then responsible for broadcasting these events to all registered
-*Reducers*. For example, if a particular Entity is updated via a
-Collection, the corresponding Action will be encoded as an Event by
-the Event Codec (as mentioned previously). These Events will then be
-dispatched via the Dispatcher, which will:
+*Reducers*. For example, if a particular Entity is updated via an
+Action, this will be encoded as an Event by the Event Codec (as
+mentioned previously). These Events will then be dispatched via the
+Dispatcher, which will:
 
-1. Store the new Event in persistent storage (*Datastore*). If the Transaction made
-   *multiple* changes, this is done *transactionally*.
+1. Store the new Event in persistent storage (*Datastore*).
+   If the Transaction made *multiple* changes, this is done
+   *transactionally*.
 2. Broadcast all *new* Events to all registered Reducers. Reducers will
-   then apply the changes encoded by the Event Codec as the "see fit".
+   then apply the changes encoded by the Event Codec as they "see fit".
 
-This design implies that real Store state changes *can only happen
+This design implies that Store state changes *can only happen
 when the Dispatcher broadcasts new Events*. A Reducer can't distinguish
 between Events generated locally or externally. External events are the
 results of the Thread Service sending new Events to the Dispatcher,
 which means that new Events where detected in another peer's Log from
-the same Thread.
+the same Thread. In the reverse case, local Events are sent to the
+network via an *Event Bus*, to be handled by the *Log Service*.
 
 Dispatcher
 : All Events must go through the singleton Dispatcher, whether these
@@ -1181,6 +1184,10 @@ Datastore
 and a Dispatcher's raw Event information. the Datastore is updatated
 via a Transaction to have transactional guarantees.
 
+Event Bus
+: The Event Bus is responsible for delivering local encoded Events to
+the Log Service for distribution to exteranl peers (i.e. the network).
+
 ### Store Listener {#sec:StoreListener}
 
 After an Event (or set of Events) has been dispatched by the Dispatcher,
@@ -1195,20 +1202,21 @@ Store Listener
 : A Listener is a "client" or external actor that would
 like to subscribe to Store updates based on a set of conditions.
 
-### Thread Service {#sec:ThreadService}
+### Log Service {#sec:LogService}
 
-The Thread Service, is the primary networking interface for Threads.
-The Thread Service is actually part of the public developer API, so
-it can be accessed by external components. Its main responsibility
-is to provide an interface between the Store and the broader network.
-It stores transactions in the local Peer's Log, and when it
-detects new Records in *another* Peer's Logs, it will dispatch them to
-the Dispatcher, allowing the local Store to handle the external Event
-and take appropriate action.
+The Log Service is the primary networking interface for Threads. It
+is part of the public developer API, so it can be accessed by external
+components. Its main responsibility is to provide an interface between
+the Store and the broader network. Its APIs can be used to perform sync
+and encryption/decryption tasks. It is also responsible for storing
+transactions in the local Peer's Log, and when it detects new Records
+in *another* Peer's Logs, it will dispatch them via the Dispatcher
+allowing the local Store to handle the external Event and take
+appropriate action. The various APIs (Push/Pull) and lib2p2 functions
+of this component are discussed in part in [@sec:LogSync].
 
-Thread Service
-: The Thread Service is the bidirectional communication interface for
-Threads.
+Log Service
+: The Log Service is the bidirectional communication interface for Threads.
 
 The Store Interface {#sec:interfaces}
 =================
