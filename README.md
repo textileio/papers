@@ -1,3 +1,7 @@
+# Live Release
+
+The latest Threads Whitepaper release is available at https://docsend.com/view/gu3ywqi
+
 # Setup
 
 ```bash

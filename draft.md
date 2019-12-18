@@ -2,7 +2,7 @@
 title: |
     A protocol & event-sourced database for decentralized user-siloed data
 subtitle: |
-    Draft - Textile Threads
+    Draft 1.6 - Textile Threads
 abstract: |
     As the Internet expands, the division between a person's digital and
     physical existence continues to blur. An emerging issue of concern is
