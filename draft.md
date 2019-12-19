@@ -74,9 +74,12 @@ header-includes: |
   \usepackage{graphicx}
 ---
 
-<!--
-@note: ensure abstract is created before `\maketitle`
--->
+\newcommand{\hideFromPandoc}[1]{#1}
+\hideFromPandoc{
+  \let\Begin\begin
+  \let\End\end
+}
+\newenvironment{widefig}{\renewenvironment{figure}{\begin{figure*}\centering}{\end{figure*}}}
 
 Introduction
 ============
@@ -787,10 +790,11 @@ unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
 
-<!--
-@note: use `\begin{figure*}` in LaTex
--->
+\Begin{widefig}
+
 ![The three layers of Log encryption.](figures/Event_Log_With_Encryption.png){#fig:LogEncryption height="350px"}
+
+\End{widefig}
 
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
@@ -1038,10 +1042,11 @@ systems (see [@facebookFluxInDepthOverview2019] and/or
 data flows that build downstream views from atomic updates in the form
 of events (or actions).
 
-<!--
-@note: use `\begin{figure*}` in LaTex
--->
+\Begin{widefig}
+
 ![Components diagram for internal Store implementation.](figures/Architecture.png){#fig:Architecture height="350px"}
+
+\End{widefig}
 
 We adopt a similar flow in Threads (see [@fig:Architecture]). Like any
 CQRS/ES-based system (see also [@sec:cqrs]), Threads are built on
