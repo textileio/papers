@@ -377,7 +377,7 @@ immutable and universally unique.
 network of IPFS peers. Using the built-in routing mechanisms and a
 distributed hash table (DHT), peers hosting the requested content are
 identified and content is
-returned.](figures/Hash_Request.png){#fig:contentaddressing height="350px"}
+returned.](figures/Hash_Request.png){#fig:contentaddressing}
 
 While content-based addressing doesn't dictate to a peer *how* to get a
 piece of content, IPFS (via libp2p[^3]) does provide a system for moving
@@ -417,7 +417,7 @@ arbitrary binary data, and a `Link` simply links to other IPLD objects.
 
 ### Merkle-Clocks {#sec:merkleclocks}
 
-![Divergent heads in a multi-writer Merkle-DAG](figures/Divergent_Heads.png){#fig:merkledag height="350px"}
+![Divergent heads in a multi-writer Merkle-DAG](figures/Divergent_Heads.png){#fig:merkledag}
 
 A Merkle-Clock is a Merkle-DAG that represents a sequence of events, or
 a log [@sanjuanMerkleCRDTs2019]. When implemented on IPFS (or an
@@ -741,8 +741,9 @@ multiaddresses. To reach a Log via its multiaddress, it must be encapsulated
 in an IPFS peer multiaddress.
 
 ```go
-// Log ID encapsulated in an IPFS peer multiaddress.
-"/ip4/127.0.0.1/tcp/4006/p2p/12D3Koo...PbbdRME/log/12D3Koo...iHKfiMf"
+// Log ID encapsulated in peer multiaddress.
+/ip4/127.0.0.1/tcp/4006/p2p/12D3KooEHd...
+...PbbdRME/log/12D3KooasaDGS...iHKfiMf
 ```
 
 Unlike peer multiaddresses, Log addresses are not stored in the global
@@ -925,8 +926,9 @@ multiaddresses. To reach a Thread via its multiaddress, it must also be encapsul
 in an IPFS peer multiaddress.
 
 ```go
-// Thread ID encapsulated in an IPFS peer multiaddress.
-"/ip4/127.0.0.1/tcp/4006/p2p/12D3Koo...PbbdRME/thread/bafkxd5bjgi6k4zivuoyxo4ua4mzyy"
+// Thread ID encapsulated in peer multiaddress
+/ip4/127.0.0.1/tcp/4006/p2p/12D3Koo...
+...PbbdRME/thread/bafkxd5bjgi6k4zivuoyxo4ua4mzyy
 ```
 
 Like Log multiaddresses, Thread addresses are not stored in the global IPFS DHT [27]. In practice, Threads are directly addressed only when creating links for viewing via a gateway or sharing. A Thread address serves Logs, which can be inflated via the push and pull mechanism outlined above.
@@ -948,13 +950,13 @@ network API for Thread orchestration:
 ```go
 service Threads {
   // GetLogs from a peer.
-  rpc GetLogs(GetLogsRequest) returns (GetLogsReply) {}
+  rpc GetLogs(GetLogsReq) returns (GetLogsRep)
   // PushLog to a peer.
-  rpc PushLog(PushLogRequest) returns (PushLogReply) {}
+  rpc PushLog(PushLogReq) returns (PushLogRep)
   // GetRecords from a peer.
-  rpc GetRecords(GetRecordsRequest) returns (GetRecordsReply) {}
+  rpc GetRecs(GetRecsReq) returns (GetRecsRep)
   // PushRecord to a peer.
-  rpc PushRecord(PushRecordRequest) returns (PushRecordReply) {}
+  rpc PushRec(PushRecReq) returns (PushRecRep)
 }
 ```
 
@@ -994,7 +996,7 @@ often offline or unreachable.
         web-based Readers and Replicas with a reliable mechanism for
         receiving Log Records ([@fig:Pulling]).
 
-![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="350px"}
+![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="300px"}
 
 ### Log Replication
 
@@ -1464,10 +1466,10 @@ const query = Query.where('age') // where `age`...
   .lt(66) // is less than 66, ...
   // or where `age` is equal to 67
   .or(new Where('age').eq(67)) 
-const { entitiesList } = await client.collectionFind(
+const res = await client.collectionFind(
   store.id, 'Person', query
 )
-console.log(entitiesList.length)
+console.log(res.entitiesList.length)
 ```
 
 Queries can be arbitrarily complex, and when possible, will take
