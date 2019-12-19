@@ -722,8 +722,6 @@ Reader
 : Any Peer capable of reading a Log. Practically speaking, this
 means any Peer with the Log's Read Key ([@sec:KeysEncryption]).
 
-### Multi-addressed Logs
-
 Together with a cryptographic signature, a Record is written to a log
 with an additional Payload (see [@fig:RecordLog])
 enabling Log verification by Readers ([@sec:KeysEncryption]). At a minimum,
@@ -734,11 +732,18 @@ concurrency during traversal and verification [@sanjuanMerkleCRDTs2019; @meyerBa
 As shown in [@sec:EventNode], a Records's actual content (or body), is
 contained in a separate Block. This allows Records to carry any arbitrary Block structure, from complex directories to raw bytes.
 
+### Multi-addressed Logs
+
 Much like IPFS peers, Logs are identified on the network with addresses,
 or more specifically, with multiaddresses [@protocollabsMultiaddr]. Here
 we introduce *log* as a new protocol tag to be used when composing Log
 multiaddresses. To reach a Log via its multiaddress, it must be encapsulated
 in an IPFS peer multiaddress.
+
+```go
+// Log ID encapsulated in an IPFS peer multiaddress.
+"/ip4/127.0.0.1/tcp/4006/p2p/12D3Koo...PbbdRME/log/12D3Koo...iHKfiMf"
+```
 
 Unlike peer multiaddresses, Log addresses are not stored in the global
 IPFS DHT [@benetIPFSContentAddressed2014]. Instead, they are *exchanged*
@@ -911,6 +916,20 @@ which results in a fork.
 // (b) ACL enabled identity. V1, 256 bit.
 "bafyoiobghzefwl...gmdmgeobw2mimktr5jivsavya"
 ```
+
+### Multi-addressed Threads
+
+Much like Logs, entire Threads are identified on the network with multiaddresses [@protocollabsMultiaddr]. Here
+we introduce *thread* as an additional new protocol tag to be used when composing Thread
+multiaddresses. To reach a Thread via its multiaddress, it must also be encapsulated
+in an IPFS peer multiaddress.
+
+```go
+// Thread ID encapsulated in an IPFS peer multiaddress.
+"/ip4/127.0.0.1/tcp/4006/p2p/12D3Koo...PbbdRME/thread/bafkxd5bjgi6k4zivuoyxo4ua4mzyy"
+```
+
+Like Log multiaddresses, Thread addresses are not stored in the global IPFS DHT [27]. In practice, Threads are directly addressed only when creating links for viewing via a gateway or sharing. A Thread address serves Logs, which can be inflated via the push and pull mechanism outlined above.
 
 ### Log Synchronization {#sec:LogSync}
 
