@@ -624,7 +624,7 @@ addressing scheme, Threads differs from previous solutions by allowing
 *pull*-based replica synchronization in addition to *push*-based
 synchronization that is common in distributed protocols. The flexible
 event-based structure enables client applications to derive advanced
-applications states, including queriable materialized views, and custom
+applications states, including queryable materialized views, and custom
 CRDTs.
 
 A *Thread* is topic-based collection of single-writer logs.
@@ -636,7 +636,7 @@ specific ways, this framework can be deployed to solve many of the
 problems discussed above.
 
 Threads vs Thread
-: In short, *Threads* (plural) encompases the whole system, including log
+: In short, *Threads* (plural) encompasses the whole system, including log
 orchestration and data stores built on those logs, whereas a *Thread*
 (sigular) is or more logs grouped together by a topic or ID. 
 
@@ -1131,7 +1131,7 @@ to the Event Codec to transform them into Events. These Events have a
 Payload of bytes with the encoded transformation(s). Currently, the
 only implementation of Event Codec is a *JSON Patcher*, which transforms
 Actions into JSON-merge/patch objects [@rfc7396;@rfc6902]. The Event
-Codec is essentailly a "projection" in ES + CQRS terminology.
+Codec is essentially a "projection" in ES + CQRS terminology.
 
 [Entity]{#def:Entity}
 : An Entity is made up of a series of ordered Events referring to a
@@ -1199,7 +1199,7 @@ network via an *Event Bus*, to be handled by the *Log Service*.
 Dispatcher
 : All Events must go through the singleton Dispatcher, whether these
 initiated as local or remote Events. The Dispatcher is responsible for
-informating registered Reducers of new Events.
+informing registered Reducers of new Events.
 
 Reducer
 : A Reducer is a party which is interested in knowing about Store
@@ -1207,20 +1207,20 @@ Events. Currently, the only Reducer is the Store itself.
 
 Datastore
 : A Datastore is the underlying persistence layer for Collections/Entities
-and a Dispatcher's raw Event information. the Datastore is updatated
+and a Dispatcher's raw Event information. the Datastore is updated
 via a Transaction to have transactional guarantees.
 
 Event Bus
 : The Event Bus is responsible for delivering local encoded Events to
-the Log Service for distribution to exteranl peers (i.e. the network).
+the Log Service for distribution to external peers (i.e. the network).
 
 ### Store Listener {#sec:StoreListener}
 
 After an Event (or set of Events) has been dispatched by the Dispatcher,
-it is nessesary to notify various "external" actors that the Store has
+it is necessary to notify various "external" actors that the Store has
 changed its state. Details of the change might include in which model
-the change occured, what Action(s) (`Create`, `Save`, `Delete`, etc)
-were handled, and wich specify Entities (`EntityID`s) were modified.
+the change occurred, what Action(s) (`Create`, `Save`, `Delete`, etc)
+were handled, and which specify Entities (`EntityID`s) were modified.
 These external actors are called *Listeners*, and are useful for clients
 that want to be notified about changes in the Store.
 
@@ -1238,7 +1238,7 @@ and encryption/decryption tasks. It is also responsible for storing
 transactions in the local Peer's Log, and when it detects new Records
 in *another* Peer's Logs, it will dispatch them via the Dispatcher
 allowing the local Store to handle the external Event and take
-appropriate action. The various APIs (Push/Pull) and lib2p2 functions
+appropriate action. The various APIs (Push/Pull) and libp2p functions
 of this component are discussed in part in [@sec:LogSync].
 
 Log Service
@@ -1281,7 +1281,7 @@ const client = new Client(...opts)
 ```
 
 A default (or empty) `Store` can be created directly from the `Client`.
-This would create a new Thread under-to-hood, with an empty `Store` to
+This would create a new Thread under-the-hood, with an empty `Store` to
 be populated by Actions generated from a `Collection` (next step).
 
 ```typescript
@@ -1290,13 +1290,13 @@ const store = await client.newStore()
 
 To interact with the `Store`, a developer must first create a new
 `Collection`. A `Collection` is essentially the public API for the
-Store (see [@sec:Collections]). For example a develper might create a new
-`Collection` to represent `Person` information. `Collections`s are
+Store (see [@sec:Collections]). For example a developer might create a new
+`Collection` to represent `Person` information. `Collection`s are
 defined by their `Schema`, which is a JSON Schema [@handrews-json-schema-02]
 object the defines and is used to validate `Entities` created within
 the `Collection`. In practice, there will be many pre-defined
 `Schema`s that developers can use to make their applications
-interaperatble with others. See [@sec:Modules] for some initial plans in
+interoperable with others. See [@sec:Modules] for some initial plans in
 this regard.
 
 ```typescript
