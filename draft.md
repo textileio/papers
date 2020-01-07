@@ -231,7 +231,7 @@ materialized views.
 Projection
 : An event handler and corresponding reducer/fold function
 used to build and maintain a view from a set of (filtered) events. In
-general, and projection's reducer should be a "pure" function.
+general, a projection's reducer should be a "pure" function.
 
 Views themselves are enabled by projections[^1], which can be thought of
 as transformations that are applied to each event in a stream. They
@@ -638,7 +638,7 @@ problems discussed above.
 Threads vs Thread
 : In short, *Threads* (plural) encompasses the whole system, including log
 orchestration and data stores built on those logs, whereas a *Thread*
-(sigular) is or more logs grouped together by a topic or ID. 
+(sigular) is one or more logs grouped together by a topic or ID. 
 
 Record Logs
 ----------
