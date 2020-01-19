@@ -1731,7 +1731,7 @@ and/or incorporating the Double Ratchet Algorithm
 Implementing Threads internals (see [@sec:internals])
 using similar patterns to common frontend workflows (e.g. Redux)
 presents opportunities for tighter coupling between "backend" logic and
-fontend views. This is a major advantage of tools such as reSolve[^25],
+frontend views. This is a major advantage of tools such as reSolve[^25],
 where "system changes can be reflected immediately \[on the frontend\],
 without the need to re-query the backend"
 [@ereminReduxInspiredBackend2019]. Textile developers will create
