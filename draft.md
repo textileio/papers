@@ -1913,12 +1913,13 @@ type EventHeader interface {
 
 [^hypermerge]: https://github.com/automerge/hypermerge
 
-# Acknowledgement
+# Acknowledgements
 
 The authors would like to acknowledge the contributions of various
 community members who contributed to early versions of this whitepaper.
 The work presented here has been greatly improved by their comments,
 suggestions, and revisions. In particular, the authors thank Hector
-Sanjuan, Adin Schmahmann, and Brendan O'Brien.
+Sanjuan, Adin Schmahmann, Brendan O'Brien, Nicklas Gummesson, Cody
+Hatfield, and Aaron Steele.
 
 # References
