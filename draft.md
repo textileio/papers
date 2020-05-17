@@ -777,15 +777,15 @@ single Log.
 Replica
 : Log Writers can designate other IPFS Peers to "replicate" a
 Log, potentially republishing Records. A Replica is
-capable of receiving Log updates and traversing linkages via the Replica
+capable of receiving Log updates and traversing linkages via the Service
 Key ([@sec:KeysEncryption]), but is not able to read the Log's
 contents.
 
 In practice, Writers are solely responsible for announcing their Log's
 addresses. This ensures a conflict-free address list without additional
-complexity. Some Replicas may be in the business of replicating Logs
+complexity. Some Services may be in the business of replicating Logs
 ([@sec:Bots]), in which case Writers will announce the additional Log
-address to Readers. This allows them to *pull* (or subscribe to push-based) Records from the Replica's Log address when the Writer is offline or
+address to Readers. This allows them to *pull* (or subscribe to push-based) Records from the Service's Log address when the Writer is offline or
 unreachable ([@fig:Pulling]).
 
 ### Keys & Encryption {#sec:KeysEncryption}
@@ -799,7 +799,7 @@ unreachable ([@fig:Pulling]).
 Logs are designed to be shared, composed, and layered into
 datasets ([@fig:LogEncryption]). As such, they are encrypted by default
 in a manner that enables access control ([@sec:AccessControl]) and the
-Replica mechanism discussed in the previous section. Much like the Log
+Service mechanism discussed in the previous section. Much like the Log
 AddrBook, Log *keys* are stored in a KeyBook.
 
 Identity Key
@@ -842,14 +842,14 @@ used to encrypt the Content Key in each Record by all Thread participants.
 
 Finally, the encrypted Record, its signature, and the IPLD
 linkage(s) from a Record to its antecedents are encrypted together using
-a *Replica* Key. Replica Keys allow Logs to be *replicated* by Peers on the
+a *Service* Key. Service Keys allow Logs to be *transferred* to Peers on the
 network who do not have access to any content within the Record.
-Replicas can only see signatures and linkage(s) between Records. Again,
-Replica Keys are scoped to the Thread, allowing all Thread participants
-to use the same key for Replica access.
+Service providers can only see signatures and linkage(s) between Records. Again,
+Service Keys are scoped to the Thread, allowing all Thread participants
+to use the same key for Service access.
 
-Replica Key
-: The Replica Key is a symmetric key created by the Thread initializer (creator)
+Service Key
+: The Service Key is a symmetric key created by the Thread initializer (creator)
 and used to encrypt the entire Record before adding its payload to the Log.
 
 Threads
@@ -866,7 +866,7 @@ or a CRDT ([@sec:CRDTs]).
 
 ### Identity {#sec:ThreadIdentity}
 
-A unique Thread IDentity (TID) is used to group together Logs which
+A unique Thread Identity (TID) is used to group together Logs which
 compose a single dataset and as a topic identifier within Pubsub-based
 synchronization. The components of a TID are given in [@eq:ThreadID].
 
@@ -939,10 +939,10 @@ Like Log multiaddresses, Thread addresses are not stored in the global IPFS DHT 
 
 ### Log Synchronization {#sec:LogSync}
 
-Log Writers, Readers, and Replicas synchronize the state of their Logs
+Log Writers, Readers, and Service providers synchronize the state of their Logs
 by pushing and pulling Log keys and Records. Inspired by Git[^9],
 a reference to the latest Record in a Log is referred to as the *Head*.
-When a new Record is received, Readers and Replicas simply advance their
+When a new Record is received, Readers and Service providers simply advance their
 Head reference for the given Log. This is similar to how a system such as
 OrbitDB [@markroberthendersonOrbitDBFieldManual2019] works, except we are
 tracking *multiple* Heads (one per Log), rather than a single Head.
@@ -971,14 +971,14 @@ some Thread participants will be offline or unresponsive:
 
 1.  New Records are pushed[^10] directly to the Thread's other Log
     Writers.
-2.  New Records are pushed directly to the target Log's Replica(s), who
+2.  New Records are pushed directly to the target Log's Service provider(s), who
     may not maintain their own Log.
 3.  New Records are published over gossip-based Pubsub using TID as a
-    topic, which provides potentially unknown Readers or Replicas with
+    topic, which provides potentially unknown Readers or Services with
     an opportunity to consume Records in real-time.
 
-Step 2 above allows for *additional* push mechanisms, as Replicas with
-public IP addresses become relays:
+Step 2 above allows for *additional* push mechanisms, as Services with
+public IP addresses can become relays:
 
 1.  New Records may be pushed directly to web-based participants over a
     WebSocket.
@@ -994,17 +994,17 @@ public IP addresses become relays:
 Pulling Records helps to maximize connectivity between peers who are
 often offline or unreachable.
 
-1.  Records can be pulled from Replicas via HTTP, RSS, Atom, etc.
+1.  Records can be pulled from Services via HTTP, RSS, Atom, etc.
     1.  In conjunction with push over WebSockets (seen in Step 2 of the
         additional push mechanisms above), this method provides
-        web-based Readers and Replicas with a reliable mechanism for
+        web-based Readers and Services with a reliable mechanism for
         receiving Log Records ([@fig:Pulling]).
 
-![A pull-based request from a Replica.](figures/Pulling.png){#fig:Pulling height="300px"}
+![A pull-based request from a Service.](figures/Pulling.png){#fig:Pulling height="300px"}
 
 ### Log Replication
 
-The notion of the Replica Key ([@sec:KeysEncryption]) makes duplicating
+The notion of the Service Key ([@sec:KeysEncryption]) makes duplicating
 all Log Records trivial. This allows any peer on the network to be
 granted the responsibility of replicating data from another Peer without
 having read access to the raw Log Records. This type of Log replication
@@ -1083,7 +1083,7 @@ aggregate root in DDD [@evansDomaindrivenDesignTackling2004a].
 Collections
 : Collections are part of a Store's public-api. Their main
 responsibilities are to store instances of user-defined Schemas, and
-operate on Entities defined by said Schema.
+operate on Instances defined by said Schema.
 
 Actions
 : Every update to local and shared (i.e. across peers) state
@@ -1093,11 +1093,11 @@ shopping cart, etc). Collections are used to create Actions.
 
 Currently, Collections are defined using a JSON Schema
 [@handrews-json-schema-02] that *describes the shape* of the underlying
-Entity that it represents. This is also quite similar to a document in a
+Instance that it represents. This is also quite similar to a document in a
 document-based database context. For example, a Collection might define a
-`Person` Entity, with a `first` and `last` name, `age`, etc. Collections
+`Person` Instance, with a `first` and `last` name, `age`, etc. Collections
 also provide the public API (bounded context) for creating, deleting,
-updating, and querying these Entities. Lastly, they also provide
+updating, and querying these Instances. Lastly, they also provide
 read/write *Transactions* which have *serializable isolation* within the
 entire Store scope. In other words, Transactions can be assumed to be
 the only running operation on the entire Store. It is via Transactions
@@ -1125,7 +1125,7 @@ Event Codec is therefore an internal abstraction layer used to:
 3. Decode external IPLD Nodes into Events, which can then be dispatched
    locally.
 
-For example, if within a Collection's (write) Transaction, a new Entity
+For example, if within a Collection's (write) Transaction, a new Instance
 is created and another one is updated, these two Actions will be sent
 to the Event Codec to transform them into Events. These Events have a
 Payload of bytes with the encoded transformation(s). Currently, the
@@ -1133,9 +1133,9 @@ only implementation of Event Codec is a *JSON Patcher*, which transforms
 Actions into JSON-merge/patch objects [@rfc7396;@rfc6902]. The Event
 Codec is essentially a "projection" in ES + CQRS terminology.
 
-[Entity]{#def:Entity}
-: An Entity is made up of a series of ordered Events referring to a
-specific entity or object. An Entity might have a unique `UUID` which
+[Instance]{#def:Instance}
+: An Instance is made up of a series of ordered Events referring to a
+specific object. An Instance might have a unique `UUID` which
 can be referenced across Event updates.
 
 Once these Events have been aggregated by the Event Codec into a single
@@ -1177,7 +1177,7 @@ In order to persist and dispatch Events to downstream consumers, a
 *Dispatcher* is used. Every Event generated in the Store is sent
 to a Dispatcher when write Transactions are committed. The Dispatcher is
 then responsible for broadcasting these events to all registered
-*Reducers*. For example, if a particular Entity is updated via an
+*Reducers*. For example, if a particular Instance is updated via an
 Action, this will be encoded as an Event by the Event Codec (as
 mentioned previously). These Events will then be dispatched via the
 Dispatcher, which will:
@@ -1206,7 +1206,7 @@ Reducer
 Events. Currently, the only Reducer is the Store itself.
 
 Datastore
-: A Datastore is the underlying persistence layer for Collections/Entities
+: A Datastore is the underlying persistence layer for Collections/Instances
 and a Dispatcher's raw Event information. the Datastore is updated
 via a Transaction to have transactional guarantees.
 
@@ -1220,7 +1220,7 @@ After an Event (or set of Events) has been dispatched by the Dispatcher,
 it is necessary to notify various "external" actors that the Store has
 changed its state. Details of the change might include in which model
 the change occurred, what Action(s) (`Create`, `Save`, `Delete`, etc)
-were handled, and which specify Entities (`EntityID`s) were modified.
+were handled, and which specify Instance (`InstanceID`s) were modified.
 These external actors are called *Listeners*, and are useful for clients
 that want to be notified about changes in the Store.
 
@@ -1293,7 +1293,7 @@ To interact with the `Store`, a developer must first create a new
 Store (see [@sec:Collections]). For example a developer might create a new
 `Collection` to represent `Person` information. `Collection`s are
 defined by their `Schema`, which is a JSON Schema [@handrews-json-schema-02]
-object the defines and is used to validate `Entities` created within
+object the defines and is used to validate `Instances` created within
 the `Collection`. In practice, there will be many pre-defined
 `Schema`s that developers can use to make their applications
 interoperable with others. See [@sec:Modules] for some initial plans in
@@ -1302,7 +1302,7 @@ this regard.
 ```typescript
 // Interface corresponds to JSON Schema
 interface Person {
-  ID: string // Entities have `ID` by default
+  _id: string // Instance have `_id` by default
   firstName: string
   lastName: string
   age: number
@@ -1316,9 +1316,9 @@ const personSchema = {
   type: 'object',
   required: ['ID'],
   properties: {
-    ID: {
+    _id: {
       type: 'string',
-      description: "Entity ID.",
+      description: "Instance ID.",
     },
     firstName: {
       type: 'string',
@@ -1338,67 +1338,61 @@ const personSchema = {
 ```
 
 With a `Schema` in hand, the developer is able to register it with the
-`Store`, and then generate `Collection`s based on said `Schema`. At this
-time, any additional `Schema`s can be registered with the `Store`. With
-all required `Schemas` registered, the `Store` can be started.
+`Store`, and then generate `Collection`s based on said `Schema`. The
+`Schema` is added to the system at the moment a `Collection` is created
+or joined by external link. 
 
 ```typescript
-// Register a Schema
-await client.registerSchema(
+// Register a Schema during Collection creation
+await client.newCollection(
   store.id, 'Person', personSchema
 )
-// Start the Store
-await client.start(store.id)
 ```
 
 At this point, the developer is looking at an empty `Store`/Thread. To
-add data, the developer can create a new instance of a `Collection` (an
-`Entity`), and then modify this Entity and save the changes (via
+add data, the developer can create a new instance in a `Collection` (an
+`Instance`), and then modify this Instance and save the changes (via
 Actions). These operations are all done automatically by the Store,
 under-the-hood.
 
 ```typescript
 // Initial Person object
 const person: Person = {
-  ID: '',
+  _id: '',
   firstName: 'John',
   lastName: 'Doe',
   age: 21,
 }
 
-// Create a Collection Entity
-const created = await client.collectionCreate(
-  store.id, 'Person', [person]
+// Create a Collection Instance
+const created = await client.create(
+  store.id, 'Person', person
 )
-console.log(created.entitiesList) // EntityList
-// [{
-//   firstName: "John",
-//   lastName: "Doe",
-//   age: 21,
-//   ID: <uuid>
-// }]
+console.log(created) // Instance List
+// [<uuid>]
 ```
 
-Specific entities can be modified (or deleted) via Actions, which are
-created by the `Collection` instance (`Entity`):
+Specific Instances can be modified (or deleted) via Actions, which are
+created by the `Collection` instance (`Instance`):
 
 ```typescript
-const updatedPerson = created.entitiesList[0]
-updatedPerson.age = 26
+// Record the _id and update the age
+person._id = created[0]
+person.age = 26
 
-// Modify/mutate existing Entity
-await client.collectionSave(
-  store.id, 'Person', [updatedPerson]
+// Modify/mutate existing Instance
+await client.save(
+  store.id, 'Person', [person]
 )
 
-// Delete existing Entity
-await client.collectionDelete(
-  store.id, 'Person', [person.ID]
+// Delete existing Instance
+await client.delete(
+  store.id, 'Person', [person._id]
 )
 
-// Check whether Entity exists
-const has = await client.collectionlHas(
-  store.id, 'Person', [updatedPerson.ID]
+// Check whether Instance exists
+const has = await client.has(
+  store.id, 'Person', [person._id]
 )
 console.log(has) // false
 ```
@@ -1417,49 +1411,53 @@ const txn = client.writeTransaction(
   store.id, 'Person'
 )
 await transaction.start()
-const created = await transaction.create([{
-  ID: '',
+
+const person = {
+  _id: '',
   firstName: 'John',
   lastName: 'Doe',
   age: 30,
-}])
-const existing = created.entitiesList.pop()
-const has = await transaction.has([existing.ID])
+}
+const created = await transaction.create([person])
+const existing = created.pop()
+person._id = existing
+
+const has = await transaction.has([existing])
 console.log(has) // true
-existing.age = 99
-await transaction.save([existing])
-await transaction.delete([existing.ID])
+person.age = 99
+await transaction.save([person])
+await transaction.delete([person._id])
 await transaction.end()
 ```
 
 Similarly, subscriptions can be used to monitor updates, right down to
-individual Entities:
+individual Instances:
 
 ```typescript
 const closer = client.listen(
-  store.id, 'Person', existing.ID, reply => {
-  console.log(JSON.stringify(reply.entity))
-  // Entity modified: { ..., age: 30 }
-  // Entity modified: { ..., age: 40 }
+  store.id, 'Person', person._id, reply => {
+  console.log(JSON.stringify(reply.instance))
+  // Instance modified: { ..., age: 30 }
+  // Instance modified: { ..., age: 40 }
 })
 
-existing.age = 30
-await client.collectionSave(
-  store.id, 'Person', [existing]
+person.age = 30
+await client.save(
+  store.id, 'Person', [person]
 )
-existing.age = 40
+person.age = 40
 await client.collectionSave(
-  store.id, 'Person', [existing]
+  store.id, 'Person', [person]
 )
 
-// Find or search for a specific Entity
-const found = await client.collectionFindByID(
-  store.id, 'Person', existing.ID
+// Find or search for a specific Instance
+const found = await client.findByID(
+  store.id, 'Person', person._id
 )
-console.log(found.entity.age) // 40
+console.log(found.person.age) // 40
 ```
 
-Lastly, search is performed via queries to the underlying Entities. For
+Lastly, search is performed via queries to the underlying Instances. For
 example, to search for all `Person`s matching a given `age` range, a
 developer can implement the following Query on the Store.
 
@@ -1471,10 +1469,10 @@ const query = Query.where('age') // where `age`...
   .lt(66) // is less than 66, ...
   // or where `age` is equal to 67
   .or(new Where('age').eq(67)) 
-const res = await client.collectionFind(
+const res = await client.find(
   store.id, 'Person', query
 )
-console.log(res.entitiesList.length)
+console.log(res.instancesList.length)
 ```
 
 Queries can be arbitrarily complex, and when possible, will take
@@ -1498,7 +1496,7 @@ database systems to make the move to decentralized systems such as
 Threads. For example, a key-value store built on Threads would "map"
 key-value operations, such as `put`, `get`, and `del` to internal
 Actions. The Events derived from said Actions would then be
-used to mutate the Store like any Entity, effectively
+used to mutate the Store like any Instance, effectively
 encapsulating the entire Store in a database structure that
 satisfies a key-value store interface. These additional interfaces
 would also be distributed as Modules (see [@sec:Modules]), making
@@ -1591,11 +1589,11 @@ type is required.
 
 One of the most important properties of a shared data model is the
 ability to apply access control rules. There are three forms of access
-control possible in Threads, Entity-level ACLs, Collection-level ACLs,
+control possible in Threads, Instance-level ACLs, Collection-level ACLs,
 and Thread-level ACLs. Thread-level access control lists (ACLs) allow
 creators to specify who can *replicate, read, write, and delete* Thread
-data. Similarly, Collection and Entity-level ACLs provide more granular
-control to Thread-writers on a per-Collection and Entity (see def. [4](#def:Entity)) basis.
+data. Similarly, Collection and Instance-level ACLs provide more granular
+control to Thread-writers on a per-Collection and Instance (see def. [4](#def:Instance)) basis.
 
 Textile's Threads includes ACL management tooling based on a *Role-based
 access control* [@sandhuRolebasedAccessControl1996] pattern, wherein
@@ -1607,25 +1605,25 @@ and Delete*.
 No-access
 : No access is permitted. This is the default role.
 
-Replicate
-: Access to Log Replica Keys is permitted. Members of this role
-are able to verify Events and follow linkages. The Replicate role is used
-to designate a "Replica" Peer for offline replication and/or backup.
+Service
+: Access to Log Service Keys is permitted. Members of this role
+are able to verify Events and follow linkages. The Service role is used
+to designate a "Service" Peer for offline replication and/or backup.
 
 Read
-: Access to Log Read Keys is permitted in addition to Replica Keys.
+: Access to Log Read Keys is permitted in addition to Service Keys.
 Members of this role are able to read Log Event payloads.
 
 Write
 : Members of this role are able to author new Events, which also
-implies access to Log Replica and Read Keys. At the Thread-level, this
+implies access to Log Service and Read Keys. At the Thread-level, this
 means authoring a Log. At the Model-level, this means authoring a
-specific Model. At the Entity-level, the Write role means that
-Events in this Log are able to target a particular Entity.
+specific Model. At the Instance-level, the Write role means that
+Events in this Log are able to target a particular Instance.
 
 Delete
 : Members of this role are able to delete Events, which implies
-access to Log Replica Keys. In practice, this means creating a new
+access to Log Service Keys. In practice, this means creating a new
 "Tombstone" Event which marks an older Event as "deleted". See
 [@sec:deleting] for additional notes on deleting data.
 
@@ -1637,7 +1635,7 @@ Below is a typical Thread-level ACL:
   "default": "no-access",
   "peers": {
     "12D..dwaA6Qe": ["write", "delete"],
-    "12D..dJT6nXY": ["replicate"],
+    "12D..dJT6nXY": ["service"],
     "12D..P2c6ifo": ["read"],
   }
 }
@@ -1646,7 +1644,7 @@ Below is a typical Thread-level ACL:
 The `default` key states the default role for all network Peers. The
 `peers` map is where roles are delegated to specific Peers. Here,
 `12D..dwaA6Qe` is likely the owner, `12D..dJT6nXY` is a designated
-Replica, and `12D..P2c6ifo` has been given read access.
+Service, and `12D..P2c6ifo` has been given read access.
 
 #### Note About Threats {#sec:Threats}
 
@@ -1716,7 +1714,7 @@ areas.
 
 ### Enhanced Log Security
 
-The use of a single Read and Replica Key for an entire Log means that,
+The use of a single Read and Service Key for an entire Log means that,
 should either of these keys be leaked via malicious (or
 other possibly accidental) means, there is no way to prevent a Peer with the
 leaked keys from listening to Events or traversing the Log history.
@@ -1744,16 +1742,19 @@ across and between apps and services on the IPFS network.
 Threads change the relationship between a user, their data, and the
 services they connect with that data. The nested, or multi-layered,
 encryption combined with powerful ACL capabilities create new
-opportunities to build distributed services, or Bots, in the network of
-IPFS Peers. Based on the Replica Key now available in Threads, Bots can
-relay, replicate, or store data that is synchronized via real-time
-updates in a *trust-less*, partially trusted, or fully-trusted way. Bots
-can additionally enhance the IPFS network by providing a framework to
-build and deploy many new kinds of services available over HTTP or P2P.
-Services could include simple data archival, caching and republishing,
-translation, data conversion, and more. Advanced examples could include
-payment, re-encryption, or bridges to Web 2.0 services to offer
-decentralized access to Web 2.0.
+opportunities to build distributed services, or bots, in the network of
+IPFS Peers. Based on the Service Key now available in Threads, Services
+such as the [Textile Hub](https://docs.textile.io) can be built to help
+relay, replicate, and store data for database users.
+
+This will be a powerful framework to build Services such as bots that
+is synchronize data via real-time updates in a *trust-less*, partially
+trusted, or fully-trusted way. Bots can additionally enhance the IPFS
+network by providing a framework to build and deploy many new kinds of
+services available over HTTP or P2P. Services could include simple data
+archival, caching and republishing, translation, data conversion, and
+more. Advanced examples could include payment, re-encryption, or bridges
+to Web 2.0 services to offer decentralized access to Web 2.0.
 
 Appendix
 ========
