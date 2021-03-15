@@ -217,7 +217,7 @@ conformity, a single log can model multiple application states
 
 In CQRS and ES, the separation of write operations from read operations
 is a powerful concept. It allows developers to define views into the
-underlying data that are best suited for a given use-case the are
+underlying data that are best suited for a given use-case they are
 addressing. Multiple (potentially very different) views can be
 built from the same underlying event log.
 
@@ -1149,7 +1149,7 @@ To summarize, while a Transaction is running and making changes, the
 individual Actions are accumulated. Once the Transaction is committed,
 two things happen:
 
-1. Each Action is transformed to an Event
+1. Each Action is transformed to an Event, producing a list of Events
 2. The list of Actions is transformed to a single Payload
 
 In the above, the list of Events are sent to the Dispatcher (for
