@@ -14,9 +14,7 @@ A decetralized identifier, or DID, is a string identifier of a _subject_, contro
 
 ![The basic components of DID architecture. Source: [@reed2020decentralized] sec 1.3](./assets/did-overview.png){#fig:did-overview}
 
-The _Verifiable Data Registry_ in @fig:did-overview could be a blockchain or peer-to-peer network. The meaning of _verification_ differs between DID implementations -- some provide a high level of verification through blockchain transactions, while others rely purely on the assumption that the majority of peers are _good actors,_ e.g., IPID (an IPNS-based DID) or Ceramic.
-
-<!-- @sanderpick is this true re: Ceramic? I'm not sure I follow this statement fully? -->
+The _Verifiable Data Registry_ in @fig:did-overview could be a blockchain or peer-to-peer network. The meaning of _verification_ differs between DID implementations -- some provide a high level of verification through blockchain transactions, while others rely purely on the assumption that the majority of peers are _good actors,_ (e.g., IPID, an IPNS-based DID).
 
 A DID can identify any actor or structure in the network (the _subject_), and should resolve to a _document_ that is accessible from anywhere in the network. Formally, a DID document describes the _subject_, and the document is controlled by one or more _controllers_. In short, DIDs point to relationships between the components of a decentralized network. What can this component do? Who/what can do it? Who/what dictates who can do it? See [@reed2020decentralized] for the DID specification.
 
@@ -39,9 +37,7 @@ Users
 : A _User_ (e.g., `did:key:foo`, `did:3:foo`, `did:ethr:foo`, etc.) is any external identity that represents a network user, and that may interact with the network _via_ a Peer. These may be identified by any verifiable DID.
 
 Thread:
-: _Thread DID_ (e.g., `did:thread:id`) documents contain verification methods for all valid log signers. Other thread info such as the _log head_, _log metadata_, and _thread encryption keys_ are _not_ stored in the DID document, as this information is only needed by peers that are sharing a thread, and can be more efficiently exchanged using the thread protocol [@pick2020protocol] directly (vs. a global document registry). _Log addresses_ are referenced as _service endpoints_, as defined in [@reed2020decentralized] sec 5.4.
-
-<!-- @sanderpick Rather than introducing a new term here (log signers), could we just say for all valid peers and/or users? -->
+: _Thread DID_ (e.g., `did:thread:id`) documents contain verification methods for all valid peers and/or users. Other thread info such as the _log head_, _log metadata_, and _thread encryption keys_ are _not_ stored in the DID document, as this information is only needed by peers that are sharing a thread, and can be more efficiently exchanged using the thread protocol [@pick2020protocol] directly (vs. a global document registry). _Log addresses_ are referenced as _service endpoints_, as defined in [@reed2020decentralized] sec 5.4.
 
 By identifying a thread as a global resource, any peer can determine the following from its DID:
 
@@ -52,11 +48,7 @@ By identifying a thread as a global resource, any peer can determine the followi
 
 It is important to note that a thread DID is an _identifier_, not an _identity_ in the usual sense. To illustrate, if a thread is a resource that a peer on the network is attempting to identify, i.e., the thread itself _is the subject_, and the thread document is a _representation of the subject_, then the DID _subject is not the controller_ [@reed2020decentralized]. The controller is one or more identity-based DIDs, e.g., `did:key:foo`, `did:ethr:foo`, `did:3:foo`, etc.
 
-A (proposed) thread DID document is structured as in [@lst:thread-did]. In this example, the controller (`did:key:foo`) is defined by a key-based DID [@longely2021didKey]. The controller is able to modify the thread DID document. Additionally, both `did:key:foo"` and `did:key:bar"` can authenticate as `did:thread:id`, meaning ... . Finally, the thread DID document in [@lst:thread-did] also specifies two `serviceEndpoint`s that outlines which peers (`/p2p/peer-id-1` and `/p2p/peer-id-2`) are able to bootstrap the thread.
-
-<!-- @sanderpick What does "authenticate as `"did:thread:id"`" mean in this context? Can we be more explicit here" -->
-
-<!-- @sanderpick What does "bootstrap" mean in this context? Can we be more explicit here" -->
+A (proposed) thread DID document is structured as in [@lst:thread-did]. In this example, the controller (`did:key:foo`) is defined by a key-based DID [@longely2021didKey]. The controller is able to modify the thread DID document. Additionally, both `did:key:foo"` and `did:key:bar"` can authenticate as `did:thread:id`, meaning they are part of the access control list (ACL), or have "controlled access" to the thread, allowing them to sign and append records to a thread log directly, or via a thread peer. Finally, the thread DID document in [@lst:thread-did] also specifies two `serviceEndpoint`s that outlines which peers (`/p2p/peer-id-1` and `/p2p/peer-id-2`) are able to connect to and download logs/records from the thread.
 
 <div id="lst:thread-did" class="listing">
 Proposed thread DID Document structure.
@@ -101,9 +93,7 @@ Proposed thread DID Document structure.
 
 # Method Definition
 
-The crux of any DID implementation is defining it's _DID method_. The DID specification defines a _method_ as a "means to implement this specification on different verifiable data registries" [@reed2020decentralized (sec 8)]. In other words, new DID methods should be specified such that different implementations of the same DID method remain interoperable.
-
-<!-- @sanderpick Maybe that last statement is "weak", drop it? Something better to put there? -->
+The crux of any DID implementation is defining it's _DID method_. The DID specification defines a _method_ as a "means to implement this specification on different verifiable data registries" [@reed2020decentralized (sec 8)]. The core function of the spec is to ensure interoperability between different DID methods.
 
 Here we define a DID method specification for threads which is composed of a _method scheme_ (see [@reed2020decentralized] sec 3.1) and _operations_ (sec 8.2). Operations specify how a DID document is created, how to read/verify a document, as well as how a DID controller can update or even deactivate a DID document. The method scheme defines the structure of the DID implementation's string identifier(s).
 
@@ -117,19 +107,13 @@ This produces a string identifier of the form: `"did:thread:bafk6npbyp...6mfuhoe
 
 ## Method Operations
 
-As mention perviously, DID methods define a set of operations that can be performed on/with DID documents. DID implementations often use a smart contract [@buterin2014next] on a blockchain like Ethereum to model the global data registry, and to implement these operations. For the implementation proposed here, we assume that documents are stored on the Filecoin blockchain as non-fungible tokens (NFTs). Filecoin does not yet support NFTs, but there is an informal proposal to create a new _actor_ type for them.
+As mentioned perviously, DID methods define a set of operations that can be performed on/with DID documents. DID implementations often use a smart contract [@buterin2014next] on a blockchain like Ethereum to model the global data registry, and to implement these operations. For the implementation proposed here, we assume that documents are stored in such a way that they are made available to resolvers via the registry, or directly via IPFS/IPNS. In the future, documents could be stored on the Filecoin blockchain as non-fungible token (NFTs) _actor_ type.
 
-<!-- @sanderpick this is a pretty "weak" statement :( While totally sufficient for a github discussion, I don't think it'll fly here. What else might we be able to say here instead? Do we have anything we can reference? -->
-
-In our initial proof-of-concept network, a non-consensus driven global data registry is used, based on a p2p "gossip" protocol. In practice, this is implemented using libp2p's gossip-sub implementation. This registry provides weak consensus, along the lines of IPNS-over-pubsub [@santos2020IPNS].
-
-The process of getting a DID subject's document from the verifiable data registry is called _resolution_. Any peer can resolve any document by querying the on-chain NFT representing the subject, or in the shoter-term case, by posting queries to the associated pubsub channel.
+In our initial proof-of-concept network, a non-consensus driven global data registry is used, based on a p2p "gossip" protocol. In practice, this is implemented using libp2p's gossip-sub implementation. This registry provides weak consensus, along the lines of IPNS-over-pubsub [@santos2020IPNS]. The process of getting a DID subject's document from the verifiable data registry is called _resolution_. Any peer can resolve any document by querying the on-chain NFT representing the subject, or in the shoter-term case, by posting queries to the associated pubsub channel.
 
 # Architecture
 
-<!-- @sanderpick What is the take home point of this section? -->
-
-The way in which a DID method is leveraged is entirely up to the network itself. Here we outline some system requirements and walk through common network operations.
+Ideally, service provision is flexible enough that the network is able to offer a wide range of services, while remaining simple and easy to use for application developers. The way in which a DID method is leveraged is entirely up to the network itself. Here we outline some system requirements and walk through some common network operations.
 
 ## Vanilla Network
 
