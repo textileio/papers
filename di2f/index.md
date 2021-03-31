@@ -26,7 +26,7 @@ A log within a thread is essentially a set of cryptographically linked (i.e., ha
 
 # Thread DIDs
 
-<!-- @sanderpick What are we trying to "solve" or say in this section specifically? Why, in one or two sentences, do we need to build this? -->
+A major motivator for exposing a DID-native threads specification is the ability to uniquely identify an append-only log -- or any purely functional and/or content-addressable data-structure -- on the network, without any "centralized" coordination. This is important, because it allows developers to leverage access controlled (storage) APIs without having to worry about API keys, and with increased user-control of data, all while leveraging the benefits that come with a distributed p2p system built on a content-addressible data layer, such as IPFS. Indeed, the ability to advertise thread-based services to the network and allow crypto-native/web 3.0 users the ability to leverage and pay for said services without API keys is a major break-through in web-based service architecture. One might think of this new architecture as crypto-native distributed micro-services.
 
 In practice, a thread _network_ may have multiple actors and structures (subjects) that can be described by DID documents. Subjects include any of the following entities:
 
@@ -197,14 +197,12 @@ In addition to exposing more "traditional" web2 APIs (e.g., REST, gRPC, etc.) as
 
 Decentralized identifiers (DIDs) enable cross-protocol/blockchain interactions by defining a common interface to retrieve and validate entities, such as users and data. A DID-driven threads network offers an exciting opportunity to expose p2p services as first-class components of a p2p system.
 
-Threads and IPFS/Filecoin benefit from a native DID in numerous ways. Firstly, DIDs provide globally unique namespaces for resources, such that thread IDs act as identifiers to network-wide resources. Secondly, adopting a standardized system for resource identification increases ecosystem(s) interoperability, facilitating integration with external DID methods available on systems such as Filecoin or Ethereum, as well as a range of identity solutions (e.g., Ceramic/IDX). Thirdly, globally unique identifiers pave the way for _distributed authorization_ to network resources, because access control mechanisms are globally and unambiguously defined. This leads to a net increase in the decentralization of network services.
+Threads and IPFS/Filecoin benefit from a native DID in numerous ways. For instance, DIDs provide globally-unique namespaces for resources, such that thread IDs act as identifiers to network-wide resources. Additionally, adopting a standardized system for resource identification increases ecosystem(s) interoperability, facilitating integration with external DID methods available on systems such as Filecoin or Ethereum, as well as a range of identity solutions (e.g., Ceramic/IDX).
 
-An additional key benefit of the proposed system includes the provision of "native" discovery mechanisms. Network peers can do work on each others' behalf since any peer is capable of discovering and resolving thread DID namespaces. Additionally, since all operations on a thread lead to deterministic, content-addressable updates, any peer on the network can participate in the update of a thread to which they have access.
+Related, the use of DID-base threads provides "crypto-native" access to off-chain data. This includes Filecoin integration. For example, decentralized app (dApp) developers can enable their users to directly leverage local crypto wallets to interact with thread-enabled applications that store data on Filecoin.
 
-<!-- @sanderpick this is pretty hand-wavy here, needs some help! -->
+An additional key benefit of the proposed system is that globally unique identifiers pave the way for _distributed authorization_ to network resources. This is because access control mechanisms are globally and unambiguously defined. This leads to a net increase in the decentralization of network services.
 
-There are additional motivators for exposing a DID-friendly threads specification. One such motivator is providing "crypto-native" access to off-chain data. Decentralized app developers can enable their users to directly leverage local crypto wallets to interact with thread-enabled apps. This includes Filecoin integration. Threads then become append-only logs that can be anchored to Filecoin manually or at some frequency. Buckets (derivatives of threads) can expose a mutable filesystem and pinning API that can be similarly archived to Filecoin. In this sense, DID-based threads can become a Filecoin "Layer 2" protocol.
-
-<!-- @sanderpick This last paragraph is similarly hand-wavy, and maybe not the topic we want to end on? -->
+In addition to distributed authorization, DIDs also enable open, decentralized, service _discovery_. This is a major stumbling block to many/most p2p systems. Additionally, because any peer is capable of discovering and resolving thread DID namespaces, and because all operations on a thread lead to deterministic, content-addressable updates, network peers can do work on each others' behalf. This opens the door to a kind of "market" of services, where providers and brokers could attempt to compete on price, uptime, etc.
 
 # References
