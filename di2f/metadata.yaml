@@ -1,0 +1,41 @@
+---
+title: Decentralized identifiers as a means to coordinate peer-to-peer services
+subtitle: An exploration of DIDs in a thread-based IPFS network
+author:
+  - name: Carson Farmer
+    affiliation:
+      - 1
+      - 2
+  - name: Sander Pick
+    affiliation: 1
+  - name: Ignacio Hagopian
+    affiliation: 1
+  - name: Andrew Hill
+    affiliation: 1
+  - name: Aaron Sutula
+    affiliation: 1
+  - name: Ben Wilson
+    affiliation: 1
+affiliation:
+  - number: 1
+    name: Textile.io
+  - number: 2
+    name: carson@textile.io
+bibliography: [references.bib]
+link-citations: true
+urlcolor: "blue"
+csl: ieee.csl
+fontsize: 10pt
+numbersections: yes
+lang: en
+babel-lang: english
+geometry: margin=1in
+abstract: |
+  TODO
+  TODO
+header-includes: |
+  \usepackage{booktabs}
+
+documentclass: IEEEtran
+---
+

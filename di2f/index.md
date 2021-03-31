@@ -31,13 +31,13 @@ A major motivator for exposing a DID-native threads specification is the ability
 In practice, a thread _network_ may have multiple actors and structures (subjects) that can be described by DID documents. Subjects include any of the following entities:
 
 Peers
-: _Peers_ (e.g., `did:p2p:foo`) can offer network services, such as thread "hosting", pinning services (i.e., IPFS, IPNS), Filecoin anchoring, database abstractions, API services, and more. A thread peer's DID is derived from its embedded networking host's key (which in practice is a `libp2p` ([`https://libp2p.io/`](https://libp2p.io/)) peer]).
+: (e.g., `did:p2p:foo`) can offer network services, such as thread "hosting", pinning services (i.e., IPFS, IPNS), Filecoin anchoring, database abstractions, API services, and more. A thread peer's DID is derived from its embedded networking host's key (which in practice is a `libp2p` ([`https://libp2p.io/`](https://libp2p.io/)) peer]).
 
 Users
-: A _User_ (e.g., `did:key:foo`, `did:3:foo`, `did:ethr:foo`, etc.) is any external identity that represents a network user, and that may interact with the network _via_ a Peer. These may be identified by any verifiable DID.
+: (e.g., `did:key:foo`, `did:3:foo`, `did:ethr:foo`, etc.) are any external identity that represents a network user, and that may interact with the network _via_ a Peer. These may be identified by any verifiable DID.
 
-Thread:
-: _Thread DID_ (e.g., `did:thread:id`) documents contain verification methods for all valid peers and/or users. Other thread info such as the _log head_, _log metadata_, and _thread encryption keys_ are _not_ stored in the DID document, as this information is only needed by peers that are sharing a thread, and can be more efficiently exchanged using the thread protocol [@pick2020protocol] directly (vs. a global document registry). _Log addresses_ are referenced as _service endpoints_, as defined in [@reed2020decentralized] sec 5.4.
+Thread
+: &nbsp; (e.g., `did:thread:id`) documents contain verification methods for all valid peers and/or users. Other thread info such as the _log head_, _log metadata_, and _thread encryption keys_ are _not_ stored in the DID document, as this information is only needed by peers that are sharing a thread, and can be more efficiently exchanged using the thread protocol [@pick2020protocol] directly (vs. a global document registry). _Log addresses_ are referenced as _service endpoints_, as defined in [@reed2020decentralized] sec 5.4.
 
 By identifying a thread as a global resource, any peer can determine the following from its DID:
 
@@ -133,8 +133,8 @@ In our hypothetical vanilla network network, one of the peers has a _trusted rel
 Thread DID Document with service information.
 
 ```{.json}
-...
-"services": [
+{
+  "services": [
     {
       "id": "did:key:peer-id#threads",
       "type": "threadService",
@@ -154,10 +154,10 @@ Thread DID Document with service information.
         "hit": {
           "amount": "xx nanoFIL",
           "currency": "FIL"
-        }
       }
-]
-...
+    }
+  ]
+}
 ```
 
 </div>
