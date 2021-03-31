@@ -10,7 +10,7 @@ The "Thread Network" is a a proof-of-concept network that aims to address this s
 
 ## Decentralized Identifiers
 
-A decetralized identifier, or DID, is a string identifier of a _subject_, controlled by a _controller_. A DID might be used to encode a reference to an Ethereum address [@ethrDidResolver] on the Ethereum [buterin2014next,@wood2014ethereum] Mainnet, identify a resource on a network of IoT (Internet of Things) devices, or even represent a unique "identity" such as a user or organization [@ceramic2021Protocol]. For DIDs to be useful, they must be "resolvable" without reliance on a centralized network component. [@Fig:did-overview] shows the interactions between DID components.
+A decetralized identifier, or DID, is a string identifier of a _subject_, controlled by a _controller_. A DID might be used to encode a reference to an Ethereum address [@ethrDidResolver] on the Ethereum [@buterin2014next,@wood2014ethereum] Mainnet, identify a resource on a network of IoT (Internet of Things) devices, or even represent a unique "identity" such as a user or organization [@ceramic2021Protocol]. For DIDs to be useful, they must be "resolvable" without reliance on a centralized network component. [@Fig:did-overview] shows the interactions between DID components.
 
 ![The basic components of DID architecture. Source: [@reed2020decentralized] sec 1.3](./assets/did-overview.png){#fig:did-overview}
 
@@ -113,21 +113,21 @@ In our initial proof-of-concept network, a non-consensus driven global data regi
 
 # Architecture
 
-Ideally, service provision is flexible enough that the network is able to offer a wide range of services, while remaining simple and easy to use for application developers. The way in which a DID method is leveraged is entirely up to the network itself. Here we outline some system requirements and walk through some common network operations.
+The network architecture should be flexible enough that it can support a wide-range of services while remaining easy-to-use and straightforward for application developers. The way in which a DID method is leveraged is entirely up to the network itself. Here we outline some system requirements and walk through some common network operations.
 
-## Vanilla Network
+## Basic Network
 
-First, let's consider a network of completely open peers. These can be local (all on the same machine) or remote (distributed across a network). Open here means _no identity authorization_, such that anyone can create/add and read/write to threads.
+First, let's consider a network of completely open peers. Open here means _no identity authorization_, such that anyone can create/add and read/write to threads.
 
 A minimal set of requirements for this type of network to operate includes allowing external identities to leverage a peer (local or otherwise reachable by the user) to create threads. Once a thread is created, it can be considered globally available, i.e., thread peers can do work on behalf of other thread peers.
 
-In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "vanilla" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consistst of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
+In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "basic" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consistst of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
 
-![A vanilla thread network ($n=2$) showing an external identity ($A$) creating a thread on one peer and writing to it from another peer.](./assets/vanilla-network.png){#fig:vanilla-network}
+![A basic thread network ($n=2$) showing an external identity ($A$) creating a thread on one peer and writing to it from another peer.](./assets/vanilla-network.png){#fig:vanilla-network}
 
 ## Services
 
-In our hypothetical vanilla network network, one of the peers has a _trusted relationship_ with a service. Peers can advertise their services using the `services` DID field. For example, consider a hypothetical web-hook service that allows users to add web-hooks to a thread. Every time the thread receives an update, the web-hook fires on the user-defined endpoint. The peer's DID document includes the service information:
+In our hypothetical basic network network, one of the peers has a _trusted relationship_ with a service. Peers can advertise their services using the `services` DID field. For example, consider a hypothetical web-hook service that allows users to add web-hooks to a thread. Every time the thread receives an update, the web-hook fires on the user-defined endpoint. The peer's DID document includes the service information shown in Listing 2.
 
 <div id="lst:did-services" class="listing">
 Thread DID Document with service information.
