@@ -30,12 +30,16 @@ numbersections: yes
 lang: en
 babel-lang: english
 geometry: margin=1in
-abstract: |
-  TODO
-  TODO
 header-includes: |
   \usepackage{booktabs}
-
 documentclass: IEEEtran
+abstract: |
+  While storage on the decentralized web has received a great deal of attention
+  in research and practice, _services_ via open (or closed) attention
+  programing interfaces have remained relatively under-utilized in peer-to-peer
+  systems. This work-in-progress paper outlines initial work towards _discovery_
+  of peer-to-peer services in an open and decentralized system. We focus on the
+  use of decentralized identifiers (DID) as a means to identity, discover, and
+  coordinate peer-to-peer services.
 ---
 

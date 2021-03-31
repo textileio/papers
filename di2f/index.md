@@ -1,6 +1,6 @@
 # Introduction
 
-A major promise of the decentralized web is putting ownership back into the hands of users by shifting publishing, discovery, and services from a few core providers, onto the "edge" and into the hands of users/creators. True networks of untrusted peers that can coordinate [@barabas2017defending] to provide important peer-to-peer (p2p) infrastructure and services.
+A major promise of the decentralized web is putting ownership back into the hands of users by shifting publishing, discovery, and services from a few core providers, onto the "edge" and into the hands of users/creators. True networks of un-trusted peers that can coordinate [@barabas2017defending] to provide important peer-to-peer (p2p) infrastructure and services.
 
 Core components of the decentralized (or distributed) web, such as storage, have received a great deal of attention, including projects such as the Interplanetary File System (IPFS) [@benetIPFSContentAddressed2014], Filecoin [@protocollabsFilecoinDecentralizedStorage2017], Sia [@vorick2014sia], and Storj [@Wilkinson14storja]. These projects are demonstrating that distributed, (incentivized) storage is possible, and even profitable. However, _services_ such as those traditionally found in centralized systems via open (or closed) application programing interfaces (APIs) are less common in p2p systems.
 
@@ -10,7 +10,7 @@ The "Thread Network" is a a proof-of-concept network that aims to address this s
 
 ## Decentralized Identifiers
 
-A decetralized identifier, or DID, is a string identifier of a _subject_, controlled by a _controller_. A DID might be used to encode a reference to an Ethereum address [@ethrDidResolver] on the Ethereum [@buterin2014next,@wood2014ethereum] Mainnet, identify a resource on a network of IoT (Internet of Things) devices, or even represent a unique "identity" such as a user or organization [@ceramic2021Protocol]. For DIDs to be useful, they must be "resolvable" without reliance on a centralized network component. [@Fig:did-overview] shows the interactions between DID components.
+A decentralized identifier, or DID, is a string identifier of a _subject_, controlled by a _controller_. A DID might be used to encode a reference to an Ethereum address [@ethrDidResolver] on the Ethereum [@buterin2014next,@wood2014ethereum] Mainnet, identify a resource on a network of IoT (Internet of Things) devices, or even represent a unique "identity" such as a user or organization [@ceramic2021Protocol]. For DIDs to be useful, they must be "resolvable" without reliance on a centralized network component. [@Fig:did-overview] shows the interactions between DID components.
 
 ![The basic components of DID architecture. Source: [@reed2020decentralized] sec 1.3](./assets/did-overview.png){#fig:did-overview}
 
@@ -20,13 +20,13 @@ A DID can identify any actor or structure in the network (the _subject_), and sh
 
 ## Threads
 
-A thread is topic-based collection of single-writer logs. A collection of logs represent updates to the "state" of an object (or dataset). The basic units of a thread -- logs and records -- provide a framework for creating, storing, and transmiting data in a p2p distributed network. The thread protocol is outline in detail in the threads whitepaper [@pick2020protocol].
+A thread is topic-based collection of single-writer logs. A collection of logs represent updates to the "state" of an object (or dataset). The basic units of a thread -- logs and records -- provide a framework for creating, storing, and transmitting data in a p2p distributed network. The thread protocol is outline in detail in the threads whitepaper [@pick2020protocol].
 
-A log within a thread is essentially a set of cryptographically linked (i.e., hash-linked) records, that form a specific type of Merkle-DAG (directed acyclic graph) that represents a purely functional [@okasaki1999purely] and authenticated [@tamassia2003authenticated] (i.e., immutable) singly-linked list. The key insight here is that, assuming two peers have received all of the same updates to a thread, they will deterministically arrive at the same thread structure, and that thread structure can be summarized by the (set of) hash(es) of the head(s) of the underlying log(s).
+A log within a thread is essentially a set of cryptographically linked (i.e., hash-linked) records, that form a specific type [@sanjuanMerkleCRDTs2019] of Merkle-DAG (directed acyclic graph) that represents a purely functional [@okasaki1999purely] and authenticated [@tamassia2003authenticated] (i.e., immutable) singly-linked list. The key insight here is that, assuming two peers have received all of the same updates to a thread, they will deterministically arrive at the same thread structure, and that thread structure can be summarized by the (set of) hash(es) of the head(s) of the underlying log(s).
 
 # Thread DIDs
 
-A major motivator for exposing a DID-native threads specification is the ability to uniquely identify an append-only log -- or any purely functional and/or content-addressable data-structure -- on the network, without any "centralized" coordination. This is important, because it allows developers to leverage access controlled (storage) APIs without having to worry about API keys, and with increased user-control of data, all while leveraging the benefits that come with a distributed p2p system built on a content-addressible data layer, such as IPFS. Indeed, the ability to advertise thread-based services to the network and allow crypto-native/web 3.0 users the ability to leverage and pay for said services without API keys is a major break-through in web-based service architecture. One might think of this new architecture as crypto-native distributed micro-services.
+A major motivator for exposing a DID-native threads specification is the ability to uniquely identify an append-only log -- or any purely functional and/or content-addressable data-structure -- on the network, without any "centralized" coordination. This is important, because it allows developers to leverage access controlled (storage) APIs without having to worry about API keys, and with increased user-control of data, all while leveraging the benefits that come with a distributed p2p system built on a content-addressable data layer, such as IPFS. Indeed, the ability to advertise thread-based services to the network and allow crypto-native/web 3.0 users the ability to leverage and pay for said services without API keys is a major break-through in web-based service architecture. One might think of this new architecture as crypto-native distributed micro-services.
 
 In practice, a thread _network_ may have multiple actors and structures (subjects) that can be described by DID documents. Subjects include any of the following entities:
 
@@ -109,7 +109,7 @@ This produces a string identifier of the form: `"did:thread:bafk6npbyp...6mfuhoe
 
 As mentioned perviously, DID methods define a set of operations that can be performed on/with DID documents. DID implementations often use a smart contract [@buterin2014next] on a blockchain like Ethereum to model the global data registry, and to implement these operations. For the implementation proposed here, we assume that documents are stored in such a way that they are made available to resolvers via the registry, or directly via IPFS/IPNS. In the future, documents could be stored on the Filecoin blockchain as non-fungible token (NFTs) _actor_ type.
 
-In our initial proof-of-concept network, a non-consensus driven global data registry is used, based on a p2p "gossip" protocol. In practice, this is implemented using libp2p's gossip-sub implementation. This registry provides weak consensus, along the lines of IPNS-over-pubsub [@santos2020IPNS]. The process of getting a DID subject's document from the verifiable data registry is called _resolution_. Any peer can resolve any document by querying the on-chain NFT representing the subject, or in the shoter-term case, by posting queries to the associated pubsub channel.
+In our initial proof-of-concept network, a non-consensus driven global data registry is used, based on a p2p "gossip" protocol. In practice, this is implemented using libp2p's gossip-sub implementation. This registry provides weak consensus, along the lines of IPNS-over-pubsub [@santos2020IPNS]. The process of getting a DID subject's document from the verifiable data registry is called _resolution_. Any peer can resolve any document by querying the on-chain NFT representing the subject, or in the shorter-term case, by posting queries to the associated pubsub channel.
 
 # Architecture
 
@@ -121,7 +121,7 @@ First, let's consider a network of completely open peers. Open here means _no id
 
 A minimal set of requirements for this type of network to operate includes allowing external identities to leverage a peer (local or otherwise reachable by the user) to create threads. Once a thread is created, it can be considered globally available, i.e., thread peers can do work on behalf of other thread peers.
 
-In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "basic" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consistst of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
+In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "basic" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consists of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
 
 ![A basic thread network ($n=2$) showing an external identity ($A$) creating a thread on one peer and writing to it from another peer.](./assets/vanilla-network.png){#fig:vanilla-network}
 
