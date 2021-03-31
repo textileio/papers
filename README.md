@@ -36,24 +36,24 @@ We use [pandoc crossref](https://github.com/lierdakil/pandoc-crossref) to do the
 Building one of the markdown/pandoc formatted papers is relatively simple using the Makefile:
 
 ```bash
-cd di2f # Conference paper
+cd whitepaper
 make pdf
 ```
 
 To generate a pretty-bare bones HTML version:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections index.md -o index.html --mathjax --standalone
+pandoc -F pandoc-crossref --citeproc --number-sections index.md -o index.html --mathjax --standalone
 ```
 
 To generate a workable LaTeX file:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections index.md -o index.tex --standalone
+pandoc -F pandoc-crossref --citeproc --number-sections index.md -o index.tex --standalone
 ```
 
 To generate a default PDF version via LaTeX:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections index.md -o index.pdf
+pandoc -F pandoc-crossref --citeproc --number-sections index.md -o index.pdf
 ```
