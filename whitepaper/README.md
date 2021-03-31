@@ -5,7 +5,7 @@ The latest Threads Whitepaper release is available at https://docsend.com/view/g
 # Setup
 
 ```bash
-brew install pandoc pandoc-crossref pandoc-citeproc
+brew install pandoc pandoc-crossref
 ```
 
 If you want to do the `Markdown -> LaTeX -> PDF` step below, you'll also want a working LaTeX environment. On MacOS grab it [from here](http://www.tug.org/mactex/) and follow the install instructions. The setup below should use that LaTeX install automatically.
@@ -18,14 +18,14 @@ You'll want to use the following settings:
 
 ```json
 {
-    "markdown-preview-enhanced.enableTypographer": true,
-    "markdown-preview-enhanced.breakOnSingleNewLine": false,
-    "markdown-preview-enhanced.usePandocParser": true,
-    "markdown-preview-enhanced.pandocMarkdownFlavor": "markdown-raw_tex+tex_math_dollars+fenced_code_attributes+backtick_code_blocks",
-    "markdown-preview-enhanced.pandocArguments": "--number-sections,--filter=pandoc-crossref",
-    "markdown-preview-enhanced.mathRenderingOption": "MathJax",
-    "markdown-preview-enhanced.codeBlockTheme": "auto.css",
-    "markdown-preview-enhanced.enableEmojiSyntax": false
+  "markdown-preview-enhanced.enableTypographer": true,
+  "markdown-preview-enhanced.breakOnSingleNewLine": false,
+  "markdown-preview-enhanced.usePandocParser": true,
+  "markdown-preview-enhanced.pandocMarkdownFlavor": "markdown-raw_tex+tex_math_dollars+fenced_code_attributes+backtick_code_blocks",
+  "markdown-preview-enhanced.pandocArguments": "--number-sections,--filter=pandoc-crossref",
+  "markdown-preview-enhanced.mathRenderingOption": "MathJax",
+  "markdown-preview-enhanced.codeBlockTheme": "auto.css",
+  "markdown-preview-enhanced.enableEmojiSyntax": false
 }
 ```
 
@@ -36,17 +36,17 @@ We use [pandoc crossref](https://github.com/lierdakil/pandoc-crossref) to do the
 To generate a pretty-bare bones HTML version:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections draft.md -o draft.html --mathjax --standalone 
+pandoc -F pandoc-crossref --citeproc --number-sections draft.md -o draft.html --mathjax --standalone
 ```
 
 To generate a workable LaTeX file:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections draft.md -o draft.tex --standalone
+pandoc -F pandoc-crossref --citeproc --number-sections draft.md -o draft.tex --standalone
 ```
 
 To generate a default PDF version via LaTeX:
 
 ```bash
-pandoc -F pandoc-crossref -F pandoc-citeproc --number-sections draft.md -o blah.pdf
+pandoc -F pandoc-crossref --citeproc --number-sections draft.md -o blah.pdf
 ```
