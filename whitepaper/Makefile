@@ -17,4 +17,4 @@ pdf:
 clean:
 	rm build/*
 
-.PHONY: all clean paper
+.PHONY: all clean pdf
