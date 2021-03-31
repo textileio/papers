@@ -121,7 +121,7 @@ First, let's consider a network of completely open peers. Open here means _no id
 
 A minimal set of requirements for this type of network to operate includes allowing external identities to leverage a peer (local or otherwise reachable by the user) to create threads. Once a thread is created, it can be considered globally available, i.e., thread peers can do work on behalf of other thread peers.
 
-In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "vanilla" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consists of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
+In practice, only peers that have been used to read/write to a given thread will follow said thread, and as with most other operations, any peer can be used to delete a thread. A simplified representation of a "basic" thread network such as this is shown in [@fig:vanilla-network]. In this case, the network consists of $n=2$ peers interacting with an external identity $A$ that is requesting operations.
 
 ![A basic thread network ($n=2$) showing an external identity ($A$) creating a thread on one peer and writing to it from another peer.](./assets/vanilla-network.png){#fig:vanilla-network}
 
