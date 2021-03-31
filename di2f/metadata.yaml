@@ -8,13 +8,7 @@ author:
       - 2
   - name: Sander Pick
     affiliation: 1
-  - name: Ignacio Hagopian
-    affiliation: 1
   - name: Andrew Hill
-    affiliation: 1
-  - name: Aaron Sutula
-    affiliation: 1
-  - name: Ben Wilson
     affiliation: 1
 affiliation:
   - number: 1
@@ -22,22 +16,23 @@ affiliation:
   - number: 2
     name: carson@textile.io
 bibliography: [references.bib]
-link-citations: true
-urlcolor: "blue"
+link-citations: false
+colorlinks: false
 csl: ieee.csl
 fontsize: 10pt
 numbersections: yes
 lang: en
 babel-lang: english
 geometry: margin=1in
-header-includes: |
-  \usepackage{booktabs}
+hyperrefoptions:
+  - bookmarks=false
+  - draft
 documentclass: IEEEtran
 abstract: |
   While storage on the decentralized web has received a great deal of attention
-  in research and practice, _services_ via open (or closed) attention
+  in research and practice, services via open (or closed) attention
   programing interfaces have remained relatively under-utilized in peer-to-peer
-  systems. This work-in-progress paper outlines initial work towards _discovery_
+  systems. This work-in-progress paper outlines initial work towards discovery
   of peer-to-peer services in an open and decentralized system. We focus on the
   use of decentralized identifiers (DID) as a means to identity, discover, and
   coordinate peer-to-peer services.
