@@ -31,7 +31,7 @@ A major motivator for exposing a DID-native threads specification is the ability
 In practice, a thread _network_ may have multiple actors and structures (subjects) that can be described by DID documents. Subjects include any of the following entities:
 
 Peers
-: (e.g., `did:p2p:foo`) can offer network services, such as thread "hosting", pinning services (i.e., IPFS, IPNS), Filecoin anchoring, database abstractions, API services, and more. A thread peer's DID is derived from its embedded networking host's key (which in practice is a `libp2p` ([`https://libp2p.io/`](https://libp2p.io/)) peer]).
+: (e.g., `did:p2p:foo`) can offer network services, such as thread "hosting", pinning services (i.e., IPFS, IPNS), Filecoin anchoring, database abstractions, API services, and more. A thread peer's DID is derived from its embedded networking host's key (which in practice is a `libp2p` (`https://libp2p.io`) peer]).
 
 Users
 : (e.g., `did:key:foo`, `did:3:foo`, `did:ethr:foo`, etc.) are any external identity that represents a network user, and that may interact with the network _via_ a Peer. These may be identified by any verifiable DID.

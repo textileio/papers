@@ -1,5 +1,4 @@
 % Options for packages loaded elsewhere
-\PassOptionsToPackage{unicode$for(hyperrefoptions)$,$hyperrefoptions$$endfor$}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 $if(colorlinks)$
 \PassOptionsToPackage{dvipsnames,svgnames*,x11names*}{xcolor}
@@ -200,7 +199,7 @@ $if(verbatim-in-note)$
 $endif$
 \usepackage{xcolor}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\usepackage[draft,bookmarks=false]{hyperref}
 \hypersetup{
 $if(title-meta)$
   pdftitle={$title-meta$},
@@ -441,6 +440,7 @@ $endif$
 $endif$
 
 \begin{document}
+\begin{NoHyper}
 $if(has-frontmatter)$
 \frontmatter
 $endif$
@@ -534,4 +534,5 @@ $for(include-after)$
 $include-after$
 
 $endfor$
+\end{NoHyper}
 \end{document}
