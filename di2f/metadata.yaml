@@ -1,6 +1,6 @@
 ---
-title: Decentralized identifiers as a means to coordinate peer-to-peer services
-subtitle: An exploration of DIDs in a thread-based IPFS network
+title: Decentralized identifiers for peer-to-peer service discovery
+thanks: ISBN 978-3-903176-39-3 © 2021 IFIP
 author:
   - name: Carson Farmer
     affiliation:
@@ -28,13 +28,17 @@ hyperrefoptions:
   - bookmarks=false
   - draft
 documentclass: IEEEtran
+classoption:
+  - conference
 abstract: |
-  While storage on the decentralized web has received a great deal of attention
-  in research and practice, services via open (or closed) attention
-  programing interfaces have remained relatively under-utilized in peer-to-peer
-  systems. This work-in-progress paper outlines initial work towards discovery
-  of peer-to-peer services in an open and decentralized system. We focus on the
-  use of decentralized identifiers (DID) as a means to identity, discover, and
-  coordinate peer-to-peer services.
+  While data storage on the decentralized web has received a great deal of
+  attention in research and practice, web services have remained relatively
+  underutilized in peer-to-peer networks. This work-in-progress paper outlines
+  the preliminary design of a decentralized, peer-to-peer service discovery
+  system. In this system, peers can provide and request services, opening the
+  door to a new "market of services" where providers and brokers can compete on
+  metrics like price and uptime. Specifically, this report focuses on
+  leveraging decentralized identifiers (DID) as a mechanism to discover these
+  services.
 ---
 

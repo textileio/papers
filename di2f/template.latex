@@ -35,6 +35,7 @@ $for(classoption)$
   $classoption$$sep$,
 $endfor$
 ]{$documentclass$}
+\IEEEoverridecommandlockouts
 $if(beamer)$
 $if(background-image)$
 \usebackgroundtemplate{%
